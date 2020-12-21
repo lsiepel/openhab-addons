@@ -12,12 +12,14 @@
  */
 package org.openhab.binding.plugwiseha.internal.api.exception;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The {@link PlugwiseHANotAuthorizedException} signals the controller denied a request due to invalid credentials.
  *
  * @author Bas van Wetten - Initial contribution
  */
-
+@NonNullByDefault
 public class PlugwiseHANotAuthorizedException extends PlugwiseHAException {
 
     private static final long serialVersionUID = 1L;

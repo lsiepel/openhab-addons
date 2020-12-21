@@ -239,6 +239,9 @@ public class PlugwiseHAControllerRequest<T> {
             } else if (cause instanceof ConnectException) {
                 // Cannot connect
                 throw new PlugwiseHAException(cause);
+            } else if (cause == null) {
+                // Unable to unwrap
+                throw new PlugwiseHAException(e);
             } else {
                 // Catch all
                 throw new PlugwiseHAException(cause);

@@ -12,12 +12,14 @@
  */
 package org.openhab.binding.plugwiseha.internal.api.exception;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The {@link PlugwiseHABadRequestException} represents a binding specific {@link Exception}.
  *
  * @author Bas van Wetten - Initial contribution
  */
-
+@NonNullByDefault
 public class PlugwiseHABadRequestException extends PlugwiseHAException {
 
     private static final long serialVersionUID = 1L;
