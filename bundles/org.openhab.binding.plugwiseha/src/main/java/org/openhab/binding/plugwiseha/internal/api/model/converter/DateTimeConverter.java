@@ -27,29 +27,28 @@ import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
  * 
  * @author B. van Wetten - Initial contribution
  */
+
 public class DateTimeConverter extends AbstractSingleValueConverter {
 
     private final static DateTimeFormatter FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME; // default Date format that
-                                                                                            // will be used in
-                                                                                            // conversion
 
     @Override
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings("rawType")
     public boolean canConvert(Class type) {
         return ZonedDateTime.class.isAssignableFrom(type);
     }
 
     @Override
-    public ZonedDateTime fromString(String dateTimeString) {
-        if (StringUtils.isBlank(dateTimeString)) {
+    public ZonedDateTime fromString(String str) {
+        if (StringUtils.isBlank(str)) {
             return null;
         }
 
         try {
-            ZonedDateTime dateTime = ZonedDateTime.parse(dateTimeString, DateTimeConverter.FORMAT);
+            ZonedDateTime dateTime = ZonedDateTime.parse(str, DateTimeConverter.FORMAT);
             return dateTime;
         } catch (DateTimeParseException e) {
-            throw new RuntimeException("Invalid datetime format in " + dateTimeString);
+            throw new RuntimeException("Invalid datetime format in {" + str + "}");
         }
     }
 

@@ -74,9 +74,18 @@ public class PlugwiseHABindingConstants {
     public static final String APPLIANCE_CONFIG_NAME = "applianceName";
     public static final String APPLIANCE_CONFIG_LOWBATTERY = "lowBatteryPercentage";
 
+    // List of all Appliance propertiesCONFIG_ID
+    public static final String APPLIANCE_PROPERTY_DESCRIPTION = "description";
+    public static final String APPLIANCE_PROPERTY_TYPE = "type";
+    public static final String APPLIANCE_PROPERTY_FUNCTIONALITIES = "functionalities";
+    public static final String APPLIANCE_PROPERTY_ZB_TYPE = "zigbee type";
+    public static final String APPLIANCE_PROPERTY_ZB_REACHABLE = "zigbee reachable";
+    public static final String APPLIANCE_PROPERTY_ZB_POWERSOURCE = "zigboo power source";
+
     // List of all Channel IDs
     public static final String ZONE_SETPOINT_CHANNEL = "setpointTemperature";
     public static final String ZONE_TEMPERATURE_CHANNEL = "temperature";
+    public static final String ZONE_PRESETSCENE_CHANNEL = "presetScene";
 
     public static final String APPLIANCE_SETPOINT_CHANNEL = "setpointTemperature";
     public static final String APPLIANCE_TEMPERATURE_CHANNEL = "temperature";
@@ -88,7 +97,10 @@ public class PlugwiseHABindingConstants {
     public static final String APPLIANCE_WATERPRESSURE_CHANNEL = "waterPressure";
     public static final String APPLIANCE_DHWSTATE_CHANNEL = "dhwState";
     public static final String APPLIANCE_CHSTATE_CHANNEL = "chState";
+    public static final String APPLIANCE_OFFSET_CHANNEL = "offsetTemperature";
+    public static final String APPLIANCE_VALVEPOSITION_CHANNEL = "valvePosition";
 
+    // List of all Appliance Types
     public static final String APPLIANCE_TYPE_THERMOSTAT = "thermostat";
     public static final String APPLIANCE_TYPE_GATEWAY = "gateway";
     public static final String APPLIANCE_TYPE_CENTRALHEATINGPUMP = "central_heating_pump";

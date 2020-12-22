@@ -21,10 +21,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.openhab.binding.plugwiseha.internal.PlugwiseHABindingConstants;
 import org.openhab.binding.plugwiseha.internal.api.exception.PlugwiseHAException;
+import org.openhab.binding.plugwiseha.internal.api.model.DTO.Appliance;
+import org.openhab.binding.plugwiseha.internal.api.model.DTO.DomainObjects;
+import org.openhab.binding.plugwiseha.internal.api.model.DTO.Location;
 import org.openhab.binding.plugwiseha.internal.api.model.PlugwiseHAController;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Appliance;
-import org.openhab.binding.plugwiseha.internal.api.model.object.DomainObjects;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Location;
 import org.openhab.binding.plugwiseha.internal.handler.PlugwiseHABridgeHandler;
 import org.openhab.core.config.discovery.AbstractDiscoveryService;
 import org.openhab.core.config.discovery.DiscoveryResult;
@@ -115,21 +115,22 @@ public class PlugwiseHADiscoveryService extends AbstractDiscoveryService {
         if (controller != null) {
             DomainObjects domainObjects = controller.getDomainObjects();
 
-            for (Location location : domainObjects.getLocations().values()) {
-                // Only add locations with at least 1 appliance (this ignores the 'root' (home)
-                // location which is the parent of all other locations.)
-                if (location.applianceCount() > 0) {
-                    locationDiscovery(location);
+            if (domainObjects != null) {
+                for (Location location : domainObjects.getLocations().values()) {
+                    // Only add locations with at least 1 appliance (this ignores the 'root' (home)
+                    // location which is the parent of all other locations.)
+                    if (location.applianceCount() > 0) {
+                        locationDiscovery(location);
+                    }
+                }
+
+                for (Appliance appliance : domainObjects.getAppliances().values()) {
+                    // Only add appliances that are required/supported for this binding
+                    if (PlugwiseHABindingConstants.SUPPORTED_APPLIANCE_TYPES.contains(appliance.getType())) {
+                        applianceDiscovery(appliance);
+                    }
                 }
             }
-
-            for (Appliance appliance : domainObjects.getAppliances().values()) {
-                // Only add appliances that are required/supported for this binding
-                if (PlugwiseHABindingConstants.SUPPORTED_APPLIANCE_TYPES.contains(appliance.getType())) {
-                    applianceDiscovery(appliance);
-                }
-            }
-
         }
     }
 
@@ -154,7 +155,6 @@ public class PlugwiseHADiscoveryService extends AbstractDiscoveryService {
                 break;
             case "heater_central":
                 uid = new ThingUID(PlugwiseHABindingConstants.THING_TYPE_APPLIANCE_BOILER, bridgeUID, applianceId);
-                configProperties.put(APPLIANCE_CONFIG_LOWBATTERY, 1);
                 break;
             case "zone_thermostat":
                 uid = new ThingUID(PlugwiseHABindingConstants.THING_TYPE_APPLIANCE_THERMOSTAT, bridgeUID, applianceId);

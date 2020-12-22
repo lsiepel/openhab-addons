@@ -29,15 +29,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.openhab.binding.plugwiseha.internal.api.exception.PlugwiseHAException;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ActuatorFunctionality;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ActuatorFunctionalityRelay;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ActuatorFunctionalityThermostat;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Appliance;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Appliances;
-import org.openhab.binding.plugwiseha.internal.api.model.object.DomainObjects;
-import org.openhab.binding.plugwiseha.internal.api.model.object.GatewayInfo;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Location;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Locations;
+import org.openhab.binding.plugwiseha.internal.api.model.DTO.*;
 import org.openhab.binding.plugwiseha.internal.api.xml.PlugwiseHAXStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,11 +82,25 @@ public class PlugwiseHAController {
     // Public methods
 
     public void start(Runnable callback) throws PlugwiseHAException {
+        try {
+            httpClient.start();
+        } catch (Exception e) {
+            logger.error("Could not start http client", e);
+            throw new PlugwiseHAException("Could not start http client", e);
+        }
+
         refresh();
         callback.run();
     }
 
     public void stop() {
+        if (httpClient.isStarted()) {
+            try {
+                httpClient.stop();
+            } catch (Exception e) {
+                logger.debug("Could not stop http client.", e);
+            }
+        }
     }
 
     public void refresh() throws PlugwiseHAException {
@@ -273,6 +279,22 @@ public class PlugwiseHAController {
             request.addPathParameter("id", String.format("%s/thermostat", appliance.getId()));
             request.addPathParameter("id", String.format("%s", thermostat.get().getId()));
             request.setBodyParameter(new ActuatorFunctionalityThermostat(temperature));
+
+            executeRequest(request);
+        }
+    }
+
+    public void setOffsetTemperature(Appliance appliance, Double temperature) throws PlugwiseHAException {
+        PlugwiseHAControllerRequest<Void> request = newRequest(Void.class);
+        Optional<ActuatorFunctionality> offsetTemperatureFunctionality = appliance.getActuatorFunctionalities()
+                .getFunctionalityOffsetTemperature();
+
+        if (offsetTemperatureFunctionality.isPresent()) {
+            request.setPath("/core/appliances");
+
+            request.addPathParameter("id", String.format("%s/offset", appliance.getId()));
+            request.addPathParameter("id", String.format("%s", offsetTemperatureFunctionality.get().getId()));
+            request.setBodyParameter(new ActuatorFunctionalityOffsetTemperature(temperature));
 
             executeRequest(request);
         }

@@ -11,19 +11,16 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * @author B. van Wetten - Initial contribution
  */
-@XStreamAlias("thermostat_functionality")
-public class ActuatorFunctionalityThermostat extends ActuatorFunctionality {
+@XStreamAlias("timer_functionality")
+public class ActuatorFunctionalityTimer extends ActuatorFunctionality {
 
-    private Double setpoint;
-
-    public ActuatorFunctionalityThermostat(Double temperature) {
-        this.setpoint = temperature;
+    public ActuatorFunctionalityTimer() {
     }
 }

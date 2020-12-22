@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -19,6 +19,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @author B. van Wetten - Initial contribution
  */
 @XStreamAlias("gateway_environment")
+@SuppressWarnings("unused")
 public class GatewayEnvironment extends PlugwiseBaseModel {
     private String city;
     private String country;

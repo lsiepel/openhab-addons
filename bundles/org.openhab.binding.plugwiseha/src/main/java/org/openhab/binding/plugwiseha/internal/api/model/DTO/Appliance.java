@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
 
 import java.util.Optional;
 
@@ -34,6 +34,9 @@ public class Appliance extends PlugwiseBaseModel implements PlugwiseComparableDa
     private String description;
     private String type;
     private String location;
+
+    @XStreamAlias("module")
+    private Module module;
 
     @XStreamAlias("zig_bee_node")
     private ZigBeeNode zigbeeNode;
@@ -67,6 +70,13 @@ public class Appliance extends PlugwiseBaseModel implements PlugwiseComparableDa
         return zigbeeNode;
     }
 
+    public Module getModule() {
+        if (module == null) {
+            module = new Module();
+        }
+        return module;
+    }
+
     public Logs getPointLogs() {
         if (pointLogs == null) {
             pointLogs = new Logs();
@@ -89,6 +99,10 @@ public class Appliance extends PlugwiseBaseModel implements PlugwiseComparableDa
         return this.pointLogs.getThermostatTemperature();
     }
 
+    public Optional<Double> getOffsetTemperature() {
+        return this.pointLogs.getOffsetTemperature();
+    }
+
     public Optional<Boolean> getRelayState() {
         return this.pointLogs.getRelayState();
     }
@@ -105,6 +119,10 @@ public class Appliance extends PlugwiseBaseModel implements PlugwiseComparableDa
         return this.pointLogs.getPowerUsage();
     }
 
+    public Optional<Double> getValvePosition() {
+        return this.pointLogs.getValvePosition();
+    }
+
     public Optional<Double> getWaterPressure() {
         return this.pointLogs.getWaterPressure();
     }
@@ -115,6 +133,10 @@ public class Appliance extends PlugwiseBaseModel implements PlugwiseComparableDa
 
     public Optional<Boolean> getDHWState() {
         return this.pointLogs.getDHWState();
+    }
+
+    public boolean isZigbeeDevice() {
+        return (this.zigbeeNode instanceof ZigBeeNode);
     }
 
     public boolean isBatteryOperated() {

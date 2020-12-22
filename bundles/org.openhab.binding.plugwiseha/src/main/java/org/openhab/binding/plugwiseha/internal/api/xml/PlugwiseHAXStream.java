@@ -16,28 +16,10 @@ package org.openhab.binding.plugwiseha.internal.api.xml;
 import java.io.BufferedOutputStream;
 import java.io.OutputStreamWriter;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.binding.plugwiseha.internal.api.model.DTO.*;
+import org.openhab.binding.plugwiseha.internal.api.model.DTO.Module;
 import org.openhab.binding.plugwiseha.internal.api.model.converter.DateTimeConverter;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ActuatorFunctionalities;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ActuatorFunctionality;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ActuatorFunctionalityRelay;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ActuatorFunctionalityThermostat;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ActuatorFunctionalityThreshold;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ActuatorFunctionalityTimer;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ActuatorFunctionalityToggle;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Appliance;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Appliances;
-import org.openhab.binding.plugwiseha.internal.api.model.object.DomainObjects;
-import org.openhab.binding.plugwiseha.internal.api.model.object.GatewayEnvironment;
-import org.openhab.binding.plugwiseha.internal.api.model.object.GatewayInfo;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Location;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Locations;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Log;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Logs;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Module;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Modules;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Service;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Services;
-import org.openhab.binding.plugwiseha.internal.api.model.object.ZigBeeNode;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
@@ -54,6 +36,8 @@ import com.thoughtworks.xstream.security.NullPermission;
  * 
  * @author B. van Wetten - Initial contribution
  */
+
+@NonNullByDefault
 public class PlugwiseHAXStream extends XStream {
 
     private static XmlFriendlyNameCoder customCoder = new XmlFriendlyNameCoder("_-", "_");
@@ -98,6 +82,7 @@ public class PlugwiseHAXStream extends XStream {
         this.allowClass(ActuatorFunctionalities.class);
         this.allowClass(ActuatorFunctionality.class);
         this.allowClass(ActuatorFunctionalityThermostat.class);
+        this.allowClass(ActuatorFunctionalityOffsetTemperature.class);
         this.allowClass(ActuatorFunctionalityRelay.class);
         this.allowClass(ActuatorFunctionalityTimer.class);
         this.allowClass(ActuatorFunctionalityThreshold.class);

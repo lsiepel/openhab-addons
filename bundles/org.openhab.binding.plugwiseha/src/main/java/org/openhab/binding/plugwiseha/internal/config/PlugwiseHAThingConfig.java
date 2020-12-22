@@ -14,6 +14,7 @@
 package org.openhab.binding.plugwiseha.internal.config;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * The {@link PlugwiseHAThingConfig} encapsulates the configuration options for
@@ -22,9 +23,10 @@ import org.apache.commons.lang.StringUtils;
  *
  * @author Bas van Wetten - Initial contribution
  */
+@NonNullByDefault
 public class PlugwiseHAThingConfig {
 
-    private String id;
+    private String id = "";
 
     private int lowBatteryPercentage = 15;
 

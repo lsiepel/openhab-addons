@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.openhab.binding.plugwiseha.internal.api.exception.PlugwiseHACommunicationException;
@@ -30,9 +31,9 @@ import org.openhab.binding.plugwiseha.internal.api.exception.PlugwiseHAInvalidHo
 import org.openhab.binding.plugwiseha.internal.api.exception.PlugwiseHANotAuthorizedException;
 import org.openhab.binding.plugwiseha.internal.api.exception.PlugwiseHATimeoutException;
 import org.openhab.binding.plugwiseha.internal.api.exception.PlugwiseHAUnauthorizedException;
+import org.openhab.binding.plugwiseha.internal.api.model.DTO.GatewayInfo;
 import org.openhab.binding.plugwiseha.internal.api.model.PlugwiseHAController;
 import org.openhab.binding.plugwiseha.internal.api.model.PlugwiseHAModel;
-import org.openhab.binding.plugwiseha.internal.api.model.object.GatewayInfo;
 import org.openhab.binding.plugwiseha.internal.config.PlugwiseHABridgeThingConfig;
 import org.openhab.binding.plugwiseha.internal.config.PlugwiseHAThingConfig;
 import org.openhab.core.thing.Bridge;
@@ -57,7 +58,8 @@ import org.slf4j.LoggerFactory;
  * @author Bas van Wetten - Initial contribution
  *
  */
-@SuppressWarnings("unused")
+
+@NonNullByDefault
 public class PlugwiseHABridgeHandler extends BaseBridgeHandler {
 
     // Private Static error messages
@@ -70,9 +72,13 @@ public class PlugwiseHABridgeHandler extends BaseBridgeHandler {
 
     // Private member variables/constants
 
+    @Nullable
     private PlugwiseHABridgeThingConfig config;
+    @Nullable
     private GatewayInfo gatewayInfo;
+    @Nullable
     private ScheduledFuture<?> refreshJob;
+    @Nullable
     private volatile PlugwiseHAController controller;
 
     private final HttpClient httpClient;
@@ -133,23 +139,13 @@ public class PlugwiseHABridgeHandler extends BaseBridgeHandler {
         }
     }
 
-    @Override
-    public void childHandlerDisposed(ThingHandler childHandler, Thing childThing) {
-        super.childHandlerDisposed(childHandler, childThing);
-    }
-
-    @Override
-    public void childHandlerInitialized(ThingHandler childHandler, Thing childThing) {
-        super.childHandlerInitialized(childHandler, childThing);
-    }
-
     public static boolean supportsThingType(ThingTypeUID thingTypeUID) {
         return SUPPORTED_BRIDGE_TYPES_UIDS.contains(thingTypeUID);
     }
 
     // Getters & setters
 
-    public synchronized @Nullable PlugwiseHAController getController() {
+    public @Nullable PlugwiseHAController getController() {
         return this.controller;
     }
 
@@ -205,7 +201,10 @@ public class PlugwiseHABridgeHandler extends BaseBridgeHandler {
         if (this.getController() != null) {
             logger.debug("Refreshing the Plugwise Home Automation Controller {}", getThing().getUID());
             this.config = getConfig().as(PlugwiseHABridgeThingConfig.class);
-            this.getController().refresh();
+
+            if (this.getController() != null) {
+                this.getController().refresh();
+            }
 
             getThing().getThings().forEach((thing) -> {
                 ThingHandler thingHandler = thing.getHandler();
@@ -244,7 +243,9 @@ public class PlugwiseHABridgeHandler extends BaseBridgeHandler {
 
     protected void setBridgeProperties() {
         try {
-            this.gatewayInfo = this.getController().getGatewayInfo();
+            if (this.getController() != null) {
+                this.gatewayInfo = this.getController().getGatewayInfo();
+            }
 
             Map<String, String> properties = editProperties();
             properties.put(Thing.PROPERTY_FIRMWARE_VERSION, this.gatewayInfo.getFirmwareVersion());
@@ -252,6 +253,7 @@ public class PlugwiseHABridgeHandler extends BaseBridgeHandler {
             properties.put(Thing.PROPERTY_MAC_ADDRESS, this.gatewayInfo.getMacAddress());
             properties.put(Thing.PROPERTY_VENDOR, this.gatewayInfo.getVendorName());
             properties.put(Thing.PROPERTY_MODEL_ID, this.gatewayInfo.getVendorModel());
+
             updateProperties(properties);
         } catch (PlugwiseHAException e) {
             updateStatus(OFFLINE, COMMUNICATION_ERROR, STATUS_DESCRIPTION_COMMUNICATION_ERROR);

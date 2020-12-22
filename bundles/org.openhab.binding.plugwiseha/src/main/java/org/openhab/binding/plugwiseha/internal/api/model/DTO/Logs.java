@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
 
 import java.util.Map;
 import java.util.Optional;
@@ -28,11 +28,13 @@ public class Logs extends PlugwiseHACollection<Log> {
 
     private final String THERMOSTAT = "thermostat";
     private final String TEMPERATURE = "temperature";
+    private final String TEMPERATURE_OFFSET = "temperature_offset";
     private final String BATTERY = "battery";
     private final String POWER_USAGE = "electricity_consumed";
     private final String RELAY = "relay";
     private final String DHWSTATE = "domestic_hot_water_state";
     private final String CHSTATE = "central_heating_state";
+    private final String VALVE_POSITION = "valve_position";
     private final String WATER_PRESSURE = "central_heater_water_pressure";
 
     public Optional<Double> getTemperature() {
@@ -41,6 +43,11 @@ public class Logs extends PlugwiseHACollection<Log> {
 
     public Optional<Double> getThermostatTemperature() {
         return this.getLogThermostat().map(logEntry -> logEntry.getMeasurementAsDouble()).orElse(Optional.empty());
+    }
+
+    public Optional<Double> getOffsetTemperature() {
+        return this.getLogOffsetTemperature().map(logEntry -> logEntry.getMeasurementAsDouble())
+                .orElse(Optional.empty());
     }
 
     public Optional<Boolean> getRelayState() {
@@ -53,6 +60,10 @@ public class Logs extends PlugwiseHACollection<Log> {
 
     public Optional<Boolean> getCHState() {
         return this.getLogCHState().map(logEntry -> logEntry.getMeasurementAsBoolean()).orElse(Optional.empty());
+    }
+
+    public Optional<Double> getValvePosition() {
+        return this.getLogValvePosition().map(logEntry -> logEntry.getMeasurementAsDouble()).orElse(Optional.empty());
     }
 
     public Optional<Double> getWaterPressure() {
@@ -71,6 +82,10 @@ public class Logs extends PlugwiseHACollection<Log> {
         return Optional.ofNullable(this.get(THERMOSTAT));
     }
 
+    public Optional<Log> getLogOffsetTemperature() {
+        return Optional.ofNullable(this.get(TEMPERATURE_OFFSET));
+    }
+
     public Optional<Log> getLogTemperature() {
         return Optional.ofNullable(this.get(TEMPERATURE));
     }
@@ -85,6 +100,10 @@ public class Logs extends PlugwiseHACollection<Log> {
 
     public Optional<Log> getLogCHState() {
         return Optional.ofNullable(this.get(CHSTATE));
+    }
+
+    public Optional<Log> getLogValvePosition() {
+        return Optional.ofNullable(this.get(VALVE_POSITION));
     }
 
     public Optional<Log> getLogPressure() {

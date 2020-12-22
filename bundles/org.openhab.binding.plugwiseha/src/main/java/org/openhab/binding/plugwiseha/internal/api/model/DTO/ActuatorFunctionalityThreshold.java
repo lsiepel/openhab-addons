@@ -11,16 +11,16 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * @author B. van Wetten - Initial contribution
  */
-@XStreamAlias("toggle_functionality")
-public class ActuatorFunctionalityToggle extends ActuatorFunctionality {
+@XStreamAlias("threshold_functionality")
+public class ActuatorFunctionalityThreshold extends ActuatorFunctionality {
 
-    public ActuatorFunctionalityToggle() {
+    public ActuatorFunctionalityThreshold() {
     }
 }

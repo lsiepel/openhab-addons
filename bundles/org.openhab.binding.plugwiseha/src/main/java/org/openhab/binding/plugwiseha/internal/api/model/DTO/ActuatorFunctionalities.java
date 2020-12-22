@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
 
 import java.util.Map;
 import java.util.Optional;
@@ -24,20 +24,24 @@ import java.util.Optional;
  * 
  * @author B. van Wetten - Initial contribution
  */
+
 public class ActuatorFunctionalities extends PlugwiseHACollection<ActuatorFunctionality> {
 
     private final String THERMOSTAT_FUNCTIONALITY = "thermostat";
+    private final String OFFSETTEMPERATURE_FUNCTIONALITY = "temperature_offset";
     private final String RELAY_FUNCTIONALITY = "relay";
 
     public Optional<Boolean> getRelayLockState() {
-        return Optional.ofNullable(this.getFunctionalityRelay().map(functionalityEntry -> {
-            String state = functionalityEntry.getRelayLockState().orElse(null);
-            return state != null ? Boolean.parseBoolean(state) : null;
-        }).orElse(null));
+        return this.getFunctionalityRelay().flatMap(ActuatorFunctionality::getRelayLockState)
+                .map(Boolean::parseBoolean);
     }
 
     public Optional<ActuatorFunctionality> getFunctionalityThermostat() {
         return Optional.ofNullable(this.get(THERMOSTAT_FUNCTIONALITY));
+    }
+
+    public Optional<ActuatorFunctionality> getFunctionalityOffsetTemperature() {
+        return Optional.ofNullable(this.get(OFFSETTEMPERATURE_FUNCTIONALITY));
     }
 
     public Optional<ActuatorFunctionality> getFunctionalityRelay() {

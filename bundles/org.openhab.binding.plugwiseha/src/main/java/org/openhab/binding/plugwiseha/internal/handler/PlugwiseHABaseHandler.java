@@ -18,6 +18,7 @@ import static org.openhab.core.thing.ThingStatus.*;
 import java.lang.reflect.ParameterizedType;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.plugwiseha.internal.api.exception.PlugwiseHAException;
 import org.openhab.binding.plugwiseha.internal.api.model.PlugwiseHAController;
@@ -46,6 +47,8 @@ import org.slf4j.LoggerFactory;
  * @param <C> config - the Plugwise Home Automation config class used by this
  *            thing handler
  */
+
+@NonNullByDefault
 public abstract class PlugwiseHABaseHandler<E, C extends PlugwiseHAThingConfig> extends BaseThingHandler {
 
     // private @Nullable C config;
@@ -62,10 +65,13 @@ public abstract class PlugwiseHABaseHandler<E, C extends PlugwiseHAThingConfig> 
 
     protected abstract void handleCommand(E entity, ChannelUID channelUID, Command command) throws PlugwiseHAException;
 
+    private Class<?> clazz;
+
     // Constructor
 
     public PlugwiseHABaseHandler(Thing thing) {
         super(thing);
+        clazz = (Class<?>) (((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1]);
     }
 
     // Overrides
@@ -136,9 +142,6 @@ public abstract class PlugwiseHABaseHandler<E, C extends PlugwiseHAThingConfig> 
 
     @SuppressWarnings("unchecked")
     public C getPlugwiseThingConfig() {
-        Class<?> clazz = (Class<?>) (((ParameterizedType) getClass().getGenericSuperclass())
-                .getActualTypeArguments()[1]);
-
         return (C) getConfigAs(clazz);
     }
 

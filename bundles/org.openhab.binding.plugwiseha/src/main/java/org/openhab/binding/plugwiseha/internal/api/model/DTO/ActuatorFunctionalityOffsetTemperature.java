@@ -11,25 +11,20 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * @author B. van Wetten - Initial contribution
  */
-@XStreamAlias("relay_functionality")
-public class ActuatorFunctionalityRelay extends ActuatorFunctionality {
+@XStreamAlias("offset_functionality")
+public class ActuatorFunctionalityOffsetTemperature extends ActuatorFunctionality {
 
-    private String state;
-    private Boolean lock;
+    @SuppressWarnings("unused")
+    private Double offset;
 
-    public ActuatorFunctionalityRelay(String state) {
-        this.state = state;
-    }
-
-    public ActuatorFunctionalityRelay(String state, Boolean lock) {
-        this.state = state;
-        this.lock = lock;
+    public ActuatorFunctionalityOffsetTemperature(Double temperature) {
+        this.offset = temperature;
     }
 }

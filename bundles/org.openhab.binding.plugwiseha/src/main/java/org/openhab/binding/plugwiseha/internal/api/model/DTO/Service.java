@@ -11,16 +11,19 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * @author B. van Wetten - Initial contribution
  */
-@XStreamAlias("timer_functionality")
-public class ActuatorFunctionalityTimer extends ActuatorFunctionality {
+@XStreamAlias("service")
+public class Service extends PlugwiseBaseModel {
 
-    public ActuatorFunctionalityTimer() {
-    }
+    @XStreamAlias("log_type")
+    private String logType;
+
+    @XStreamAlias("point_log")
+    private String pointLogId;
 }

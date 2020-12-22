@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.openhab.binding.plugwiseha.internal.discovery.PlugwiseHADiscoveryService;
@@ -25,7 +26,6 @@ import org.openhab.binding.plugwiseha.internal.handler.PlugwiseHAZoneHandler;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.config.discovery.DiscoveryService;
 import org.openhab.core.io.net.http.HttpClientFactory;
-import org.openhab.core.io.net.http.HttpClientInitializationException;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
@@ -34,6 +34,7 @@ import org.openhab.core.thing.binding.BaseThingHandlerFactory;
 import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerFactory;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -45,22 +46,19 @@ import org.slf4j.LoggerFactory;
  *
  * @author Bas van Wetten - Initial contribution
  */
+@NonNullByDefault
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.plugwiseha")
 public class PlugwiseHAHandlerFactory extends BaseThingHandlerFactory {
 
     private final Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger(PlugwiseHAHandlerFactory.class);
-    private HttpClient httpClient;
+    private final HttpClient httpClient;
 
     // Constructor
 
-    public PlugwiseHAHandlerFactory() {
-        this.httpClient = new HttpClient();
-        try {
-            this.httpClient.start();
-        } catch (Exception e) {
-            throw new HttpClientInitializationException("Could not start HttpClient", e);
-        }
+    @Activate
+    public PlugwiseHAHandlerFactory(@Reference final HttpClientFactory httpClientFactory) {
+        this.httpClient = httpClientFactory.getCommonHttpClient();
     }
 
     // Public methods
@@ -157,14 +155,5 @@ public class PlugwiseHAHandlerFactory extends BaseThingHandlerFactory {
                 discoveryServiceRegs.remove(thingHandler.getThing().getUID());
             }
         }
-    }
-
-    @Reference
-    protected void setHttpClientFactory(HttpClientFactory httpClientFactory) {
-        this.httpClient = httpClientFactory.getCommonHttpClient();
-    }
-
-    protected void unsetHttpClientFactory(HttpClientFactory httpClientFactory) {
-        this.httpClient = null;
     }
 }

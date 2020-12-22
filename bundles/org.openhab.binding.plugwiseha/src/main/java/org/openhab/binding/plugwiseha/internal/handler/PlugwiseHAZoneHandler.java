@@ -23,14 +23,16 @@ import java.util.stream.Collectors;
 
 import javax.measure.quantity.Temperature;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.plugwiseha.internal.PlugwiseHABindingConstants;
 import org.openhab.binding.plugwiseha.internal.api.exception.PlugwiseHAException;
+import org.openhab.binding.plugwiseha.internal.api.model.DTO.Location;
 import org.openhab.binding.plugwiseha.internal.api.model.PlugwiseHAController;
-import org.openhab.binding.plugwiseha.internal.api.model.object.Location;
 import org.openhab.binding.plugwiseha.internal.config.PlugwiseHAThingConfig;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.QuantityType;
+import org.openhab.core.library.types.StringType;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
@@ -48,7 +50,8 @@ import org.slf4j.LoggerFactory;
  * @author Bas van Wetten - Initial contribution
  *
  */
-@SuppressWarnings("unused")
+
+@NonNullByDefault
 public class PlugwiseHAZoneHandler extends PlugwiseHABaseHandler<Location, PlugwiseHAThingConfig> {
 
     // private PlugwiseHAThingConfig config = new PlugwiseHAThingConfig();
@@ -77,14 +80,16 @@ public class PlugwiseHAZoneHandler extends PlugwiseHABaseHandler<Location, Plugw
                 return;
             }
 
-            Optional.ofNullable(this.getPlugwiseHABridge()).ifPresent(bridge -> {
-                Optional.ofNullable(bridge.getController()).ifPresent(controller -> {
+            PlugwiseHABridgeHandler bridge = this.getPlugwiseHABridge();
+            if (bridge != null) {
+                PlugwiseHAController controller = bridge.getController();
+                if (controller != null) {
                     this.location = getEntity(controller);
 
                     setLocationProperties();
                     updateStatus(ONLINE);
-                });
-            });
+                }
+            }
         }
     }
 
@@ -100,13 +105,16 @@ public class PlugwiseHAZoneHandler extends PlugwiseHABaseHandler<Location, Plugw
     @SuppressWarnings("unchecked")
     protected void handleCommand(Location entity, ChannelUID channelUID, Command command) throws PlugwiseHAException {
         String channelID = channelUID.getIdWithoutGroup();
+
         switch (channelID) {
             case ZONE_SETPOINT_CHANNEL:
                 if (command instanceof QuantityType) {
                     QuantityType<Temperature> state = (QuantityType<Temperature>) command;
 
-                    Optional.ofNullable(this.getPlugwiseHABridge()).ifPresent(bridge -> {
-                        Optional.ofNullable(bridge.getController()).ifPresent(controller -> {
+                    PlugwiseHABridgeHandler bridge = this.getPlugwiseHABridge();
+                    if (bridge != null) {
+                        PlugwiseHAController controller = bridge.getController();
+                        if (controller != null) {
                             try {
                                 controller.setLocationThermostat(entity, state.doubleValue());
                                 updateState(ZONE_SETPOINT_CHANNEL, (State) command);
@@ -114,8 +122,8 @@ public class PlugwiseHAZoneHandler extends PlugwiseHABaseHandler<Location, Plugw
                                 logger.warn("Unable to update setpoint for zone '{}': {} -> {}", entity.getName(),
                                         entity.getSetpointTemperature().orElse(null), state.doubleValue());
                             }
-                        });
-                    });
+                        }
+                    }
                 }
                 break;
             default:
@@ -126,6 +134,7 @@ public class PlugwiseHAZoneHandler extends PlugwiseHABaseHandler<Location, Plugw
     private State getDefaultState(String channelID) {
         State state = UnDefType.NULL;
         switch (channelID) {
+            case ZONE_PRESETSCENE_CHANNEL:
             case ZONE_SETPOINT_CHANNEL:
             case ZONE_TEMPERATURE_CHANNEL:
                 state = UnDefType.NULL;
@@ -143,6 +152,9 @@ public class PlugwiseHAZoneHandler extends PlugwiseHABaseHandler<Location, Plugw
         // calling
 
         switch (channelID) {
+            case ZONE_PRESETSCENE_CHANNEL:
+                state = new StringType(entity.getPreset());
+                break;
             case ZONE_SETPOINT_CHANNEL:
                 if (entity.getSetpointTemperature().isPresent()) {
                     state = new DecimalType(entity.getSetpointTemperature().get());

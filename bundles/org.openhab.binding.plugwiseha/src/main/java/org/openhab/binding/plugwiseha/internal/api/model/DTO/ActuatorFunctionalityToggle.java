@@ -11,15 +11,16 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
+
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * @author B. van Wetten - Initial contribution
  */
-public interface PlugwiseComparableDate<T extends PlugwiseBaseModel> {
-    public int compareDateWith(T hasModifiedDate);
+@XStreamAlias("toggle_functionality")
+public class ActuatorFunctionalityToggle extends ActuatorFunctionality {
 
-    public boolean isOlderThan(T hasModifiedDate);
-
-    public boolean isNewerThan(T hasModifiedDate);
+    public ActuatorFunctionalityToggle() {
+    }
 }

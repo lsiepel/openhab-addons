@@ -11,19 +11,15 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
 
 /**
  * @author B. van Wetten - Initial contribution
  */
-@XStreamAlias("service")
-public class Service extends PlugwiseBaseModel {
+public interface PlugwiseComparableDate<T extends PlugwiseBaseModel> {
+    public int compareDateWith(T hasModifiedDate);
 
-    @XStreamAlias("log_type")
-    private String logType;
+    public boolean isOlderThan(T hasModifiedDate);
 
-    @XStreamAlias("point_log")
-    private String pointLogId;
+    public boolean isNewerThan(T hasModifiedDate);
 }

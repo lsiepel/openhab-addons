@@ -11,21 +11,21 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package org.openhab.binding.plugwiseha.internal.api.model.object;
+package org.openhab.binding.plugwiseha.internal.api.model.DTO;
 
 import java.util.Map;
 
 /**
- * The {@link Services} class is an object model class that
+ * The {@link Modules} class is an object model class that
  * mirrors the XML structure provided by the Plugwise Home Automation
- * controller for the collection of module services.
+ * controller for the collection of modules.
  * It extends the {@link PlugwiseHACollection} class.
  * 
  * @author B. van Wetten - Initial contribution
  */
-public class Services extends PlugwiseHACollection<Service> {
+public class Modules extends PlugwiseHACollection<Module> {
 
     @Override
-    public void merge(Map<String, Service> services) {
+    public void merge(Map<String, Module> modules) {
     }
 }
