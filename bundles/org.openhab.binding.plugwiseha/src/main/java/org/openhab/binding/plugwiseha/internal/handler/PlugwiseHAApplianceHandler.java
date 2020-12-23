@@ -14,6 +14,7 @@
 package org.openhab.binding.plugwiseha.internal.handler;
 
 import static org.eclipse.smarthome.core.thing.ThingStatus.*;
+import static org.eclipse.smarthome.core.thing.ThingStatusDetail.COMMUNICATION_ERROR;
 import static org.eclipse.smarthome.core.thing.ThingStatusDetail.CONFIGURATION_ERROR;
 import static org.openhab.binding.plugwiseha.internal.PlugwiseHABindingConstants.*;
 
@@ -87,20 +88,23 @@ public class PlugwiseHAApplianceHandler extends PlugwiseHABaseHandler<Appliance,
                         "Invalid configuration for Plugwise Home Automation appliance handler.");
                 return;
             }
-
-            PlugwiseHABridgeHandler bridge = this.getPlugwiseHABridge();
-            if (bridge != null) {
-                PlugwiseHAController controller = bridge.getController();
-                if (controller != null) {
-                    this.appliance = getEntity(controller);
-                    if (this.appliance != null) {
-                        if (this.appliance.isBatteryOperated()) {
-                            addBatteryChannels();
+            try {
+                PlugwiseHABridgeHandler bridge = this.getPlugwiseHABridge();
+                if (bridge != null) {
+                    PlugwiseHAController controller = bridge.getController();
+                    if (controller != null) {
+                        this.appliance = getEntity(controller, true);
+                        if (this.appliance != null) {
+                            if (this.appliance.isBatteryOperated()) {
+                                addBatteryChannels();
+                            }
+                            setApplianceProperties();
+                            updateStatus(ONLINE);
                         }
-                        setApplianceProperties();
-                        updateStatus(ONLINE);
                     }
                 }
+            } catch (PlugwiseHAException e) {
+                updateStatus(OFFLINE, COMMUNICATION_ERROR, STATUS_DESCRIPTION_COMMUNICATION_ERROR);
             }
         }
     }
@@ -130,9 +134,10 @@ public class PlugwiseHAApplianceHandler extends PlugwiseHABaseHandler<Appliance,
     }
 
     @Override
-    protected @Nullable Appliance getEntity(PlugwiseHAController controller) {
+    protected @Nullable Appliance getEntity(PlugwiseHAController controller, Boolean forceRefresh)
+            throws PlugwiseHAException {
         PlugwiseHAThingConfig config = getPlugwiseThingConfig();
-        Appliance appliance = controller.getAppliance(config.getId());
+        Appliance appliance = controller.getAppliance(config.getId(), forceRefresh);
 
         return appliance;
     }
@@ -402,6 +407,7 @@ public class PlugwiseHAApplianceHandler extends PlugwiseHABaseHandler<Appliance,
 
     protected void setApplianceProperties() {
         Map<String, String> properties = editProperties();
+        logger.debug("Setting thing properties");
 
         properties.put(PlugwiseHABindingConstants.APPLIANCE_PROPERTY_DESCRIPTION, this.appliance.getDescription());
         properties.put(PlugwiseHABindingConstants.APPLIANCE_PROPERTY_TYPE, this.appliance.getType());

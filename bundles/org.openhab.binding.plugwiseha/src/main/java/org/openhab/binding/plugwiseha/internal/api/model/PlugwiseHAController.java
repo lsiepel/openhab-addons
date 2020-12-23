@@ -161,8 +161,8 @@ public class PlugwiseHAController {
         }
     }
 
-    public @Nullable Appliance getAppliance(String id) {
-        Appliances appliances = this.domainObjects.getAppliances();
+    public @Nullable Appliance getAppliance(String id, Boolean forceRefresh) throws PlugwiseHAException {
+        Appliances appliances = this.getAppliances(forceRefresh);
         if (!appliances.containsKey(id)) {
             this.logger.debug("Plugwise Home Automation Appliance with id {} is not known", id);
             return null;
@@ -196,8 +196,10 @@ public class PlugwiseHAController {
         }
     }
 
-    public @Nullable Location getLocation(String id) {
-        Locations locations = this.domainObjects.getLocations();
+    public @Nullable Location getLocation(String id, Boolean forceRefresh) throws PlugwiseHAException {
+
+        Locations locations = this.getLocations(forceRefresh);
+
         if (!locations.containsKey(id)) {
             this.logger.debug("Plugwise Home Automation Location with {id} is not known");
             return null;
