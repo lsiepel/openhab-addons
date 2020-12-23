@@ -51,6 +51,10 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public abstract class PlugwiseHABaseHandler<E, C extends PlugwiseHAThingConfig> extends BaseThingHandler {
 
+    // Private Static error messages
+
+    protected static final String STATUS_DESCRIPTION_COMMUNICATION_ERROR = "Error communicating with the Plugwise Home Automation controller";
+
     // private @Nullable C config;
 
     protected final Logger logger = LoggerFactory.getLogger(PlugwiseHABaseHandler.class);
@@ -59,7 +63,8 @@ public abstract class PlugwiseHABaseHandler<E, C extends PlugwiseHAThingConfig> 
 
     protected abstract void initialize(@NonNull C config);
 
-    protected abstract @Nullable E getEntity(PlugwiseHAController controller);
+    protected abstract @Nullable E getEntity(PlugwiseHAController controller, Boolean forceRefresh)
+            throws PlugwiseHAException;
 
     protected abstract void refreshChannel(E entity, ChannelUID channelUID);
 
@@ -109,21 +114,20 @@ public abstract class PlugwiseHABaseHandler<E, C extends PlugwiseHAThingConfig> 
         if (getThing().getStatus() == ONLINE) {
             PlugwiseHAController controller = getController();
             if (controller != null) {
-                E entity = getEntity(controller);
-                if (entity != null) {
-                    if (this.isLinked(channelUID)) {
-                        if (command instanceof RefreshType) {
-                            refreshChannel(entity, channelUID);
-                        } else {
-                            try {
+                try {
+                    E entity = getEntity(controller, false);
+                    if (entity != null) {
+                        if (this.isLinked(channelUID)) {
+                            if (command instanceof RefreshType) {
+                                refreshChannel(entity, channelUID);
+                            } else {
                                 handleCommand(entity, channelUID, command);
-                            } catch (PlugwiseHAException e) {
-                                logger.warn("Unexpected error handling command = {} for channel = {} : {}", command,
-                                        channelUID, e.getMessage());
                             }
-
                         }
                     }
+                } catch (PlugwiseHAException e) {
+                    logger.warn("Unexpected error handling command = {} for channel = {} : {}", command, channelUID,
+                            e.getMessage());
                 }
             }
         }
@@ -173,14 +177,18 @@ public abstract class PlugwiseHABaseHandler<E, C extends PlugwiseHAThingConfig> 
         if (getThing().getStatus() == ONLINE) {
             PlugwiseHAController controller = getController();
             if (controller != null) {
-                E entity = getEntity(controller);
-                if (entity != null) {
-                    for (Channel channel : getThing().getChannels()) {
-                        ChannelUID channelUID = channel.getUID();
-                        if (this.isLinked(channelUID)) {
-                            refreshChannel(entity, channelUID);
+                try {
+                    E entity = getEntity(controller, false);
+                    if (entity != null) {
+                        for (Channel channel : getThing().getChannels()) {
+                            ChannelUID channelUID = channel.getUID();
+                            if (this.isLinked(channelUID)) {
+                                refreshChannel(entity, channelUID);
+                            }
                         }
                     }
+                } catch (PlugwiseHAException e) {
+                    logger.warn("Unexpected error handling refresh", e.getMessage());
                 }
             }
         }

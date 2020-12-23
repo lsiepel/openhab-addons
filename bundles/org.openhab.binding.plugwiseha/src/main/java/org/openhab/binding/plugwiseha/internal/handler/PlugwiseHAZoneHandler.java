@@ -14,6 +14,7 @@
 package org.openhab.binding.plugwiseha.internal.handler;
 
 import static org.eclipse.smarthome.core.thing.ThingStatus.*;
+import static org.eclipse.smarthome.core.thing.ThingStatusDetail.COMMUNICATION_ERROR;
 import static org.eclipse.smarthome.core.thing.ThingStatusDetail.CONFIGURATION_ERROR;
 import static org.openhab.binding.plugwiseha.internal.PlugwiseHABindingConstants.*;
 
@@ -80,23 +81,28 @@ public class PlugwiseHAZoneHandler extends PlugwiseHABaseHandler<Location, Plugw
                 return;
             }
 
-            PlugwiseHABridgeHandler bridge = this.getPlugwiseHABridge();
-            if (bridge != null) {
-                PlugwiseHAController controller = bridge.getController();
-                if (controller != null) {
-                    this.location = getEntity(controller);
+            try {
+                PlugwiseHABridgeHandler bridge = this.getPlugwiseHABridge();
+                if (bridge != null) {
+                    PlugwiseHAController controller = bridge.getController();
+                    if (controller != null) {
+                        this.location = getEntity(controller, true);
 
-                    setLocationProperties();
-                    updateStatus(ONLINE);
+                        setLocationProperties();
+                        updateStatus(ONLINE);
+                    }
                 }
+            } catch (PlugwiseHAException e) {
+                updateStatus(OFFLINE, COMMUNICATION_ERROR, STATUS_DESCRIPTION_COMMUNICATION_ERROR);
             }
         }
     }
 
     @Override
-    protected @Nullable Location getEntity(PlugwiseHAController controller) {
+    protected @Nullable Location getEntity(PlugwiseHAController controller, Boolean forceRefresh)
+            throws PlugwiseHAException {
         PlugwiseHAThingConfig config = getPlugwiseThingConfig();
-        Location location = controller.getLocation(config.getId());
+        Location location = controller.getLocation(config.getId(), forceRefresh);
 
         return location;
     }
