@@ -18,6 +18,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * The {@link PlugwiseHAUnauthorizedException} represents a binding specific {@link Exception}.
  *
  * @author Bas van Wetten - Initial contribution
+ * @author Leo Siepel - finish initial contribution
  */
 
 @NonNullByDefault

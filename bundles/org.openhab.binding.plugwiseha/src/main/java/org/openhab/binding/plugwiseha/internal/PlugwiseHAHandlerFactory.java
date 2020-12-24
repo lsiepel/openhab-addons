@@ -45,6 +45,8 @@ import org.slf4j.LoggerFactory;
  * thing handlers.
  *
  * @author Bas van Wetten - Initial contribution
+ * @author Leo Siepel - finish initial contribution
+ * 
  */
 @NonNullByDefault
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.plugwiseha")

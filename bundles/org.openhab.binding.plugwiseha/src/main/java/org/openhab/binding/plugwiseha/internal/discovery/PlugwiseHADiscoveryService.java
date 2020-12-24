@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * available data from the Plugwise Home Automation gateway
  *
  * @author Bas van Wetten - Initial contribution
- *
+ * @author Leo Siepel - finish initial contribution
  */
 public class PlugwiseHADiscoveryService extends AbstractDiscoveryService {
 

@@ -20,6 +20,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * {@link PlugwiseHABridgeHandler}.
  *
  * @author Bas van Wetten - Initial contribution
+ * @author Leo Siepel - finish initial contribution
  */
 @NonNullByDefault
 public class PlugwiseHABridgeThingConfig {
