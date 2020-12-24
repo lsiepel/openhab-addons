@@ -18,6 +18,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * The {@link PlugwiseHAInvalidHostException} signals there was a problem with the hostname of the controller.
  *
  * @author Bas van Wetten - Initial contribution
+ * @author Leo Siepel - finish initial contribution
+ * 
  */
 
 @NonNullByDefault

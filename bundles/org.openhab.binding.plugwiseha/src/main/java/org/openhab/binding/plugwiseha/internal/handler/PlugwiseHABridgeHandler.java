@@ -56,7 +56,8 @@ import org.slf4j.LoggerFactory;
  * Extends @{link BaseBridgeHandler}
  *
  * @author Bas van Wetten - Initial contribution
- *
+ * @author Leo Siepel - finish initial contribution
+ * 
  */
 
 @NonNullByDefault

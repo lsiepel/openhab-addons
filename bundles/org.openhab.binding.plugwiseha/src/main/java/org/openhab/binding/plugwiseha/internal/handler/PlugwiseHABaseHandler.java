@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * BaseThingHandler}
  *
  * @author Bas van Wetten - Initial contribution
+ * @author Leo Siepel - finish initial contribution
  *
  * @param <E> entity - the Plugwise Home Automation entity class used by this
  *            thing handler
