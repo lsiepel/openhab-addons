@@ -12,17 +12,15 @@
  */
 package org.openhab.binding.chromecast.internal;
 
+import org.digitalmediaserver.cast.CastEvent;
+import org.digitalmediaserver.cast.CastEvent.CastEventListener;
+import org.digitalmediaserver.cast.MediaStatus;
+import org.digitalmediaserver.cast.ReceiverStatus;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.thing.ThingStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import su.litvak.chromecast.api.v2.ChromeCastConnectionEvent;
-import su.litvak.chromecast.api.v2.ChromeCastConnectionEventListener;
-import su.litvak.chromecast.api.v2.ChromeCastSpontaneousEvent;
-import su.litvak.chromecast.api.v2.ChromeCastSpontaneousEventListener;
-import su.litvak.chromecast.api.v2.MediaStatus;
-import su.litvak.chromecast.api.v2.Status;
 
 /**
  * Responsible for listening to events from the Chromecast.
@@ -30,7 +28,7 @@ import su.litvak.chromecast.api.v2.Status;
  * @author Jason Holmes - Initial contribution
  */
 @NonNullByDefault
-public class ChromecastEventReceiver implements ChromeCastSpontaneousEventListener, ChromeCastConnectionEventListener {
+public class ChromecastEventReceiver implements CastEventListener {
     private final Logger logger = LoggerFactory.getLogger(ChromecastEventReceiver.class);
 
     private final ChromecastScheduler scheduler;
@@ -42,35 +40,41 @@ public class ChromecastEventReceiver implements ChromeCastSpontaneousEventListen
     }
 
     @Override
-    public void connectionEventReceived(final @NonNullByDefault({}) ChromeCastConnectionEvent event) {
-        if (event.isConnected()) {
-            statusUpdater.updateStatus(ThingStatus.ONLINE);
-            scheduler.scheduleRefresh();
-        } else {
-            scheduler.cancelRefresh();
-            statusUpdater.updateStatus(ThingStatus.OFFLINE);
-            // We might have just had a connection problem, let's try to reconnect.
-            scheduler.scheduleConnect();
-        }
-    }
-
-    @Override
-    public void spontaneousEventReceived(final @NonNullByDefault({}) ChromeCastSpontaneousEvent event) {
-        switch (event.getType()) {
+    public void onEvent(@Nullable CastEvent<?> event) {
+        switch (event.getEventType()) {
+            case CONNECTED:
+                Boolean isConnected = (Boolean) event.getData();
+                if (isConnected == null || !isConnected) {
+                    scheduler.cancelRefresh();
+                    statusUpdater.updateStatus(ThingStatus.OFFLINE);
+                    // We might have just had a connection problem, let's try to reconnect.
+                    scheduler.scheduleConnect();
+                } else {
+                    statusUpdater.updateStatus(ThingStatus.ONLINE);
+                    scheduler.scheduleRefresh();
+                }
             case CLOSE:
                 statusUpdater.updateMediaStatus(null);
                 break;
             case MEDIA_STATUS:
                 statusUpdater.updateMediaStatus(event.getData(MediaStatus.class));
                 break;
-            case STATUS:
-                statusUpdater.processStatusUpdate(event.getData(Status.class));
-                break;
+            case RECEIVER_STATUS:
+                statusUpdater.processStatusUpdate(event.getData(ReceiverStatus.class));
+            break;
             case UNKNOWN:
-                logger.debug("Received an 'UNKNOWN' event (class={})", event.getType().getDataClass());
+                logger.debug("Received an 'UNKNOWN' event (class={})", event.getEventType().getDataClass());
                 break;
+            case APPLICATION_AVAILABILITY:
+            case CUSTOM_MESSAGE:
+            case DEVICE_ADDED:
+            case DEVICE_REMOVED:
+            case DEVICE_UPDATED:
+            case ERROR_RESPONSE:
+            case LAUNCH_ERROR:
+            case MULTIZONE_STATUS:
             default:
-                logger.debug("Unhandled event type: {}", event.getType());
+                logger.debug("Unhandled event type: {} with data {}:", event.getEventType(), event.getData());
                 break;
         }
     }

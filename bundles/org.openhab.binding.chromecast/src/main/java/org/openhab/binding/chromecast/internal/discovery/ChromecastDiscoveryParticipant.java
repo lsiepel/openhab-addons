@@ -98,9 +98,10 @@ public class ChromecastDiscoveryParticipant implements MDNSDiscoveryParticipant 
                 int port = service.getPort();
                 logger.debug("Chromecast Found: {} {}", host, port);
                 String id = service.getPropertyString(PROPERTY_DEVICE_ID);
+                String dnsName = service.getName();
                 String friendlyName = service.getPropertyString(PROPERTY_FRIENDLY_NAME); // friendly name;
                 return DiscoveryResultBuilder.create(uid).withThingType(getThingType(service))
-                        .withProperties(Map.of(HOST, host, PORT, port, DEVICE_ID, id))
+                        .withProperties(Map.of(DNS_NAME, dnsName, PORT, port, DEVICE_ID, id))
                         .withRepresentationProperty(DEVICE_ID).withLabel(friendlyName).build();
             }
         }

@@ -20,9 +20,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>su.litvak.chromecast</groupId>
-      <artifactId>api-v2</artifactId>
-      <version>0.11.3</version>
+      <groupId>org.digitalmediaserver</groupId>
+      <artifactId>cast-api</artifactId>
+      <version>0.1.1</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

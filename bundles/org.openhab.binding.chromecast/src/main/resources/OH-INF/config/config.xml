@@ -7,8 +7,8 @@
 	<config-description uri="thing-type:chromecast:device">
 		<parameter name="ipAddress" type="text" required="true">
 			<context>network-address</context>
-			<label>Network Address</label>
-			<description>Network address of the Chromecast device.</description>
+			<label>DNS Name</label>
+			<description>DNS Name (no ip) of the Chromecast device.</description>
 		</parameter>
 		<parameter name="port" type="integer">
 			<label>Network Port</label>

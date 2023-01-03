@@ -13,12 +13,17 @@
 package org.openhab.binding.chromecast.internal.handler;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.digitalmediaserver.cast.CastDevice;
+import org.digitalmediaserver.cast.CastEvent;
+import org.digitalmediaserver.cast.CastEvent.CastEventType;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.chromecast.internal.ChromecastAudioSink;
@@ -45,8 +50,6 @@ import org.openhab.core.types.Command;
 import org.openhab.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import su.litvak.chromecast.api.v2.ChromeCast;
 
 /**
  * The {@link ChromecastHandler} is responsible for handling commands, which are sent to one of the channels. It
@@ -89,24 +92,38 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
     public void initialize() {
         ChromecastConfig config = getConfigAs(ChromecastConfig.class);
 
-        final String ipAddress = config.ipAddress;
-        if (ipAddress == null || ipAddress.isBlank()) {
+        final String dnsName = config.dnsName;
+        if (dnsName.isBlank()) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                    "Cannot connect to Chromecast. IP address is not valid or missing.");
+                    "Cannot connect to Chromecast. DNS name is not valid or missing.");
+            return;
+        }
+
+        InetAddress inetAddress = null;
+        try {
+            inetAddress = java.net.InetAddress.getByName(dnsName);
+        } catch (UnknownHostException e) {
+            logger.debug("Could not resolve ipAddress from DNS: {} with mesage: {}", dnsName, e.getMessage());
+        }
+
+        if (inetAddress == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
+                    "Cannot connect to Chromecast. InetAddress could not be resolved from DNS name");
             return;
         }
 
         updateStatus(ThingStatus.UNKNOWN);
 
         Coordinator localCoordinator = coordinator;
-        if (localCoordinator != null && (!localCoordinator.chromeCast.getAddress().equals(ipAddress)
+        if (localCoordinator != null && (!localCoordinator.chromeCast.getAddress().equals(inetAddress)
                 || (localCoordinator.chromeCast.getPort() != config.port))) {
             localCoordinator.destroy();
             localCoordinator = coordinator = null;
         }
 
         if (localCoordinator == null) {
-            ChromeCast chromecast = new ChromeCast(ipAddress, config.port);
+            CastDevice chromecast = new CastDevice(config.dnsName, inetAddress, null, null, null, null, null, null, 1,
+                    null, true);
             localCoordinator = new Coordinator(this, thing, chromecast, config.refreshRate, audioHTTPServer,
                     callbackUrl);
             coordinator = localCoordinator;
@@ -234,7 +251,7 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
 
         private static final long CONNECT_DELAY = 10;
 
-        private final ChromeCast chromeCast;
+        private final CastDevice chromeCast;
         private final ChromecastAudioSink audioSink;
         private final ChromecastCommander commander;
         private final ChromecastEventReceiver eventReceiver;
@@ -254,7 +271,7 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
 
         private ConnectionState connectionState = ConnectionState.UNKNOWN;
 
-        private Coordinator(ChromecastHandler handler, Thing thing, ChromeCast chromeCast, long refreshRate,
+        private Coordinator(ChromecastHandler handler, Thing thing, CastDevice chromeCast, long refreshRate,
                 AudioHTTPServer audioHttpServer, @Nullable String callbackURL) {
             this.chromeCast = chromeCast;
 
@@ -280,18 +297,20 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
             }
             connectionState = ConnectionState.CONNECTING;
 
-            chromeCast.registerListener(eventReceiver);
-            chromeCast.registerConnectionListener(eventReceiver);
+            CastEvent.CastEventType[] subscribedEvents = new CastEventType[] { CastEventType.APPLICATION_AVAILABILITY,
+                    CastEventType.CLOSE, CastEventType.CONNECTED, CastEventType.CUSTOM_MESSAGE,
+                    CastEventType.DEVICE_ADDED, CastEventType.DEVICE_REMOVED, CastEventType.DEVICE_UPDATED,
+                    CastEventType.ERROR_RESPONSE, CastEventType.LAUNCH_ERROR, CastEventType.MEDIA_STATUS,
+                    CastEventType.MULTIZONE_STATUS, CastEventType.RECEIVER_STATUS, CastEventType.UNKNOWN };
 
+            chromeCast.addEventListener(eventReceiver, subscribedEvents);
             connect();
         }
 
         void destroy() {
             connectionState = ConnectionState.DISCONNECTING;
 
-            chromeCast.unregisterConnectionListener(eventReceiver);
-            chromeCast.unregisterListener(eventReceiver);
-
+            chromeCast.removeEventListener(eventReceiver);
             scheduler.destroy();
 
             try {
