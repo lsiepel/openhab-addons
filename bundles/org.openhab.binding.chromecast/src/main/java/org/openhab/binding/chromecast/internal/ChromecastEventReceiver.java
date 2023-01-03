@@ -41,6 +41,9 @@ public class ChromecastEventReceiver implements CastEventListener {
 
     @Override
     public void onEvent(@Nullable CastEvent<?> event) {
+        if (event == null) {
+            return;
+        }
         switch (event.getEventType()) {
             case CONNECTED:
                 Boolean isConnected = (Boolean) event.getData();
@@ -61,7 +64,7 @@ public class ChromecastEventReceiver implements CastEventListener {
                 break;
             case RECEIVER_STATUS:
                 statusUpdater.processStatusUpdate(event.getData(ReceiverStatus.class));
-            break;
+                break;
             case UNKNOWN:
                 logger.debug("Received an 'UNKNOWN' event (class={})", event.getEventType().getDataClass());
                 break;

@@ -16,6 +16,7 @@
 
   <properties>
     <dep.noembedding>jackson-core,jackson-annotations,jackson-databind</dep.noembedding>
+    <bnd.importpackage>javax.annotation.*;resolution:=optional</bnd.importpackage>
   </properties>
 
   <dependencies>
@@ -56,5 +57,4 @@
       <scope>compile</scope>
     </dependency>
   </dependencies>
-
 </project>

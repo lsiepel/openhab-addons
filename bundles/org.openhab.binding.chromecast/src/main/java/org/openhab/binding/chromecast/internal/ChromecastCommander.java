@@ -143,7 +143,6 @@ public class ChromecastCommander {
     public void handleCloseApp(final Command command) {
         if (command == OnOffType.ON) {
             try {
-
                 chromeCast.stopApplication(chromeCast.getRunningApplication(), false);
                 statusUpdater.updateStatus(ThingStatus.ONLINE);
             } catch (final IOException ex) {
@@ -282,7 +281,9 @@ public class ChromecastCommander {
                     session.play(ms.getMediaSessionId(), false);
                 } else {
                     MediaBuilder builder = new MediaBuilder(url, mimeType, StreamType.NONE);
-                    builder.metadata(Map.of(Metadata.Generic.TITLE, title));
+                    if (title != null) {
+                        builder.metadata(Map.of(Metadata.Generic.TITLE, title));
+                    }
                     session.load(builder, true, 0.0, false);
                 }
             }
