@@ -16,12 +16,14 @@ import static org.openhab.binding.chromecast.internal.ChromecastBindingConstants
 import static org.openhab.core.thing.ThingStatusDetail.COMMUNICATION_ERROR;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.digitalmediaserver.cast.Application;
 import org.digitalmediaserver.cast.CastDevice;
 import org.digitalmediaserver.cast.Media.MediaBuilder;
 import org.digitalmediaserver.cast.Media.StreamType;
 import org.digitalmediaserver.cast.MediaStatus;
+import org.digitalmediaserver.cast.Metadata;
 import org.digitalmediaserver.cast.ReceiverStatus;
 import org.digitalmediaserver.cast.Session;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -280,6 +282,7 @@ public class ChromecastCommander {
                     session.play(ms.getMediaSessionId(), false);
                 } else {
                     MediaBuilder builder = new MediaBuilder(url, mimeType, StreamType.NONE);
+                    builder.metadata(Map.of(Metadata.Generic.TITLE, title));
                     session.load(builder, true, 0.0, false);
                 }
             }
