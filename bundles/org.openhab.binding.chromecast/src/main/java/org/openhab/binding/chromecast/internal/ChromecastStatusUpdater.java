@@ -97,6 +97,10 @@ public class ChromecastStatusUpdater {
         this.appSessionId = appSessionId;
     }
 
+    public void processAppNotAvailable(String App) {
+        callback.unRegisterApplication(App);
+    }
+
     public void processStatusUpdate(final @Nullable ReceiverStatus status) {
         if (status == null) {
             updateStatus(ThingStatus.OFFLINE);
@@ -125,6 +129,9 @@ public class ChromecastStatusUpdater {
             id = new StringType(application.getAppId());
             statusText = new StringType(application.getStatusText());
             idling = application.isIdleScreen() ? OnOffType.ON : OnOffType.OFF;
+            if (application.getAppId() != null && application.getDisplayName() != null) {
+                callback.registerApplication(application.getAppId(), application.getDisplayName());
+            }
         }
 
         callback.updateState(CHANNEL_APP_NAME, name);

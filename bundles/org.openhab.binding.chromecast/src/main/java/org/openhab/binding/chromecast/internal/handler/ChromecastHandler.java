@@ -33,6 +33,8 @@ import org.openhab.binding.chromecast.internal.ChromecastScheduler;
 import org.openhab.binding.chromecast.internal.ChromecastStatusUpdater;
 import org.openhab.binding.chromecast.internal.action.ChromecastActions;
 import org.openhab.binding.chromecast.internal.config.ChromecastConfig;
+import org.openhab.binding.chromecast.internal.storage.AppContainer;
+import org.openhab.binding.chromecast.internal.storage.AppItem;
 import org.openhab.core.audio.AudioFormat;
 import org.openhab.core.audio.AudioHTTPServer;
 import org.openhab.core.audio.AudioSink;
@@ -69,6 +71,7 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
 
     private final AudioHTTPServer audioHTTPServer;
     private final @Nullable String callbackUrl;
+    private final AppContainer appContainer;
 
     /**
      * The actual implementation. A new one is created each time #initialize is called.
@@ -82,33 +85,35 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
      * @param audioHTTPServer server for hosting audio streams
      * @param callbackUrl url to be used to tell the Chromecast which host to call for audio urls
      */
-    public ChromecastHandler(final Thing thing, AudioHTTPServer audioHTTPServer, @Nullable String callbackUrl) {
+    public ChromecastHandler(final Thing thing, AudioHTTPServer audioHTTPServer, AppContainer appContainer,
+            @Nullable String callbackUrl) {
         super(thing);
         this.audioHTTPServer = audioHTTPServer;
         this.callbackUrl = callbackUrl;
+        this.appContainer = appContainer;
     }
 
     @Override
     public void initialize() {
         ChromecastConfig config = getConfigAs(ChromecastConfig.class);
 
-        final String dnsName = config.dnsName;
-        if (dnsName.isBlank()) {
+        final String hostName = config.host;
+        if (hostName.isBlank()) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                    "Cannot connect to Chromecast. DNS name is not valid or missing.");
+                    "Cannot connect to Chromecast. Host name is not valid or missing.");
             return;
         }
 
         InetAddress inetAddress = null;
         try {
-            inetAddress = java.net.InetAddress.getByName(dnsName);
+            inetAddress = java.net.InetAddress.getByName(hostName);
         } catch (UnknownHostException e) {
-            logger.debug("Could not resolve ipAddress from DNS: {} with mesage: {}", dnsName, e.getMessage());
+            logger.debug("Could not resolve InetAddress from host name: {} with mesage: {}", hostName, e.getMessage());
         }
 
         if (inetAddress == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                    "Cannot connect to Chromecast. InetAddress could not be resolved from DNS name");
+                    "Cannot connect to Chromecast. InetAddress could not be resolved from host name");
             return;
         }
 
@@ -122,7 +127,7 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
         }
 
         if (localCoordinator == null) {
-            CastDevice chromecast = new CastDevice(config.dnsName, inetAddress, null, null, null, null, null, null, 1,
+            CastDevice chromecast = new CastDevice(config.host, inetAddress, null, null, null, null, null, null, 1,
                     null, true);
             localCoordinator = new Coordinator(this, thing, chromecast, config.refreshRate, audioHTTPServer,
                     callbackUrl);
@@ -342,5 +347,15 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
         private void refresh() {
             commander.handleRefresh();
         }
+    }
+
+    public void registerApplication(String appId, String displayName) {
+        logger.debug("Registering availability of application: {} / {}", appId, displayName);
+        appContainer.put(appId, new AppItem(appId, displayName));
+    }
+
+    public void unRegisterApplication(String appId) {
+        logger.debug("Unregistering availability of application: {}", appId);
+        appContainer.remove(appId);
     }
 }

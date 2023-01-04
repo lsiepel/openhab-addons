@@ -21,7 +21,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  */
 @NonNullByDefault
 public class ChromecastConfig {
-    public String dnsName = "";
+    public String host = "";
     public int port = 8009;
     public long refreshRate = 10;
 }

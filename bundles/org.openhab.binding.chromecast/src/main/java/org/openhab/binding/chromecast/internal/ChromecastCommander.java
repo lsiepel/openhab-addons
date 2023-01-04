@@ -102,12 +102,16 @@ public class ChromecastCommander {
         }
 
         ReceiverStatus status;
+        Application runningApp;
         try {
             status = chromeCast.getReceiverStatus();
             statusUpdater.processStatusUpdate(status);
 
             if (status == null) {
                 scheduler.cancelRefresh();
+                runningApp = null;
+            } else {
+                runningApp = status.getRunningApplication();
             }
         } catch (IOException ex) {
             logger.debug("Failed to request status: {}", ex.getMessage());
@@ -117,8 +121,8 @@ public class ChromecastCommander {
         }
 
         try {
-            if (status != null && status.getRunningApplication() != null) {
-                Session session = chromeCast.startSession("", chromeCast.getRunningApplication());
+            if (status != null && runningApp != null) {
+                Session session = chromeCast.startSession(SENDER_ID, runningApp);
                 MediaStatus mediaStatus = session.getMediaStatus();
                 statusUpdater.updateMediaStatus(mediaStatus);
 
@@ -128,8 +132,8 @@ public class ChromecastCommander {
                     stopMediaPlayerApp();
                 }
             }
-        } catch (IOException ex) {
-            logger.debug("Failed to request media status with a running app: {}", ex.getMessage());
+        } catch (IllegalArgumentException | IOException e) {
+            logger.debug("Failed to request media status for app: {} with message : {}", runningApp, e.getMessage());
             // We were just able to request status, so let's not put the device OFFLINE.
         }
     }
@@ -167,7 +171,7 @@ public class ChromecastCommander {
                 logger.debug("{} command ignored because media player app is not running", command);
                 return;
             }
-            Session session = chromeCast.startSession("", app);
+            Session session = chromeCast.startSession(SENDER_ID, app);
             MediaStatus mediaStatus = session.getMediaStatus();
             logger.debug("mediaStatus {}", mediaStatus);
             int mediaSessionId = -1;
@@ -249,6 +253,9 @@ public class ChromecastCommander {
     }
 
     public void startApp(@Nullable String appId) {
+        if (appId == null) {
+            return;
+        }
         try {
             if (chromeCast.isApplicationAvailable(appId)) {
                 if (!chromeCast.isApplicationRunning(appId)) {
@@ -258,6 +265,7 @@ public class ChromecastCommander {
                 }
             } else {
                 logger.warn("Failed starting app, missing app with id: {}", appId);
+                statusUpdater.processAppNotAvailable(appId);
             }
             statusUpdater.updateStatus(ThingStatus.ONLINE);
         } catch (final IOException e) {
@@ -272,7 +280,7 @@ public class ChromecastCommander {
             if (url != null && chromeCast.isApplicationRunning(MEDIA_PLAYER)) {
                 // If the current track is paused, launching a new request results in nothing happening, therefore
                 // resume current track.
-                Session session = chromeCast.startSession("", chromeCast.getRunningApplication());
+                Session session = chromeCast.startSession(SENDER_ID, chromeCast.getRunningApplication());
                 MediaStatus ms = session.getMediaStatus();
                 if (ms != null && MediaStatus.PlayerState.PAUSED == ms.getPlayerState()
                         && url.equals(ms.getMedia().getUrl())) {

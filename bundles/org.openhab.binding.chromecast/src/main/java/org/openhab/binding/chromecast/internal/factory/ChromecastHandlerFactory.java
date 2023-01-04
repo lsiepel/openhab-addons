@@ -21,10 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.chromecast.internal.handler.ChromecastHandler;
+import org.openhab.binding.chromecast.internal.storage.AppContainer;
+import org.openhab.binding.chromecast.internal.storage.AppItem;
 import org.openhab.core.audio.AudioHTTPServer;
 import org.openhab.core.audio.AudioSink;
 import org.openhab.core.net.HttpServiceUtil;
 import org.openhab.core.net.NetworkAddressService;
+import org.openhab.core.storage.Storage;
+import org.openhab.core.storage.StorageService;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
@@ -51,16 +55,19 @@ public class ChromecastHandlerFactory extends BaseThingHandlerFactory {
     private final Map<String, ServiceRegistration<AudioSink>> audioSinkRegistrations = new ConcurrentHashMap<>();
     private final AudioHTTPServer audioHTTPServer;
     private final NetworkAddressService networkAddressService;
+    private final StorageService storageService;
 
     /** url (scheme+server+port) to use for playing notification sounds. */
     private @Nullable String callbackUrl;
 
     @Activate
     public ChromecastHandlerFactory(final @Reference AudioHTTPServer audioHTTPServer,
-            final @Reference NetworkAddressService networkAddressService) {
+            final @Reference NetworkAddressService networkAddressService,
+            final @Reference StorageService storageService) {
         logger.debug("Creating new instance of ChromecastHandlerFactory");
         this.audioHTTPServer = audioHTTPServer;
         this.networkAddressService = networkAddressService;
+        this.storageService = storageService;
     }
 
     @Override
@@ -77,7 +84,10 @@ public class ChromecastHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     protected @Nullable ThingHandler createHandler(Thing thing) {
-        ChromecastHandler handler = new ChromecastHandler(thing, audioHTTPServer, createCallbackUrl());
+        Storage<AppItem> storage = storageService.getStorage(thing.getUID().toString(), AppItem.class.getClassLoader());
+
+        ChromecastHandler handler = new ChromecastHandler(thing, audioHTTPServer, new AppContainer(storage),
+                createCallbackUrl());
 
         @SuppressWarnings("unchecked")
         ServiceRegistration<AudioSink> reg = (ServiceRegistration<AudioSink>) bundleContext
