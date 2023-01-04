@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.chromecast.internal.ChromecastStateDescriptionOptionProvider;
 import org.openhab.binding.chromecast.internal.handler.ChromecastHandler;
 import org.openhab.binding.chromecast.internal.storage.AppContainer;
 import org.openhab.binding.chromecast.internal.storage.AppItem;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * The {@link ChromecastHandlerFactory} is responsible for creating things and thing handlers.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Leo Siepel - Add storage and statedescription injections
  */
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.chromecast")
 @NonNullByDefault
@@ -56,6 +58,7 @@ public class ChromecastHandlerFactory extends BaseThingHandlerFactory {
     private final AudioHTTPServer audioHTTPServer;
     private final NetworkAddressService networkAddressService;
     private final StorageService storageService;
+    private final ChromecastStateDescriptionOptionProvider stateDescriptionProvider;
 
     /** url (scheme+server+port) to use for playing notification sounds. */
     private @Nullable String callbackUrl;
@@ -63,11 +66,13 @@ public class ChromecastHandlerFactory extends BaseThingHandlerFactory {
     @Activate
     public ChromecastHandlerFactory(final @Reference AudioHTTPServer audioHTTPServer,
             final @Reference NetworkAddressService networkAddressService,
-            final @Reference StorageService storageService) {
+            final @Reference StorageService storageService,
+            final @Reference ChromecastStateDescriptionOptionProvider stateDescriptionProvider) {
         logger.debug("Creating new instance of ChromecastHandlerFactory");
         this.audioHTTPServer = audioHTTPServer;
         this.networkAddressService = networkAddressService;
         this.storageService = storageService;
+        this.stateDescriptionProvider = stateDescriptionProvider;
     }
 
     @Override
@@ -87,7 +92,7 @@ public class ChromecastHandlerFactory extends BaseThingHandlerFactory {
         Storage<AppItem> storage = storageService.getStorage(thing.getUID().toString(), AppItem.class.getClassLoader());
 
         ChromecastHandler handler = new ChromecastHandler(thing, audioHTTPServer, new AppContainer(storage),
-                createCallbackUrl());
+                stateDescriptionProvider, createCallbackUrl());
 
         @SuppressWarnings("unchecked")
         ServiceRegistration<AudioSink> reg = (ServiceRegistration<AudioSink>) bundleContext

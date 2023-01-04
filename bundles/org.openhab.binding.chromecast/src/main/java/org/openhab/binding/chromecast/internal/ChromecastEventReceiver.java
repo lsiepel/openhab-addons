@@ -44,6 +44,8 @@ public class ChromecastEventReceiver implements CastEventListener {
         if (event == null) {
             return;
         }
+        logger.trace("Received an {} event (class={})", event.getEventType(), event.getData());
+
         switch (event.getEventType()) {
             case CONNECTED:
                 Boolean isConnected = (Boolean) event.getData();

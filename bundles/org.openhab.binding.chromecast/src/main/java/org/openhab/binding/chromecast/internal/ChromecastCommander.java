@@ -259,7 +259,7 @@ public class ChromecastCommander {
         try {
             if (chromeCast.isApplicationAvailable(appId)) {
                 if (!chromeCast.isApplicationRunning(appId)) {
-                    final ReceiverStatus receiverStatus = chromeCast.launchApplication(MEDIA_PLAYER, true);
+                    final ReceiverStatus receiverStatus = chromeCast.launchApplication(appId, true);
                     statusUpdater.setAppSessionId(receiverStatus.getRunningApplication().getSessionId());
                     logger.debug("Application launched: {}", receiverStatus);
                 }

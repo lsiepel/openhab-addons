@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -27,9 +28,11 @@ import org.digitalmediaserver.cast.CastEvent.CastEventType;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.chromecast.internal.ChromecastAudioSink;
+import org.openhab.binding.chromecast.internal.ChromecastBindingConstants;
 import org.openhab.binding.chromecast.internal.ChromecastCommander;
 import org.openhab.binding.chromecast.internal.ChromecastEventReceiver;
 import org.openhab.binding.chromecast.internal.ChromecastScheduler;
+import org.openhab.binding.chromecast.internal.ChromecastStateDescriptionOptionProvider;
 import org.openhab.binding.chromecast.internal.ChromecastStatusUpdater;
 import org.openhab.binding.chromecast.internal.action.ChromecastActions;
 import org.openhab.binding.chromecast.internal.config.ChromecastConfig;
@@ -50,6 +53,7 @@ import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerService;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.State;
+import org.openhab.core.types.StateOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +65,7 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Walters - Online status fix, handle playuri channel and refactor play media code
  * @author Jason Holmes - Media Status. Refactor the monolith into separate classes.
  * @author Scott Hanson - Added Actions.
+ * @author Leo Siepel - Added dynamic app channel incl. storage
  */
 @NonNullByDefault
 public class ChromecastHandler extends BaseThingHandler implements AudioSink {
@@ -72,7 +77,7 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
     private final AudioHTTPServer audioHTTPServer;
     private final @Nullable String callbackUrl;
     private final AppContainer appContainer;
-
+    private final ChromecastStateDescriptionOptionProvider stateDescriptionProvider;
     /**
      * The actual implementation. A new one is created each time #initialize is called.
      */
@@ -86,11 +91,12 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
      * @param callbackUrl url to be used to tell the Chromecast which host to call for audio urls
      */
     public ChromecastHandler(final Thing thing, AudioHTTPServer audioHTTPServer, AppContainer appContainer,
-            @Nullable String callbackUrl) {
+            ChromecastStateDescriptionOptionProvider stateDescriptionProvider, @Nullable String callbackUrl) {
         super(thing);
         this.audioHTTPServer = audioHTTPServer;
         this.callbackUrl = callbackUrl;
         this.appContainer = appContainer;
+        this.stateDescriptionProvider = stateDescriptionProvider;
     }
 
     @Override
@@ -140,6 +146,8 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
                 }
             });
         }
+
+        this.syncRegisteredAppsWithChannel();
     }
 
     @Override
@@ -349,13 +357,28 @@ public class ChromecastHandler extends BaseThingHandler implements AudioSink {
         }
     }
 
+    private void syncRegisteredAppsWithChannel() {
+        List<StateOption> options = new ArrayList<>();
+        // TODO: ordering list?
+        appContainer.getAllApps().forEach(f -> options.add(new StateOption(f.getId(), f.getDisplayName())));
+
+        stateDescriptionProvider.setStateOptions(
+                new ChannelUID(getThing().getUID(), ChromecastBindingConstants.CHANNEL_APP_ID), options);
+    }
+
     public void registerApplication(String appId, String displayName) {
-        logger.debug("Registering availability of application: {} / {}", appId, displayName);
-        appContainer.put(appId, new AppItem(appId, displayName));
+        if (!appContainer.contains(appId)) {
+            logger.debug("Registering availability of application: {} / {}", appId, displayName);
+            appContainer.put(appId, new AppItem(appId, displayName));
+            syncRegisteredAppsWithChannel();
+        }
     }
 
     public void unRegisterApplication(String appId) {
-        logger.debug("Unregistering availability of application: {}", appId);
-        appContainer.remove(appId);
+        if (appContainer.contains(appId)) {
+            logger.debug("Unregistering availability of application: {}", appId);
+            appContainer.remove(appId);
+            syncRegisteredAppsWithChannel();
+        }
     }
 }

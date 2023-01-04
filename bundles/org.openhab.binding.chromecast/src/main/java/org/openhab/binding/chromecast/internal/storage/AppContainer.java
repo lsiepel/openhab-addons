@@ -74,6 +74,10 @@ public class AppContainer {
         writeToStorage();
     }
 
+    public boolean contains(String appId) {
+        return mapOfApps.get(appId) != null;
+    }
+
     /**
      * Returns the application with appId
      *
