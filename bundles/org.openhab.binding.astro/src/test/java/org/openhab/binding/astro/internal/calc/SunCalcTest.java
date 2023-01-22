@@ -18,10 +18,13 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.openhab.binding.astro.internal.model.Range;
 import org.openhab.binding.astro.internal.model.Sun;
+import org.openhab.binding.astro.internal.model.SunPhase;
 import org.openhab.binding.astro.internal.model.SunPhaseName;
 
 /***
@@ -40,6 +43,7 @@ import org.openhab.binding.astro.internal.model.SunPhaseName;
  *      Sun Phase returns UNDEF</a>
  * @see <a href="https://www.heavens-above.com/sun.aspx">Heavens Above Sun</a>
  */
+@NonNullByDefault
 public class SunCalcTest {
 
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("Europe/Amsterdam");
@@ -49,7 +53,7 @@ public class SunCalcTest {
     private static final double AMSTERDAM_ALTITUDE = 0.0;
     private static final int ACCURACY_IN_MILLIS = 3 * 60 * 1000;
 
-    private SunCalc sunCalc;
+    private SunCalc sunCalc = new SunCalc();
 
     @BeforeEach
     public void init() {
@@ -59,6 +63,7 @@ public class SunCalcTest {
     @Test
     public void testGetSunInfoForOldDate() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
+        SunPhase phase = sun.getPhase();
 
         assertNotNull(sun.getNight());
 
@@ -81,100 +86,140 @@ public class SunCalcTest {
         assertNotNull(sun.getEveningNight());
 
         // for an old date the phase should also be calculated
-        assertNotNull(sun.getPhase().getName());
+        assertNotNull(phase);
+        assertNotNull(phase.getName());
     }
 
     @Test
     public void testGetSunInfoForAstronomicalDawnAccuracy() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
+        Calendar start = sun.getAstroDawn().getStart();
+        Calendar end = sun.getAstroDawn().getEnd();
+
         // expected result from haevens-above.com is 27 Feb 2019 05:39 till 06:18
+        assertNotNull(start);
+        assertNotNull(end);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 5, 39, TIME_ZONE).getTimeInMillis(),
-                sun.getAstroDawn().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                start.getTimeInMillis(), ACCURACY_IN_MILLIS);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 6, 18, TIME_ZONE).getTimeInMillis(),
-                sun.getAstroDawn().getEnd().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                end.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test
     public void testGetSunInfoForNauticDawnAccuracy() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
+        Calendar start = sun.getNauticDawn().getStart();
+        Calendar end = sun.getNauticDawn().getEnd();
+
         // expected result from haevens-above.com is 27 Feb 2019 06:18 till 06:58
+        assertNotNull(start);
+        assertNotNull(end);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 6, 18, TIME_ZONE).getTimeInMillis(),
-                sun.getNauticDawn().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                start.getTimeInMillis(), ACCURACY_IN_MILLIS);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 6, 58, TIME_ZONE).getTimeInMillis(),
-                sun.getNauticDawn().getEnd().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                end.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test
     public void testGetSunInfoForCivilDawnAccuracy() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
+        Calendar start = sun.getCivilDawn().getStart();
+        Calendar end = sun.getCivilDawn().getEnd();
+
         // expected result from haevens-above.com is 27 Feb 2019 06:58 till 07:32
+        assertNotNull(start);
+        assertNotNull(end);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 6, 58, TIME_ZONE).getTimeInMillis(),
-                sun.getCivilDawn().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                start.getTimeInMillis(), ACCURACY_IN_MILLIS);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 7, 32, TIME_ZONE).getTimeInMillis(),
-                sun.getCivilDawn().getEnd().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                end.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test
     public void testGetSunInfoForRiseAccuracy() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
+        Calendar result = sun.getRise().getStart();
+
         // expected result from haevens-above.com is 27 Feb 2019 07:32
+        assertNotNull(result);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 7, 32, TIME_ZONE).getTimeInMillis(),
-                sun.getRise().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                result.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test
     public void testGetSunInfoForSunNoonAccuracy() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
+        Calendar result = sun.getNoon().getStart();
+
         // expected result from haevens-above.com is 27 Feb 2019 12:54
+        assertNotNull(result);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 12, 54, TIME_ZONE).getTimeInMillis(),
-                sun.getNoon().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                result.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test
     public void testGetSunInfoForSetAccuracy() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
+        Calendar result = sun.getSet().getStart();
+
         // expected result from haevens-above.com is 27 Feb 2019 18:15
+        assertNotNull(result);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 18, 15, TIME_ZONE).getTimeInMillis(),
-                sun.getSet().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                result.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test
     public void testGetSunInfoForCivilDuskAccuracy() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
+        Calendar start = sun.getCivilDusk().getStart();
+        Calendar end = sun.getCivilDusk().getEnd();
+
         // expected result from haevens-above.com is 27 Feb 2019 18:15 till 18:50
+        assertNotNull(start);
+        assertNotNull(end);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 18, 15, TIME_ZONE).getTimeInMillis(),
-                sun.getCivilDusk().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                start.getTimeInMillis(), ACCURACY_IN_MILLIS);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 18, 50, TIME_ZONE).getTimeInMillis(),
-                sun.getCivilDusk().getEnd().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                end.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test
     public void testGetSunInfoForNauticDuskAccuracy() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
+        Calendar start = sun.getNauticDusk().getStart();
+        Calendar end = sun.getNauticDusk().getEnd();
+
         // expected result from haevens-above.com is 27 Feb 2019 18:50 till 19:29
+        assertNotNull(start);
+        assertNotNull(end);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 18, 50, TIME_ZONE).getTimeInMillis(),
-                sun.getNauticDusk().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                start.getTimeInMillis(), ACCURACY_IN_MILLIS);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 19, 29, TIME_ZONE).getTimeInMillis(),
-                sun.getNauticDusk().getEnd().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                end.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test
     public void testGetSunInfoForAstronomicalDuskAccuracy() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
+        Calendar start = sun.getAstroDusk().getStart();
+        Calendar end = sun.getAstroDusk().getEnd();
+
         // expected result from haevens-above.com is 27 Feb 2019 19:29 till 20:09
+        assertNotNull(start);
+        assertNotNull(end);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 19, 29, TIME_ZONE).getTimeInMillis(),
-                sun.getAstroDusk().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                start.getTimeInMillis(), ACCURACY_IN_MILLIS);
         assertEquals(SunCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 20, 9, TIME_ZONE).getTimeInMillis(),
-                sun.getAstroDusk().getEnd().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                end.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test
@@ -182,96 +227,144 @@ public class SunCalcTest {
     public void testRangesForCoherenceBetweenNightEndAndAstroDawnStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.NIGHT).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.ASTRO_DAWN).getStart());
+        Range night = sun.getAllRanges().get(SunPhaseName.NIGHT);
+        Range astroDawn = sun.getAllRanges().get(SunPhaseName.ASTRO_DAWN);
+
+        assertNotNull(night);
+        assertNotNull(astroDawn);
+        assertEquals(night.getEnd(), astroDawn.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenMorningNightEndAndAstroDawnStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.MORNING_NIGHT).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.ASTRO_DAWN).getStart());
+        Range morningNight = sun.getAllRanges().get(SunPhaseName.MORNING_NIGHT);
+        Range astroDawn = sun.getAllRanges().get(SunPhaseName.ASTRO_DAWN);
+
+        assertNotNull(morningNight);
+        assertNotNull(astroDawn);
+        assertEquals(morningNight.getEnd(), astroDawn.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenAstroDownEndAndNauticDawnStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.ASTRO_DAWN).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.NAUTIC_DAWN).getStart());
+        Range nauticDawn = sun.getAllRanges().get(SunPhaseName.NAUTIC_DAWN);
+        Range astroDawn = sun.getAllRanges().get(SunPhaseName.ASTRO_DAWN);
+
+        assertNotNull(nauticDawn);
+        assertNotNull(astroDawn);
+        assertEquals(astroDawn.getEnd(), nauticDawn.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenNauticDawnEndAndCivilDawnStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.NAUTIC_DAWN).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.CIVIL_DAWN).getStart());
+        Range nauticDawn = sun.getAllRanges().get(SunPhaseName.NAUTIC_DAWN);
+        Range civilDawn = sun.getAllRanges().get(SunPhaseName.CIVIL_DAWN);
+
+        assertNotNull(nauticDawn);
+        assertNotNull(civilDawn);
+        assertEquals(nauticDawn.getEnd(), civilDawn.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenCivilDawnEndAndSunRiseStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.CIVIL_DAWN).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.SUN_RISE).getStart());
+        Range civilDawn = sun.getAllRanges().get(SunPhaseName.CIVIL_DAWN);
+        Range sunRise = sun.getAllRanges().get(SunPhaseName.SUN_RISE);
+
+        assertNotNull(civilDawn);
+        assertNotNull(sunRise);
+        assertEquals(civilDawn.getEnd(), sunRise.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenSunRiseEndAndDaylightStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.SUN_RISE).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.DAYLIGHT).getStart());
+        Range sunRise = sun.getAllRanges().get(SunPhaseName.SUN_RISE);
+        Range dayLight = sun.getAllRanges().get(SunPhaseName.DAYLIGHT);
+
+        assertNotNull(sunRise);
+        assertNotNull(dayLight);
+        assertEquals(sunRise.getEnd(), dayLight.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenDaylightEndAndSunSetStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.DAYLIGHT).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.SUN_SET).getStart());
+        Range dayLight = sun.getAllRanges().get(SunPhaseName.DAYLIGHT);
+        Range sunset = sun.getAllRanges().get(SunPhaseName.SUN_SET);
+
+        assertNotNull(dayLight);
+        assertNotNull(sunset);
+        assertEquals(dayLight.getEnd(), sunset.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenSunSetEndAndCivilDuskStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.SUN_SET).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.CIVIL_DUSK).getStart());
+        Range sunset = sun.getAllRanges().get(SunPhaseName.SUN_SET);
+        Range civilDusk = sun.getAllRanges().get(SunPhaseName.CIVIL_DUSK);
+
+        assertNotNull(sunset);
+        assertNotNull(civilDusk);
+        assertEquals(sunset.getEnd(), civilDusk.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenCivilDuskEndAndNauticDuskStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.CIVIL_DUSK).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.NAUTIC_DUSK).getStart());
+        Range civilDusk = sun.getAllRanges().get(SunPhaseName.CIVIL_DUSK);
+        Range nauticDusk = sun.getAllRanges().get(SunPhaseName.NAUTIC_DUSK);
+
+        assertNotNull(civilDusk);
+        assertNotNull(nauticDusk);
+        assertEquals(civilDusk.getEnd(), nauticDusk.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenNauticDuskEndAndAstroDuskStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.NAUTIC_DUSK).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.ASTRO_DUSK).getStart());
+        Range nauticDusk = sun.getAllRanges().get(SunPhaseName.NAUTIC_DUSK);
+        Range astroDusk = sun.getAllRanges().get(SunPhaseName.ASTRO_DUSK);
+
+        assertNotNull(nauticDusk);
+        assertNotNull(astroDusk);
+        assertEquals(nauticDusk.getEnd(), astroDusk.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenAstroDuskEndAndNightStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.ASTRO_DUSK).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.NIGHT).getStart());
+        Range astroDusk = sun.getAllRanges().get(SunPhaseName.ASTRO_DUSK);
+        Range night = sun.getAllRanges().get(SunPhaseName.NIGHT);
+
+        assertNotNull(astroDusk);
+        assertNotNull(night);
+        assertEquals(astroDusk.getEnd(), night.getStart());
     }
 
     @Test
     public void testRangesForCoherenceBetweenAstroDuskEndAndEveningNightStart() {
         Sun sun = sunCalc.getSunInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE, AMSTERDAM_ALTITUDE, false);
 
-        assertEquals(sun.getAllRanges().get(SunPhaseName.ASTRO_DUSK).getEnd(),
-                sun.getAllRanges().get(SunPhaseName.EVENING_NIGHT).getStart());
+        Range astroDusk = sun.getAllRanges().get(SunPhaseName.ASTRO_DUSK);
+        Range eveningNight = sun.getAllRanges().get(SunPhaseName.EVENING_NIGHT);
+
+        assertNotNull(astroDusk);
+        assertNotNull(eveningNight);
+        assertEquals(astroDusk.getEnd(), eveningNight.getStart());
     }
 
     @Test
@@ -280,7 +373,10 @@ public class SunCalcTest {
         Calendar tDate = SunCalcTest.newCalendar(2020, Calendar.MAY, 13, 5, 12, tZone);
 
         Sun sun = sunCalc.getSunInfo(tDate, 53.524695, -2.4, 0.0, true);
-        assertEquals(SunPhaseName.CIVIL_DAWN, sun.getPhase().getName());
+        SunPhase phase = sun.getPhase();
+
+        assertNotNull(phase);
+        assertEquals(SunPhaseName.CIVIL_DAWN, phase.getName());
     }
 
     @Test
@@ -290,7 +386,10 @@ public class SunCalcTest {
         Calendar tDate = SunCalcTest.newCalendar(2020, Calendar.MAY, 13, 5, 13, tZone);
 
         Sun sun = sunCalc.getSunInfo(tDate, 53.524695, -2.4, 0.0, true);
-        assertEquals(SunPhaseName.SUN_RISE, sun.getPhase().getName());
+        SunPhase phase = sun.getPhase();
+
+        assertNotNull(phase);
+        assertEquals(SunPhaseName.SUN_RISE, phase.getName());
     }
 
     @Test
@@ -299,7 +398,10 @@ public class SunCalcTest {
         Calendar tDate = SunCalcTest.newCalendar(2020, Calendar.MAY, 13, 5, 18, tZone);
 
         Sun sun = sunCalc.getSunInfo(tDate, 53.524695, -2.4, 0.0, true);
-        assertEquals(SunPhaseName.DAYLIGHT, sun.getPhase().getName());
+        SunPhase phase = sun.getPhase();
+
+        assertNotNull(phase);
+        assertEquals(SunPhaseName.DAYLIGHT, phase.getName());
     }
 
     /***

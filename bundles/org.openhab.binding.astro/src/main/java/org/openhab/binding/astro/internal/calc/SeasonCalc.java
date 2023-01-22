@@ -14,6 +14,8 @@ package org.openhab.binding.astro.internal.calc;
 
 import java.util.Calendar;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.astro.internal.model.Season;
 import org.openhab.binding.astro.internal.model.SeasonName;
 import org.openhab.binding.astro.internal.util.DateTimeUtils;
@@ -24,9 +26,14 @@ import org.openhab.binding.astro.internal.util.DateTimeUtils;
  * @author Gerhard Riegler - Initial contribution
  * @see based on the calculations of http://stellafane.org/misc/equinox.html
  */
+@NonNullByDefault
 public class SeasonCalc {
     private int currentYear;
-    private Season currentSeason;
+    private Season currentSeason = new Season();
+
+    private int mapSeasonNumber(boolean toSouthern, int nothernSeasonNumber) {
+        return !toSouthern ? nothernSeasonNumber : (nothernSeasonNumber + 2) % 4;
+    }
 
     /**
      * Returns the seasons of the year of the specified calendar.
@@ -34,34 +41,38 @@ public class SeasonCalc {
     public Season getSeason(Calendar calendar, double latitude, boolean useMeteorologicalSeason) {
         int year = calendar.get(Calendar.YEAR);
         boolean isSouthernHemisphere = latitude < 0.0;
-        Season season = currentSeason;
         if (currentYear != year) {
-            season = new Season();
-            if (!isSouthernHemisphere) {
-                season.setSpring(calcEquiSol(0, year));
-                season.setSummer(calcEquiSol(1, year));
-                season.setAutumn(calcEquiSol(2, year));
-                season.setWinter(calcEquiSol(3, year));
-            } else {
-                season.setSpring(calcEquiSol(2, year));
-                season.setSummer(calcEquiSol(3, year));
-                season.setAutumn(calcEquiSol(0, year));
-                season.setWinter(calcEquiSol(1, year));
+            currentSeason = new Season();
+            boolean isNorthern = latitude > 0.0;
+            Calendar spring = calcEquiSol(mapSeasonNumber(!isNorthern, 0), year);
+            if (spring != null) {
+                currentSeason.setSpring(spring);
             }
-            currentSeason = season;
+            Calendar summer = calcEquiSol(mapSeasonNumber(!isNorthern, 1), year);
+            if (summer != null) {
+                currentSeason.setSummer(summer);
+            }
+            Calendar autumn = calcEquiSol(mapSeasonNumber(!isNorthern, 2), year);
+            if (autumn != null) {
+                currentSeason.setAutumn(autumn);
+            }
+            Calendar winter = calcEquiSol(mapSeasonNumber(!isNorthern, 3), year);
+            if (winter != null) {
+                currentSeason.setWinter(winter);
+            }
             currentYear = year;
         }
 
         if (useMeteorologicalSeason) {
-            atMidnightOfFirstMonthDay(season.getSpring());
-            atMidnightOfFirstMonthDay(season.getSummer());
-            atMidnightOfFirstMonthDay(season.getAutumn());
-            atMidnightOfFirstMonthDay(season.getWinter());
+            atMidnightOfFirstMonthDay(currentSeason.getSpring());
+            atMidnightOfFirstMonthDay(currentSeason.getSummer());
+            atMidnightOfFirstMonthDay(currentSeason.getAutumn());
+            atMidnightOfFirstMonthDay(currentSeason.getWinter());
         }
 
-        season.setName(!isSouthernHemisphere ? getCurrentSeasonNameNorthern(calendar)
+        currentSeason.setName(!isSouthernHemisphere ? getCurrentSeasonNameNorthern(calendar)
                 : getCurrentSeasonNameSouthern(calendar));
-        return season;
+        return currentSeason;
     }
 
     private void atMidnightOfFirstMonthDay(Calendar calendar) {
@@ -75,7 +86,7 @@ public class SeasonCalc {
     /**
      * Returns the current season name for the northern hemisphere.
      */
-    private SeasonName getCurrentSeasonNameNorthern(Calendar calendar) {
+    private @Nullable SeasonName getCurrentSeasonNameNorthern(Calendar calendar) {
         long currentMillis = calendar.getTimeInMillis();
         if (currentMillis < currentSeason.getSpring().getTimeInMillis()
                 || currentMillis >= currentSeason.getWinter().getTimeInMillis()) {
@@ -96,7 +107,7 @@ public class SeasonCalc {
     /**
      * Returns the current season name for the southern hemisphere.
      */
-    private SeasonName getCurrentSeasonNameSouthern(Calendar calendar) {
+    private @Nullable SeasonName getCurrentSeasonNameSouthern(Calendar calendar) {
         long currentMillis = calendar.getTimeInMillis();
         if (currentMillis < currentSeason.getAutumn().getTimeInMillis()
                 || currentMillis >= currentSeason.getSummer().getTimeInMillis()) {
@@ -117,7 +128,7 @@ public class SeasonCalc {
     /**
      * Calculates the date of the season.
      */
-    private Calendar calcEquiSol(int season, int year) {
+    private @Nullable Calendar calcEquiSol(int season, int year) {
         double estimate = calcInitial(season, year);
         double t = (estimate - 2451545.0) / 36525;
         double w = 35999.373 * t - 2.47;

@@ -15,6 +15,8 @@ package org.openhab.binding.astro.internal.util;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.astro.internal.config.AstroChannelConfig;
 import org.openhab.binding.astro.internal.model.Range;
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class DateTimeUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateTimeUtils.class);
     private static final Pattern HHMM_PATTERN = Pattern.compile("^([0-1][0-9]|2[0-3])(:[0-5][0-9])$");
@@ -91,7 +94,7 @@ public class DateTimeUtils {
     /**
      * Returns a calendar object from a julian date.
      */
-    public static Calendar toCalendar(double julianDate) {
+    public static @Nullable Calendar toCalendar(double julianDate) {
         if (Double.compare(julianDate, Double.NaN) == 0 || julianDate == 0) {
             return null;
         }
@@ -147,7 +150,7 @@ public class DateTimeUtils {
     /**
      * Converts the time (hour.minute) to a calendar object.
      */
-    public static Calendar timeToCalendar(Calendar calendar, double time) {
+    public static @Nullable Calendar timeToCalendar(Calendar calendar, double time) {
         if (time < 0.0) {
             return null;
         }
@@ -169,8 +172,7 @@ public class DateTimeUtils {
      * Returns true, if two calendar objects are on the same day ignoring time.
      */
     public static boolean isSameDay(Calendar cal1, Calendar cal2) {
-        return cal1 != null && cal2 != null && cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA)
-                && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+        return cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
                 && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
@@ -222,14 +224,19 @@ public class DateTimeUtils {
             cOffset.add(Calendar.MINUTE, config.offset);
             cCal = cOffset;
         }
-
-        Calendar cEarliest = adjustTime(cCal, getMinutesFromTime(config.earliest));
-        if (cCal.before(cEarliest)) {
-            return cEarliest;
+        String earliest = config.earliest;
+        if (earliest != null) {
+            Calendar cEarliest = adjustTime(cCal, getMinutesFromTime(earliest));
+            if (cCal.before(cEarliest)) {
+                return cEarliest;
+            }
         }
-        Calendar cLatest = adjustTime(cCal, getMinutesFromTime(config.latest));
-        if (cCal.after(cLatest)) {
-            return cLatest;
+        String latest = config.latest;
+        if (latest != null) {
+            Calendar cLatest = adjustTime(cCal, getMinutesFromTime(latest));
+            if (cCal.after(cLatest)) {
+                return cLatest;
+            }
         }
 
         return cCal;
@@ -248,24 +255,21 @@ public class DateTimeUtils {
      * Parses a HH:MM string and returns the minutes.
      */
     private static int getMinutesFromTime(String configTime) {
-        if (configTime != null) {
-            String time = configTime.trim();
-            if (!time.isEmpty()) {
-                try {
-                    if (!HHMM_PATTERN.matcher(time).matches()) {
-                        throw new NumberFormatException();
-                    } else {
-                        String[] elements = time.split(":");
-                        int hour = Integer.parseInt(elements[0]);
-                        int minutes = Integer.parseInt(elements[1]);
-                        return (hour * 60) + minutes;
-                    }
-                } catch (NumberFormatException ex) {
-                    LOGGER.warn(
-                            "Can not parse astro channel configuration '{}' to hour and minutes, use pattern hh:mm, ignoring!",
-                            time);
+        String time = configTime.trim();
+        if (!time.isEmpty()) {
+            try {
+                if (!HHMM_PATTERN.matcher(time).matches()) {
+                    throw new NumberFormatException();
+                } else {
+                    String[] elements = time.split(":");
+                    int hour = Integer.parseInt(elements[0]);
+                    int minutes = Integer.parseInt(elements[1]);
+                    return (hour * 60) + minutes;
                 }
-
+            } catch (NumberFormatException ex) {
+                LOGGER.warn(
+                        "Can not parse astro channel configuration '{}' to hour and minutes, use pattern hh:mm, ignoring!",
+                        time);
             }
         }
         return 0;

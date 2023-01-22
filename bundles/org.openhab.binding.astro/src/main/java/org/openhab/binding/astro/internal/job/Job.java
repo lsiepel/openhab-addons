@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.astro.internal.config.AstroChannelConfig;
 import org.openhab.binding.astro.internal.handler.AstroThingHandler;
 import org.openhab.binding.astro.internal.model.Range;
@@ -70,8 +71,11 @@ public interface Job extends SchedulerRunnable, Runnable {
      * @param event the event ID
      * @param channelId the channel ID
      */
-    public static void scheduleEvent(String thingUID, AstroThingHandler astroHandler, Calendar eventAt, String event,
-            String channelId, boolean configAlreadyApplied) {
+    public static void scheduleEvent(String thingUID, AstroThingHandler astroHandler, @Nullable Calendar eventAt,
+            String event, String channelId, boolean configAlreadyApplied) {
+        if (eventAt == null) {
+            return;
+        }
         scheduleEvent(thingUID, astroHandler, eventAt, singletonList(event), channelId, configAlreadyApplied);
     }
 
@@ -142,7 +146,11 @@ public interface Job extends SchedulerRunnable, Runnable {
      * @param astroHandler the {@link AstroThingHandler} instance
      * @param eventAt the {@link Calendar} instance denoting scheduled instant
      */
-    public static void schedulePublishPlanet(String thingUID, AstroThingHandler astroHandler, Calendar eventAt) {
+    public static void schedulePublishPlanet(String thingUID, AstroThingHandler astroHandler,
+            @Nullable Calendar eventAt) {
+        if (eventAt == null) {
+            return;
+        }
         Job publishJob = new PublishPlanetJob(thingUID);
         schedule(thingUID, astroHandler, publishJob, eventAt);
     }
@@ -156,7 +164,11 @@ public interface Job extends SchedulerRunnable, Runnable {
      * @param eventAt the {@link Calendar} instance denoting scheduled instant
      */
     public static void scheduleSunPhase(String thingUID, AstroThingHandler astroHandler, SunPhaseName sunPhaseName,
-            Calendar eventAt) {
+            @Nullable Calendar eventAt) {
+        if (eventAt == null) {
+            return;
+        }
+
         Job sunPhaseJob = new SunPhaseJob(thingUID, sunPhaseName);
         schedule(thingUID, astroHandler, sunPhaseJob, eventAt);
     }

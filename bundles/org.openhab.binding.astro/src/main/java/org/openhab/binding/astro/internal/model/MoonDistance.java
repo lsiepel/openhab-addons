@@ -32,6 +32,14 @@ public class MoonDistance {
     private Calendar date;
     private double distance;
 
+    public MoonDistance() {
+    }
+
+    public MoonDistance(Calendar date, double distance) {
+        this.date = date;
+        this.distance = distance;
+    }
+
     /**
      * Returns the date of the calculated distance.
      */

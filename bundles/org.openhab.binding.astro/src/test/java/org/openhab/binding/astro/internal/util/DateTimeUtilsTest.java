@@ -18,6 +18,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.astro.internal.calc.SeasonCalc;
@@ -28,6 +29,7 @@ import org.openhab.binding.astro.internal.model.Season;
  *
  * @author Hilbrand Bouwkamp - Initial contribution
  */
+@NonNullByDefault
 public class DateTimeUtilsTest {
 
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("Europe/Amsterdam");
@@ -39,7 +41,7 @@ public class DateTimeUtilsTest {
     private static final double AMSTERDAM_LATITUDE = 52.367607;
     private static final double SYDNEY_LATITUDE = -33.87;
 
-    private SeasonCalc seasonCalc;
+    private SeasonCalc seasonCalc = new SeasonCalc();
 
     @BeforeEach
     public void init() {

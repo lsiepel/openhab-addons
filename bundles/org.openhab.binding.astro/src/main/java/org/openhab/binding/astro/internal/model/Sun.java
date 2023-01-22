@@ -15,32 +15,31 @@ package org.openhab.binding.astro.internal.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Holds the calculated sun data.
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class Sun extends RiseSet implements Planet {
 
     private Map<SunPhaseName, Range> ranges = new HashMap<>();
-
     private Position position = new Position();
-
-    private SunZodiac zodiac = new SunZodiac(null, null);
-
+    private @Nullable SunZodiac zodiac;
     private Season season = new Season();
-
     private Eclipse eclipse = new Eclipse(EclipseKind.PARTIAL, EclipseKind.TOTAL, EclipseKind.RING);
-
     private Radiation radiation = new Radiation();
-
-    private SunPhase phase = new SunPhase();
+    private @Nullable SunPhase phase = new SunPhase();
 
     /**
      * Returns the astro dawn range.
      */
     public Range getAstroDawn() {
-        return ranges.get(SunPhaseName.ASTRO_DAWN);
+        Range range = ranges.get(SunPhaseName.ASTRO_DAWN);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -54,7 +53,8 @@ public class Sun extends RiseSet implements Planet {
      * Returns the nautic dawn range.
      */
     public Range getNauticDawn() {
-        return ranges.get(SunPhaseName.NAUTIC_DAWN);
+        Range range = ranges.get(SunPhaseName.NAUTIC_DAWN);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -68,7 +68,8 @@ public class Sun extends RiseSet implements Planet {
      * Returns the civil dawn range.
      */
     public Range getCivilDawn() {
-        return ranges.get(SunPhaseName.CIVIL_DAWN);
+        Range range = ranges.get(SunPhaseName.CIVIL_DAWN);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -82,7 +83,8 @@ public class Sun extends RiseSet implements Planet {
      * Returns the civil dusk range.
      */
     public Range getCivilDusk() {
-        return ranges.get(SunPhaseName.CIVIL_DUSK);
+        Range range = ranges.get(SunPhaseName.CIVIL_DUSK);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -96,7 +98,8 @@ public class Sun extends RiseSet implements Planet {
      * Returns the nautic dusk range.
      */
     public Range getNauticDusk() {
-        return ranges.get(SunPhaseName.NAUTIC_DUSK);
+        Range range = ranges.get(SunPhaseName.NAUTIC_DUSK);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -110,7 +113,8 @@ public class Sun extends RiseSet implements Planet {
      * Returns the astro dusk range.
      */
     public Range getAstroDusk() {
-        return ranges.get(SunPhaseName.ASTRO_DUSK);
+        Range range = ranges.get(SunPhaseName.ASTRO_DUSK);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -124,7 +128,8 @@ public class Sun extends RiseSet implements Planet {
      * Returns the noon range, start and end is always equal.
      */
     public Range getNoon() {
-        return ranges.get(SunPhaseName.NOON);
+        Range range = ranges.get(SunPhaseName.NOON);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -138,7 +143,8 @@ public class Sun extends RiseSet implements Planet {
      * Returns the daylight range.
      */
     public Range getDaylight() {
-        return ranges.get(SunPhaseName.DAYLIGHT);
+        Range range = ranges.get(SunPhaseName.DAYLIGHT);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -152,7 +158,8 @@ public class Sun extends RiseSet implements Planet {
      * Returns the morning night range.
      */
     public Range getMorningNight() {
-        return ranges.get(SunPhaseName.MORNING_NIGHT);
+        Range range = ranges.get(SunPhaseName.MORNING_NIGHT);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -166,7 +173,8 @@ public class Sun extends RiseSet implements Planet {
      * Returns the evening night range.
      */
     public Range getEveningNight() {
-        return ranges.get(SunPhaseName.EVENING_NIGHT);
+        Range range = ranges.get(SunPhaseName.EVENING_NIGHT);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -180,7 +188,8 @@ public class Sun extends RiseSet implements Planet {
      * Returns the night range.
      */
     public Range getNight() {
-        return ranges.get(SunPhaseName.NIGHT);
+        Range range = ranges.get(SunPhaseName.NIGHT);
+        return range == null ? new Range() : range;
     }
 
     /**
@@ -232,7 +241,7 @@ public class Sun extends RiseSet implements Planet {
     /**
      * Returns the zodiac.
      */
-    public SunZodiac getZodiac() {
+    public @Nullable SunZodiac getZodiac() {
         return zodiac;
     }
 
@@ -274,14 +283,14 @@ public class Sun extends RiseSet implements Planet {
     /**
      * Returns the sun phase.
      */
-    public SunPhase getPhase() {
+    public @Nullable SunPhase getPhase() {
         return phase;
     }
 
     /**
      * Sets the sun phase.
      */
-    public void setPhase(SunPhase phase) {
+    public void setPhase(@Nullable SunPhase phase) {
         this.phase = phase;
     }
 

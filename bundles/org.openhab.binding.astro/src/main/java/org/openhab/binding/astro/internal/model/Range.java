@@ -19,6 +19,8 @@ import java.util.Comparator;
 
 import javax.measure.quantity.Time;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.astro.internal.util.DateTimeUtils;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
@@ -29,15 +31,16 @@ import org.openhab.core.library.unit.Units;
  * @author Gerhard Riegler - Initial contribution
  * @author Christoph Weitkamp - Introduced UoM
  */
+@NonNullByDefault
 public class Range {
 
-    private Calendar start;
-    private Calendar end;
+    private @Nullable Calendar start;
+    private @Nullable Calendar end;
 
     public Range() {
     }
 
-    public Range(Calendar start, Calendar end) {
+    public Range(@Nullable Calendar start, @Nullable Calendar end) {
         this.start = start;
         this.end = end;
     }
@@ -45,28 +48,30 @@ public class Range {
     /**
      * Returns the start of the range.
      */
-    public Calendar getStart() {
+    public @Nullable Calendar getStart() {
         return start;
     }
 
     /**
      * Returns the end of the range.
      */
-    public Calendar getEnd() {
+    public @Nullable Calendar getEnd() {
         return end;
     }
 
     /**
      * Returns the duration in minutes.
      */
-    public QuantityType<Time> getDuration() {
-        if (start == null || end == null) {
+    public @Nullable QuantityType<Time> getDuration() {
+        Calendar startLocal = start;
+        Calendar endLocal = end;
+        if (startLocal == null || endLocal == null) {
             return null;
         }
-        if (start.after(end)) {
+        if (startLocal.after(endLocal)) {
             return new QuantityType<>(0, Units.MINUTE);
         }
-        return new QuantityType<>(end.getTimeInMillis() - start.getTimeInMillis(), MILLI(Units.SECOND))
+        return new QuantityType<>(endLocal.getTimeInMillis() - startLocal.getTimeInMillis(), MILLI(Units.SECOND))
                 .toUnit(Units.MINUTE);
     }
 
@@ -74,12 +79,15 @@ public class Range {
      * Returns true, if the given calendar matches into the range.
      */
     public boolean matches(Calendar cal) {
-        if (start == null && end == null) {
+        Calendar startLocal = start;
+        Calendar endLocal = end;
+        if (startLocal == null && endLocal == null) {
             return false;
         }
-        long matchStart = start != null ? start.getTimeInMillis()
+        long matchStart = startLocal != null ? startLocal.getTimeInMillis()
                 : DateTimeUtils.truncateToMidnight(cal).getTimeInMillis();
-        long matchEnd = end != null ? end.getTimeInMillis() : DateTimeUtils.endOfDayDate(cal).getTimeInMillis();
+        long matchEnd = endLocal != null ? endLocal.getTimeInMillis()
+                : DateTimeUtils.endOfDayDate(cal).getTimeInMillis();
         return cal.getTimeInMillis() >= matchStart && cal.getTimeInMillis() < matchEnd;
     }
 

@@ -21,12 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.astro.internal.model.Eclipse;
 import org.openhab.binding.astro.internal.model.EclipseType;
 import org.openhab.binding.astro.internal.model.Position;
 import org.openhab.binding.astro.internal.model.Radiation;
 import org.openhab.binding.astro.internal.model.Range;
 import org.openhab.binding.astro.internal.model.Sun;
+import org.openhab.binding.astro.internal.model.SunPhase;
 import org.openhab.binding.astro.internal.model.SunPhaseName;
 import org.openhab.binding.astro.internal.util.DateTimeUtils;
 
@@ -37,6 +39,7 @@ import org.openhab.binding.astro.internal.util.DateTimeUtils;
  * @author Christoph Weitkamp - Introduced UoM
  * @see based on the calculations of http://www.suncalc.net
  */
+@NonNullByDefault
 public class SunCalc {
     private static final double J2000 = 2451545.0;
     private static final double SC = 1367; // Solar constant in W/m²
@@ -105,7 +108,7 @@ public class SunCalc {
         // Direct Solar Radiation (in W/m²) at the atmosphere entry
         // At sunrise/sunset - calculations limits are reached
         double rOut = (elevation > 3) ? SC * (0.034 * Math.cos(DEG2RAD * (360 * dayOfYear / daysInYear)) + 1) : 0;
-        double altitudeRatio = (altitude != null) ? 1 / Math.pow((1 - (6.5 / 288) * (altitude / 1000.0)), 5.256) : 1;
+        double altitudeRatio = 1 / Math.pow((1 - (6.5 / 288) * (altitude / 1000.0)), 5.256);
         double m = (Math.sqrt(1229 + Math.pow(614 * sinAlpha, 2)) - 614 * sinAlpha) * altitudeRatio;
 
         // Direct radiation after atmospheric layer
@@ -212,9 +215,9 @@ public class SunCalc {
         Sun sunYesterday = getSunInfo(addDays(calendar, -1), latitude, longitude, altitude, true,
                 useMeteorologicalSeason);
         Range morningNightRange = null;
-        if (sunYesterday.getAstroDusk().getEnd() != null
-                && DateTimeUtils.isSameDay(sunYesterday.getAstroDusk().getEnd(), calendar)) {
-            morningNightRange = new Range(sunYesterday.getAstroDusk().getEnd(), sun.getAstroDawn().getStart());
+        Calendar yesterdayAstroDusk = sunYesterday.getAstroDusk().getEnd();
+        if (yesterdayAstroDusk != null && DateTimeUtils.isSameDay(yesterdayAstroDusk, calendar)) {
+            morningNightRange = new Range(yesterdayAstroDusk, sun.getAstroDawn().getStart());
         } else if (isSunUpAllDay || sun.getAstroDawn().getStart() == null) {
             morningNightRange = new Range();
         } else {
@@ -224,9 +227,9 @@ public class SunCalc {
 
         // evening night
         Range eveningNightRange = null;
-        if (sun.getAstroDusk().getEnd() != null && DateTimeUtils.isSameDay(sun.getAstroDusk().getEnd(), calendar)) {
-            eveningNightRange = new Range(sun.getAstroDusk().getEnd(),
-                    DateTimeUtils.truncateToMidnight(addDays(calendar, 1)));
+        Calendar sunAstroDusk = sun.getAstroDusk().getEnd();
+        if (sunAstroDusk != null && DateTimeUtils.isSameDay(sunAstroDusk, calendar)) {
+            eveningNightRange = new Range(sunAstroDusk, DateTimeUtils.truncateToMidnight(addDays(calendar, 1)));
         } else {
             eveningNightRange = new Range();
         }
@@ -247,7 +250,10 @@ public class SunCalc {
 
         eclipse.getKinds().forEach(eclipseKind -> {
             double jdate = mc.getEclipse(calendar, EclipseType.SUN, j, eclipseKind);
-            eclipse.set(eclipseKind, DateTimeUtils.toCalendar(jdate), new Position());
+            Calendar cal = DateTimeUtils.toCalendar(jdate);
+            if (cal != null) {
+                eclipse.set(eclipseKind, cal, new Position());
+            }
         });
 
         SunZodiacCalc zodiacCalc = new SunZodiacCalc();
@@ -256,14 +262,16 @@ public class SunCalc {
         SeasonCalc seasonCalc = new SeasonCalc();
         sun.setSeason(seasonCalc.getSeason(calendar, latitude, useMeteorologicalSeason));
 
-        // phase
-        for (Entry<SunPhaseName, Range> rangeEntry : sortByValue(sun.getAllRanges()).entrySet()) {
-            SunPhaseName entryPhase = rangeEntry.getKey();
-            if (rangeEntry.getValue().matches(calendar)) {
-                if (entryPhase == SunPhaseName.MORNING_NIGHT || entryPhase == SunPhaseName.EVENING_NIGHT) {
-                    sun.getPhase().setName(SunPhaseName.NIGHT);
-                } else {
-                    sun.getPhase().setName(entryPhase);
+        SunPhase sunPhase = sun.getPhase();
+        if (sunPhase != null) {
+            for (Entry<SunPhaseName, Range> rangeEntry : sortByValue(sun.getAllRanges()).entrySet()) {
+                SunPhaseName entryPhase = rangeEntry.getKey();
+                if (rangeEntry.getValue().matches(calendar)) {
+                    if (entryPhase == SunPhaseName.MORNING_NIGHT || entryPhase == SunPhaseName.EVENING_NIGHT) {
+                        sunPhase.setName(SunPhaseName.NIGHT);
+                    } else {
+                        sunPhase.setName(entryPhase);
+                    }
                 }
             }
         }

@@ -19,6 +19,7 @@ import org.openhab.binding.astro.internal.AstroHandlerFactory;
 import org.openhab.binding.astro.internal.handler.AstroThingHandler;
 import org.openhab.binding.astro.internal.model.Planet;
 import org.openhab.binding.astro.internal.model.Sun;
+import org.openhab.binding.astro.internal.model.SunPhase;
 import org.openhab.binding.astro.internal.model.SunPhaseName;
 import org.openhab.core.thing.Channel;
 
@@ -55,7 +56,10 @@ public final class SunPhaseJob extends AbstractJob {
                 Planet planet = astroHandler.getPlanet();
                 if (planet != null && planet instanceof Sun) {
                     final Sun typedSun = (Sun) planet;
-                    typedSun.getPhase().setName(sunPhaseName);
+                    SunPhase phase = typedSun.getPhase();
+                    if (phase != null) {
+                        phase.setName(sunPhaseName);
+                    }
                     astroHandler.publishChannelIfLinked(phaseNameChannel.getUID());
                 }
             } else {

@@ -35,8 +35,9 @@ public class AstroThingConfig {
      * Splits the geolocation into latitude and longitude.
      */
     public void parseGeoLocation() {
-        if (geolocation != null) {
-            String[] geoParts = geolocation.split(",");
+        String geoLocationLocal = geolocation;
+        if (geoLocationLocal != null) {
+            String[] geoParts = geoLocationLocal.split(",");
             if (geoParts.length >= 2) {
                 latitude = toDouble(geoParts[0]);
                 longitude = toDouble(geoParts[1]);

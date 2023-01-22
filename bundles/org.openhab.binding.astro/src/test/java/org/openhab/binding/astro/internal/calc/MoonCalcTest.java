@@ -18,6 +18,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.astro.internal.model.Moon;
@@ -35,6 +36,7 @@ import org.openhab.binding.astro.internal.model.ZodiacSign;
  * @author Leo Siepel - Initial contribution
  * @see <a href="https://www.heavens-above.com/Moon.aspx">Heavens Above Moon</a>
  */
+@NonNullByDefault
 public class MoonCalcTest {
 
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("Europe/Amsterdam");
@@ -46,7 +48,7 @@ public class MoonCalcTest {
     private static final int ACCURACY_IN_KILOMETRES = 4;
     private static final double ACCURACY_IN_DEGREE = 0.3;
 
-    private MoonCalc moonCalc;
+    private MoonCalc moonCalc = new MoonCalc();
 
     @BeforeEach
     public void init() {
@@ -98,18 +100,24 @@ public class MoonCalcTest {
     public void testGetMoonInfoForRiseAccuracy() {
         Moon moon = moonCalc.getMoonInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE);
 
+        Calendar result = moon.getRise().getStart();
+
         // expected result from haevens-above.com is 03:00
+        assertNotNull(result);
         assertEquals(MoonCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 3, 0, TIME_ZONE).getTimeInMillis(),
-                moon.getRise().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                result.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test
     public void testGetMoonInfoForSetAccuracy() {
         Moon moon = moonCalc.getMoonInfo(FEB_27_2019, AMSTERDAM_LATITUDE, AMSTERDAM_LONGITUDE);
 
+        Calendar result = moon.getSet().getStart();
+
+        assertNotNull(result);
         // expected result from haevens-above.com is 11:35
         assertEquals(MoonCalcTest.newCalendar(2019, Calendar.FEBRUARY, 27, 11, 35, TIME_ZONE).getTimeInMillis(),
-                moon.getSet().getStart().getTimeInMillis(), ACCURACY_IN_MILLIS);
+                result.getTimeInMillis(), ACCURACY_IN_MILLIS);
     }
 
     @Test

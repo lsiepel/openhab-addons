@@ -23,6 +23,7 @@ import org.openhab.binding.astro.internal.handler.AstroThingHandler;
 import org.openhab.binding.astro.internal.model.Eclipse;
 import org.openhab.binding.astro.internal.model.Planet;
 import org.openhab.binding.astro.internal.model.Sun;
+import org.openhab.binding.astro.internal.model.SunZodiac;
 
 /**
  * Daily scheduled jobs For Sun planet
@@ -83,7 +84,10 @@ public final class DailyJobSun extends AbstractJob {
         });
 
         // schedule republish jobs
-        schedulePublishPlanet(thingUID, handler, sun.getZodiac().getEnd());
+        SunZodiac zodiac = sun.getZodiac();
+        if (zodiac != null) {
+            schedulePublishPlanet(thingUID, handler, zodiac.getEnd());
+        }
         schedulePublishPlanet(thingUID, handler, sun.getSeason().getNextSeason());
 
         // schedule phase jobs

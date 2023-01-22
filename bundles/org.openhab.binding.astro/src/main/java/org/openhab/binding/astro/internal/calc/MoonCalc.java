@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.astro.internal.model.Eclipse;
 import org.openhab.binding.astro.internal.model.EclipseKind;
 import org.openhab.binding.astro.internal.model.EclipseType;
@@ -39,6 +40,7 @@ import org.openhab.binding.astro.internal.util.DateTimeUtils;
  *      http://www.computus.de/mondphase/mondphase.htm azimuth/elevation and
  *      zodiac based on http://lexikon.astronomie.info/java/sunmoon/
  */
+@NonNullByDefault
 public class MoonCalc {
     private static final double NEW_MOON = 0;
     private static final double FULL_MOON = 0.5;
@@ -83,19 +85,19 @@ public class MoonCalc {
         Eclipse eclipse = moon.getEclipse();
         eclipse.getKinds().forEach(eclipseKind -> {
             double jdate = getEclipse(calendar, EclipseType.MOON, julianDateMidnight, eclipseKind);
-            eclipse.set(eclipseKind, DateTimeUtils.toCalendar(jdate), new Position());
+            Calendar cal = DateTimeUtils.toCalendar(jdate);
+            if (cal != null) {
+                eclipse.set(eclipseKind, cal, new Position());
+            }
         });
 
         double decimalYear = DateTimeUtils.getDecimalYear(calendar);
-        MoonDistance apogee = moon.getApogee();
-        double apogeeJd = getApogee(julianDate, decimalYear);
-        apogee.setDate(DateTimeUtils.toCalendar(apogeeJd));
-        apogee.setDistance(getDistance(apogeeJd));
 
-        MoonDistance perigee = moon.getPerigee();
+        double apogeeJd = getApogee(julianDate, decimalYear);
+        moon.setApogee(new MoonDistance(DateTimeUtils.toCalendar(apogeeJd), getDistance(apogeeJd)));
+
         double perigeeJd = getPerigee(julianDate, decimalYear);
-        perigee.setDate(DateTimeUtils.toCalendar(perigeeJd));
-        perigee.setDistance(getDistance(perigeeJd));
+        moon.setPerigee(new MoonDistance(DateTimeUtils.toCalendar(perigeeJd), getDistance(perigeeJd)));
 
         return moon;
     }
@@ -108,9 +110,7 @@ public class MoonCalc {
         setMoonPhase(calendar, moon);
         setAzimuthElevationZodiac(julianDate, latitude, longitude, moon);
 
-        MoonDistance distance = moon.getDistance();
-        distance.setDate(Calendar.getInstance());
-        distance.setDistance(getDistance(julianDate));
+        moon.setDistance(new MoonDistance(Calendar.getInstance(), getDistance(julianDate)));
     }
 
     /**

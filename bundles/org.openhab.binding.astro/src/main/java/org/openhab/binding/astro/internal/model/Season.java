@@ -18,6 +18,8 @@ import java.util.Calendar;
 
 import javax.measure.quantity.Time;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.astro.internal.util.DateTimeUtils;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
@@ -27,13 +29,14 @@ import org.openhab.core.library.unit.Units;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class Season {
-    private Calendar spring;
-    private Calendar summer;
-    private Calendar autumn;
-    private Calendar winter;
+    private Calendar spring = Calendar.getInstance();
+    private Calendar summer = Calendar.getInstance();
+    private Calendar autumn = Calendar.getInstance();
+    private Calendar winter = Calendar.getInstance();
 
-    private SeasonName name;
+    private @Nullable SeasonName name;
 
     /**
      * Returns the date of the beginning of spring.
@@ -94,14 +97,14 @@ public class Season {
     /**
      * Returns the current season name.
      */
-    public SeasonName getName() {
+    public @Nullable SeasonName getName() {
         return name;
     }
 
     /**
      * Sets the current season name.
      */
-    public void setName(SeasonName name) {
+    public void setName(@Nullable SeasonName name) {
         this.name = name;
     }
 
@@ -116,7 +119,11 @@ public class Season {
      * Returns the next season name.
      */
     public SeasonName getNextName() {
-        int ordinal = name.ordinal() + 1;
+        SeasonName nameLocal = name;
+        if (nameLocal == null) {
+            return SeasonName.values()[0];
+        }
+        int ordinal = nameLocal.ordinal() + 1;
         if (ordinal > 3) {
             ordinal = 0;
         }
