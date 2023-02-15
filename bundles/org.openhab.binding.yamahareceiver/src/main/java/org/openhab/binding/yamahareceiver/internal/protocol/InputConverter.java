@@ -20,7 +20,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * For example, AVRs when setting input 'AUDIO_X' (or HDMI_X) need the input to be sent in this form.
  * However, what comes back in the status update from the AVR is 'AUDIOX' (and 'HDMIX') respectively.
  *
- * @author Tomasz Maruszak
+ * @author Tomasz Maruszak - Initial contribution
  */
 @NonNullByDefault
 public interface InputConverter {

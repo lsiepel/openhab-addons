@@ -51,26 +51,26 @@ public class XMLProtocolFactory implements ProtocolFactory {
     }
 
     @Override
-    public SystemControl SystemControl(AbstractConnection connection, SystemControlStateListener listener,
+    public SystemControl systemControl(AbstractConnection connection, SystemControlStateListener listener,
             DeviceInformationState deviceInformationState) {
         return new SystemControlXML(connection, listener, deviceInformationState);
     }
 
     @Override
-    public InputWithPlayControl InputWithPlayControl(AbstractConnection connection, String currentInputID,
+    public InputWithPlayControl inputWithPlayControl(AbstractConnection connection, String currentInputID,
             PlayInfoStateListener listener, YamahaBridgeConfig bridgeConfig,
             DeviceInformationState deviceInformationState) {
         return new InputWithPlayControlXML(currentInputID, connection, listener, bridgeConfig, deviceInformationState);
     }
 
     @Override
-    public InputWithPresetControl InputWithPresetControl(AbstractConnection connection, String currentInputID,
+    public InputWithPresetControl inputWithPresetControl(AbstractConnection connection, String currentInputID,
             PresetInfoStateListener listener, DeviceInformationState deviceInformationState) {
         return new InputWithPresetControlXML(currentInputID, connection, listener, deviceInformationState);
     }
 
     @Override
-    public InputWithTunerBandControl InputWithDabBandControl(String currentInputID, AbstractConnection connection,
+    public InputWithTunerBandControl inputWithDabBandControl(String currentInputID, AbstractConnection connection,
             DabBandStateListener observerForBand, PresetInfoStateListener observerForPreset,
             PlayInfoStateListener observerForPlayInfo, DeviceInformationState deviceInformationState) {
         return new InputWithTunerDABControlXML(currentInputID, connection, observerForBand, observerForPreset,
@@ -78,14 +78,14 @@ public class XMLProtocolFactory implements ProtocolFactory {
     }
 
     @Override
-    public InputWithNavigationControl InputWithNavigationControl(AbstractConnection connection,
+    public InputWithNavigationControl inputWithNavigationControl(AbstractConnection connection,
             NavigationControlState state, String inputID, NavigationControlStateListener observer,
             DeviceInformationState deviceInformationState) {
         return new InputWithNavigationControlXML(state, inputID, connection, observer, deviceInformationState);
     }
 
     @Override
-    public ZoneControl ZoneControl(AbstractConnection connection, YamahaZoneConfig zoneSettings,
+    public ZoneControl zoneControl(AbstractConnection connection, YamahaZoneConfig zoneSettings,
             ZoneControlStateListener listener, Supplier<InputConverter> inputConverterSupplier,
             DeviceInformationState deviceInformationState) {
         if (isZoneB(zoneSettings.getZone(), deviceInformationState)) {
@@ -97,7 +97,7 @@ public class XMLProtocolFactory implements ProtocolFactory {
     }
 
     @Override
-    public ZoneAvailableInputs ZoneAvailableInputs(AbstractConnection connection, YamahaZoneConfig zoneSettings,
+    public ZoneAvailableInputs zoneAvailableInputs(AbstractConnection connection, YamahaZoneConfig zoneSettings,
             AvailableInputStateListener listener, Supplier<InputConverter> inputConverterSupplier,
             DeviceInformationState deviceInformationState) {
         if (isZoneB(zoneSettings.getZone(), deviceInformationState)) {
@@ -119,12 +119,12 @@ public class XMLProtocolFactory implements ProtocolFactory {
     }
 
     @Override
-    public DeviceInformation DeviceInformation(AbstractConnection connection, DeviceInformationState state) {
+    public DeviceInformation deviceInformation(AbstractConnection connection, DeviceInformationState state) {
         return new DeviceInformationXML(connection, state);
     }
 
     @Override
-    public InputConverter InputConverter(AbstractConnection connection, String setting) {
+    public InputConverter inputConverter(AbstractConnection connection, String setting) {
         return new InputConverterXML(connection, setting);
     }
 }

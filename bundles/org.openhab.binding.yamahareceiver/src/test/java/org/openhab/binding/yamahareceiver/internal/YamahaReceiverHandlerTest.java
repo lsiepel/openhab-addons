@@ -70,8 +70,8 @@ public class YamahaReceiverHandlerTest extends AbstractXMLProtocolTest {
         when(configuration.as(YamahaBridgeConfig.class)).thenReturn(bridgeConfig);
         when(bridge.getConfiguration()).thenReturn(configuration);
 
-        when(protocolFactory.DeviceInformation(any(), any())).thenReturn(deviceInformation);
-        when(protocolFactory.SystemControl(any(), any(), any())).thenReturn(systemControl);
+        when(protocolFactory.deviceInformation(any(), any())).thenReturn(deviceInformation);
+        when(protocolFactory.systemControl(any(), any(), any())).thenReturn(systemControl);
 
         subject = new YamahaBridgeHandler(bridge);
         subject.setZoneDiscoveryService(mock(ZoneDiscoveryService.class));

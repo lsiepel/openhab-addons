@@ -84,7 +84,7 @@ import org.slf4j.LoggerFactory;
  * class {@link ZoneControlXML}, {@link InputWithPlayControlXML} and {@link InputWithNavigationControlXML}
  * for communication.
  *
- * @author David Graeff <david.graeff@web.de>
+ * @author David Graeff - Initial contribution
  * @author Tomasz Maruszak - [yamaha] Tuner band selection and preset feature for dual band models (RX-S601D), added
  *         config object
  */
@@ -205,9 +205,9 @@ public class YamahaZoneThingHandler extends BaseThingHandler
                     if (zoneControl == null) {
                         YamahaBridgeHandler brHandler = getBridgeHandler();
 
-                        zoneControl = getProtocolFactory().ZoneControl(getConnection(), zoneConfig, this,
+                        zoneControl = getProtocolFactory().zoneControl(getConnection(), zoneConfig, this,
                                 brHandler::getInputConverter, getDeviceInformationState());
-                        zoneAvailableInputs = getProtocolFactory().ZoneAvailableInputs(getConnection(), zoneConfig,
+                        zoneAvailableInputs = getProtocolFactory().zoneAvailableInputs(getConnection(), zoneConfig,
                                 this, brHandler::getInputConverter, getDeviceInformationState());
 
                         updateZoneInformation();
@@ -494,6 +494,7 @@ public class YamahaZoneThingHandler extends BaseThingHandler
             updateState(channelUID, new StringType(zoneState.surroundProgram));
         } else if (id.equals(grpZone(CHANNEL_SCENE))) {
             // no state updates available
+            logger.debug("no state updates available for channel {}", CHANNEL_SCENE);
         } else if (id.equals(grpZone(CHANNEL_DIALOGUE_LEVEL))) {
             updateState(channelUID, new DecimalType(zoneState.dialogueLevel));
         } else if (id.equals(grpZone(CHANNEL_HDMI1OUT))) {
@@ -619,7 +620,7 @@ public class YamahaZoneThingHandler extends BaseThingHandler
             return;
         }
 
-        inputWithNavigationControl = getProtocolFactory().InputWithNavigationControl(getConnection(),
+        inputWithNavigationControl = getProtocolFactory().inputWithNavigationControl(getConnection(),
                 navigationInfoState, zoneState.inputID, this, getDeviceInformationState());
 
         updateAsyncMakeOfflineIfFail(inputWithNavigationControl);
@@ -659,7 +660,7 @@ public class YamahaZoneThingHandler extends BaseThingHandler
             // When input is Tuner DAB there is no playback control
             inputWithPlayControl = null;
         } else {
-            inputWithPlayControl = getProtocolFactory().InputWithPlayControl(getConnection(), zoneState.inputID, this,
+            inputWithPlayControl = getProtocolFactory().inputWithPlayControl(getConnection(), zoneState.inputID, this,
                     getBridgeHandler().getConfiguration(), getDeviceInformationState());
 
             updateAsyncMakeOfflineIfFail(inputWithPlayControl);
@@ -695,7 +696,7 @@ public class YamahaZoneThingHandler extends BaseThingHandler
             // Note: No need to update state - it will be already called for DabBand control (see
             // inputChangedCheckForDabBand)
         } else {
-            inputWithPresetControl = getProtocolFactory().InputWithPresetControl(getConnection(), zoneState.inputID,
+            inputWithPresetControl = getProtocolFactory().inputWithPresetControl(getConnection(), zoneState.inputID,
                     this, getDeviceInformationState());
 
             updateAsyncMakeOfflineIfFail(inputWithPresetControl);
@@ -724,7 +725,7 @@ public class YamahaZoneThingHandler extends BaseThingHandler
         }
 
         logger.debug("InputWithTunerBandControl created for {}", zoneState.inputID);
-        inputWithDabBandControl = getProtocolFactory().InputWithDabBandControl(zoneState.inputID, getConnection(), this,
+        inputWithDabBandControl = getProtocolFactory().inputWithDabBandControl(zoneState.inputID, getConnection(), this,
                 this, this, getDeviceInformationState());
 
         updateAsyncMakeOfflineIfFail(inputWithDabBandControl);

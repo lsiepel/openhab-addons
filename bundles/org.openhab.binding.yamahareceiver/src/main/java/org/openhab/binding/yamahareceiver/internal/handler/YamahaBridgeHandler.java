@@ -304,7 +304,7 @@ public class YamahaBridgeHandler extends BaseBridgeHandler
             onConnectionCreated(connection);
         }
 
-        inputConverter = protocolFactory.InputConverter(connection, bridgeConfig.getInputMapping());
+        inputConverter = protocolFactory.inputConverter(connection, bridgeConfig.getInputMapping());
         setupRefreshTimer(bridgeConfig.getRefreshInterval());
     }
 
@@ -381,7 +381,7 @@ public class YamahaBridgeHandler extends BaseBridgeHandler
         logger.trace("Initializing connection");
 
         try {
-            DeviceInformation deviceInformation = protocolFactory.DeviceInformation(connection, deviceInformationState);
+            DeviceInformation deviceInformation = protocolFactory.deviceInformation(connection, deviceInformationState);
             deviceInformation.update();
 
             updateProperty(PROPERTY_VERSION, deviceInformationState.version);
@@ -389,8 +389,8 @@ public class YamahaBridgeHandler extends BaseBridgeHandler
 
             zoneDiscoveryService.publishZones(deviceInformationState, thing.getUID());
 
-            systemControl = protocolFactory.SystemControl(connection, this, deviceInformationState);
-            inputConverter = protocolFactory.InputConverter(connection, bridgeConfig.getInputMapping());
+            systemControl = protocolFactory.systemControl(connection, this, deviceInformationState);
+            inputConverter = protocolFactory.inputConverter(connection, bridgeConfig.getInputMapping());
         } catch (IOException | ReceivedMessageParseException e) {
             deviceInformationState.invalidate();
             onConnectivityError(e);

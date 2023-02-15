@@ -64,7 +64,7 @@ public class XMLProtocolFactoryTest extends AbstractXMLProtocolTest {
         deviceInformation.update();
 
         // act
-        ZoneControl zoneControl = subject.ZoneControl(con, zoneConfig, zoneControlStateListener, () -> null, state);
+        ZoneControl zoneControl = subject.zoneControl(con, zoneConfig, zoneControlStateListener, () -> null, state);
 
         // assert
         assertTrue(zoneControl instanceof ZoneBControlXML, "Created ZoneB control");
@@ -80,7 +80,7 @@ public class XMLProtocolFactoryTest extends AbstractXMLProtocolTest {
         deviceInformation.update();
 
         // act
-        ZoneControl zoneControl = subject.ZoneControl(con, zoneConfig, zoneControlStateListener, () -> null, state);
+        ZoneControl zoneControl = subject.zoneControl(con, zoneConfig, zoneControlStateListener, () -> null, state);
 
         // assert
         assertTrue(zoneControl instanceof ZoneControlXML, "Created Zone control");

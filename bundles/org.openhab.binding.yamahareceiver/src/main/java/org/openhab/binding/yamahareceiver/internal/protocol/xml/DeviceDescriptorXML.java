@@ -59,7 +59,7 @@ public class DeviceDescriptorXML {
     }
 
     public static @Nullable DeviceDescriptorXML getAttached(DeviceInformationState state) {
-        return (DeviceDescriptorXML) state.properties.getOrDefault("desc", null);
+        return (DeviceDescriptorXML) state.properties.get("desc");
     }
 
     public String getUnitName() {

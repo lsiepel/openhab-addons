@@ -47,31 +47,31 @@ public interface ProtocolFactory {
      */
     void createConnection(String host, ConnectionStateListener connectionStateListener);
 
-    SystemControl SystemControl(AbstractConnection connection, SystemControlStateListener listener,
+    SystemControl systemControl(AbstractConnection connection, SystemControlStateListener listener,
             DeviceInformationState deviceInformationState);
 
-    InputWithPlayControl InputWithPlayControl(AbstractConnection connection, String currentInputID,
+    InputWithPlayControl inputWithPlayControl(AbstractConnection connection, String currentInputID,
             PlayInfoStateListener listener, YamahaBridgeConfig settings, DeviceInformationState deviceInformationState);
 
-    InputWithPresetControl InputWithPresetControl(AbstractConnection connection, String currentInputID,
+    InputWithPresetControl inputWithPresetControl(AbstractConnection connection, String currentInputID,
             PresetInfoStateListener listener, DeviceInformationState deviceInformationState);
 
-    InputWithTunerBandControl InputWithDabBandControl(String currentInputID, AbstractConnection connection,
+    InputWithTunerBandControl inputWithDabBandControl(String currentInputID, AbstractConnection connection,
             DabBandStateListener observerForBand, PresetInfoStateListener observerForPreset,
             PlayInfoStateListener observerForPlayInfo, DeviceInformationState deviceInformationState);
 
-    InputWithNavigationControl InputWithNavigationControl(AbstractConnection connection, NavigationControlState state,
+    InputWithNavigationControl inputWithNavigationControl(AbstractConnection connection, NavigationControlState state,
             String inputID, NavigationControlStateListener observer, DeviceInformationState deviceInformationState);
 
-    ZoneControl ZoneControl(AbstractConnection connection, YamahaZoneConfig zoneSettings,
+    ZoneControl zoneControl(AbstractConnection connection, YamahaZoneConfig zoneSettings,
             ZoneControlStateListener listener, Supplier<InputConverter> inputConverterSupplier,
             DeviceInformationState deviceInformationState);
 
-    ZoneAvailableInputs ZoneAvailableInputs(AbstractConnection connection, YamahaZoneConfig zoneSettings,
+    ZoneAvailableInputs zoneAvailableInputs(AbstractConnection connection, YamahaZoneConfig zoneSettings,
             AvailableInputStateListener listener, Supplier<InputConverter> inputConverterSupplier,
             DeviceInformationState deviceInformationState);
 
-    DeviceInformation DeviceInformation(AbstractConnection connection, DeviceInformationState state);
+    DeviceInformation deviceInformation(AbstractConnection connection, DeviceInformationState state);
 
-    InputConverter InputConverter(AbstractConnection connection, String setting);
+    InputConverter inputConverter(AbstractConnection connection, String setting);
 }
