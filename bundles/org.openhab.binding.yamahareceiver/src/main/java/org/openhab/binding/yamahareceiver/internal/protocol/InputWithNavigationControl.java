@@ -19,12 +19,15 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The navigation control protocol interface
  *
  * @author David Graeff - Initial contribution
  * @author Tomasz Maruszak - refactoring
  */
+@NonNullByDefault
 public interface InputWithNavigationControl extends IStateUpdatable {
     /**
      * List all inputs that are compatible with this kind of control

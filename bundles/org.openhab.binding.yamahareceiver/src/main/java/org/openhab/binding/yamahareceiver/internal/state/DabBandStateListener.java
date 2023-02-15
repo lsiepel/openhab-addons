@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.yamahareceiver.internal.state;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Listener for changes to {@link DabBandState}
  *
  * @author Tomasz Maruszak - [yamaha] Tuner band selection and preset feature for dual band models (RX-S601D)
  */
+@NonNullByDefault
 public interface DabBandStateListener {
     void dabBandUpdated(DabBandState msg);
 }

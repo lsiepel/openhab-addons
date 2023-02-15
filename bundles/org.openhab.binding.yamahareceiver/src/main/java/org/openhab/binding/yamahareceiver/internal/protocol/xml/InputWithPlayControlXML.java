@@ -19,6 +19,7 @@ import static org.openhab.binding.yamahareceiver.internal.protocol.xml.XMLUtils.
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.yamahareceiver.internal.config.YamahaBridgeConfig;
 import org.openhab.binding.yamahareceiver.internal.protocol.AbstractConnection;
 import org.openhab.binding.yamahareceiver.internal.protocol.InputWithPlayControl;
@@ -47,6 +48,7 @@ import org.w3c.dom.Node;
  * @author David Graeff
  * @author Tomasz Maruszak - Spotify support, refactoring
  */
+@NonNullByDefault
 public class InputWithPlayControlXML extends AbstractInputControlXML implements InputWithPlayControl {
 
     private final PlayInfoStateListener observer;

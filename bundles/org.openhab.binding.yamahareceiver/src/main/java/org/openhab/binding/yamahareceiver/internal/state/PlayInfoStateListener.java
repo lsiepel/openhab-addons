@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.yamahareceiver.internal.state;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Listener for changes to {@link PlayInfoState}
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface PlayInfoStateListener {
     void playInfoUpdated(PlayInfoState msg);
 }

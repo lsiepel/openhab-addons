@@ -16,12 +16,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * The preset state containing the channel names and currently selected channel
  *
  * @author David Graeff - Initial contribution
  * @author Tomasz Maruszak - RX-V3900 compatibility improvements
  */
+@NonNullByDefault
 public class PresetInfoState implements Invalidateable {
     public static class Preset {
         private final String name;
@@ -41,7 +45,7 @@ public class PresetInfoState implements Invalidateable {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(@Nullable Object o) {
             if (this == o) {
                 return true;
             }

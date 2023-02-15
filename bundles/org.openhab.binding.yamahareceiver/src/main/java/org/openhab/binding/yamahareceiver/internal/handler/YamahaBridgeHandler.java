@@ -64,7 +64,7 @@ public class YamahaBridgeHandler extends BaseBridgeHandler
 
     private final Logger logger = LoggerFactory.getLogger(YamahaBridgeHandler.class);
 
-    private YamahaBridgeConfig bridgeConfig;
+    private YamahaBridgeConfig bridgeConfig = new YamahaBridgeConfig();
     private InputConverter inputConverter;
 
     private ScheduledFuture<?> refreshTimer;

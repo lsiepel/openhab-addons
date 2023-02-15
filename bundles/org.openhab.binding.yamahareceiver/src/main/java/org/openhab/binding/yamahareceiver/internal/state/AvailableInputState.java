@@ -15,11 +15,14 @@ package org.openhab.binding.yamahareceiver.internal.state;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * List of AVR input channel names with <Input ID, Input Name>
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class AvailableInputState {
 
     // List of inputs with <Input ID, Input Name>

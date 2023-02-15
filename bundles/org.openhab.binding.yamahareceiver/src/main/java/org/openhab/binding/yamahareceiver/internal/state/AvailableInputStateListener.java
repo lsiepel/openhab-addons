@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.yamahareceiver.internal.state;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Listener for changes to {@link AvailableInputState}
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface AvailableInputStateListener {
     void availableInputsChanged(AvailableInputState msg);
 }

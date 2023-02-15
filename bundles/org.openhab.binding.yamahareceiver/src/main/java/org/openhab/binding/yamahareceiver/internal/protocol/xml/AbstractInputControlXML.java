@@ -18,6 +18,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.Feature;
 import org.openhab.binding.yamahareceiver.internal.config.YamahaUtils;
 import org.openhab.binding.yamahareceiver.internal.protocol.AbstractConnection;
@@ -74,7 +75,7 @@ public abstract class AbstractInputControlXML {
         return String.format("<%s>%s</%s>", inputElement, message, inputElement);
     }
 
-    protected DeviceDescriptorXML.FeatureDescriptor getInputFeatureDescriptor() {
+    protected DeviceDescriptorXML.@Nullable FeatureDescriptor getInputFeatureDescriptor() {
         if (deviceDescriptor == null) {
             logger.trace("Descriptor not available");
             return null;
@@ -93,7 +94,7 @@ public abstract class AbstractInputControlXML {
         }
 
         if (inputFeature != null) {
-            return deviceDescriptor.features.getOrDefault(inputFeature, null);
+            return deviceDescriptor.features.get(inputFeature);
         }
         return null;
     }

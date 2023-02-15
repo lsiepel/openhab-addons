@@ -14,6 +14,8 @@ package org.openhab.binding.yamahareceiver.internal.state;
 
 import static org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.*;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The play information state with current station, artist, song name
  *
@@ -21,6 +23,7 @@ import static org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingC
  * @author Tomasz Maruszak - Spotify support
  *
  */
+@NonNullByDefault
 public class PlayInfoState implements Invalidateable {
 
     public String station = VALUE_NA; // NET_RADIO. Will also be used for TUNER where Radio_Text_A/B will be used

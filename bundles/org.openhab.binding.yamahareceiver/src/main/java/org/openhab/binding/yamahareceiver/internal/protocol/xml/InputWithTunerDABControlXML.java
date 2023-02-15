@@ -16,6 +16,8 @@ import static org.openhab.binding.yamahareceiver.internal.protocol.xml.XMLUtils.
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.yamahareceiver.internal.protocol.AbstractConnection;
 import org.openhab.binding.yamahareceiver.internal.protocol.InputWithPresetControl;
 import org.openhab.binding.yamahareceiver.internal.protocol.InputWithTunerBandControl;
@@ -43,15 +45,16 @@ import org.w3c.dom.Node;
  *
  * @author Tomasz Maruszak - [yamaha] Tuner band selection and preset feature for dual band models (RX-S601D)
  */
+@NonNullByDefault
 public class InputWithTunerDABControlXML extends AbstractInputControlXML
         implements InputWithTunerBandControl, InputWithPresetControl {
 
     private static final String BAND_FM = "FM";
     private static final String BAND_DAB = "DAB";
 
-    private final DabBandStateListener observerForBand;
-    private final PresetInfoStateListener observerForPreset;
-    private final PlayInfoStateListener observerForPlayInfo;
+    private final @Nullable DabBandStateListener observerForBand;
+    private final @Nullable PresetInfoStateListener observerForPreset;
+    private final @Nullable PlayInfoStateListener observerForPlayInfo;
 
     protected CommandTemplate band = new CommandTemplate("<Play_Control><Band>%s</Band></Play_Control>",
             "Play_Info/Band");
@@ -61,7 +64,7 @@ public class InputWithTunerDABControlXML extends AbstractInputControlXML
     /**
      * Need to remember last band state to drive the preset
      */
-    private DabBandState bandState;
+    private @Nullable DabBandState bandState;
 
     /**
      * Create an InputWithPlayControl object for altering menu positions and requesting current menu information as well
@@ -70,9 +73,9 @@ public class InputWithTunerDABControlXML extends AbstractInputControlXML
      * @param inputID The input ID - TUNER is going to be used here.
      * @param con The Yamaha communication object to send http requests.
      */
-    public InputWithTunerDABControlXML(String inputID, AbstractConnection con, DabBandStateListener observerForBand,
-            PresetInfoStateListener observerForPreset, PlayInfoStateListener observerForPlayInfo,
-            DeviceInformationState deviceInformationState) {
+    public InputWithTunerDABControlXML(String inputID, AbstractConnection con,
+            @Nullable DabBandStateListener observerForBand, @Nullable PresetInfoStateListener observerForPreset,
+            @Nullable PlayInfoStateListener observerForPlayInfo, DeviceInformationState deviceInformationState) {
         super(LoggerFactory.getLogger(InputWithTunerDABControlXML.class), inputID, con, deviceInformationState);
 
         this.inputElement = "DAB";
@@ -200,15 +203,17 @@ public class InputWithTunerDABControlXML extends AbstractInputControlXML
 
         // DAB does not provide channel names, the channel list will be empty
         msgForPreset.presetChannelNamesChanged = true;
-
-        if (observerForBand != null) {
-            observerForBand.dabBandUpdated(msgForBand);
+        DabBandStateListener observerForBandLocal = observerForBand;
+        if (observerForBandLocal != null) {
+            observerForBandLocal.dabBandUpdated(msgForBand);
         }
-        if (observerForPreset != null) {
-            observerForPreset.presetInfoUpdated(msgForPreset);
+        PresetInfoStateListener observerForPresetLocal = observerForPreset;
+        if (observerForPresetLocal != null) {
+            observerForPresetLocal.presetInfoUpdated(msgForPreset);
         }
-        if (observerForPlayInfo != null) {
-            observerForPlayInfo.playInfoUpdated(msgForPlayInfo);
+        PlayInfoStateListener observerForPlayInfoLocal = observerForPlayInfo;
+        if (observerForPlayInfoLocal != null) {
+            observerForPlayInfoLocal.playInfoUpdated(msgForPlayInfo);
         }
     }
 
@@ -222,13 +227,14 @@ public class InputWithTunerDABControlXML extends AbstractInputControlXML
 
     @Override
     public void selectItemByPresetNumber(int presetChannel) throws IOException, ReceivedMessageParseException {
-        if (bandState == null || bandState.band == null || bandState.band.isEmpty()) {
+        DabBandState bandStateLocal = bandState;
+        if (bandStateLocal == null || bandStateLocal.band == null || bandStateLocal.band.isBlank()) {
             logger.warn("Cannot change preset because the band is unknown for input {}", inputID);
             return;
         }
 
         // Example: <Play_Control><FM><Preset><Preset_Sel>2</Preset_Sel></Preset></FM></Play_Control>
-        String cmd = this.preset.apply(bandState.band, presetChannel, bandState.band);
+        String cmd = this.preset.apply(bandStateLocal.band, presetChannel, bandStateLocal.band);
         comReference.get().send(wrInput(cmd));
         update();
     }

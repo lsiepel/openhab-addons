@@ -14,11 +14,14 @@ package org.openhab.binding.yamahareceiver.internal.state;
 
 import static org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.VALUE_EMPTY;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The state of a specific zone of a Yamaha receiver.
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class ZoneControlState {
     public boolean power = false;
     // User visible name of the input channel for the current zone

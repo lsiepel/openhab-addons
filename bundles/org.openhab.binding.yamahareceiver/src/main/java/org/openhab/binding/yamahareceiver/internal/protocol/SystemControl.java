@@ -14,11 +14,14 @@ package org.openhab.binding.yamahareceiver.internal.protocol;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The system control protocol interface. This is basically just power.
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface SystemControl extends IStateUpdatable {
     /**
      * Switches the AVR on/off (off equals network standby here).

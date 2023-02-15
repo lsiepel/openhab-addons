@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.yamahareceiver.internal.protocol;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Implement this to be notified of the asynchronous result of {@link ProtocolFactory}.createConnection.
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface ConnectionStateListener {
     void onConnectionCreated(AbstractConnection connection);
 }

@@ -14,11 +14,14 @@ package org.openhab.binding.yamahareceiver.internal.state;
 
 import static org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.VALUE_EMPTY;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The band state for DAB tuners.
  *
  * @author Tomasz Maruszak - [yamaha] Tuner band selection and preset feature for dual band models (RX-S601D)
  */
+@NonNullByDefault
 public class DabBandState implements Invalidateable {
 
     public String band = VALUE_EMPTY; // Used by TUNER

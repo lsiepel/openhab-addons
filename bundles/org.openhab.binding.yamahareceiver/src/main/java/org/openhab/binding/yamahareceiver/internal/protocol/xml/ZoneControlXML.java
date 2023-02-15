@@ -93,7 +93,7 @@ public class ZoneControlXML implements ZoneControl {
         this.comReference = new WeakReference<>(con);
         this.zone = zone;
         this.zoneConfig = zoneSettings;
-        this.zoneDescriptor = DeviceDescriptorXML.getAttached(deviceInformationState).zones.getOrDefault(zone, null);
+        this.zoneDescriptor = DeviceDescriptorXML.getAttached(deviceInformationState).zones.get(zone);
         this.observer = observer;
         this.inputConverterSupplier = inputConverterSupplier;
 

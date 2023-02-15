@@ -17,6 +17,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.OpenHAB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +29,13 @@ import org.slf4j.LoggerFactory;
  * @author David Graeff - Initial contribution
  * @author Tomasz Maruszak - Refactoring
  */
+@NonNullByDefault
 public abstract class AbstractConnection {
     private Logger logger = LoggerFactory.getLogger(AbstractConnection.class);
 
-    protected String host;
+    protected String host = "";
     protected boolean protocolSnifferEnabled;
-    protected FileOutputStream debugOutStream;
+    protected @Nullable FileOutputStream debugOutStream;
 
     /**
      * Creates a connection with the given host.
@@ -73,7 +76,10 @@ public abstract class AbstractConnection {
         } else if (protocolSnifferEnabled) {
             // Close stream if protocol sniffing will be disabled
             try {
-                debugOutStream.close();
+                FileOutputStream debugOutStreamLocal = debugOutStream;
+                if (debugOutStreamLocal != null) {
+                    debugOutStreamLocal.close();
+                }
             } catch (Exception e) {
             }
             debugOutStream = null;
@@ -82,12 +88,13 @@ public abstract class AbstractConnection {
     }
 
     protected void writeTraceFile(String message) {
-        if (protocolSnifferEnabled && debugOutStream != null) {
+        FileOutputStream debugOutStreamLocal = debugOutStream;
+        if (protocolSnifferEnabled && debugOutStreamLocal != null) {
             try {
-                debugOutStream.write(message.replace('\n', ' ').getBytes());
-                debugOutStream.write('\n');
-                debugOutStream.write('\n');
-                debugOutStream.flush();
+                debugOutStreamLocal.write(message.replace('\n', ' ').getBytes());
+                debugOutStreamLocal.write('\n');
+                debugOutStreamLocal.write('\n');
+                debugOutStreamLocal.flush();
             } catch (IOException e) {
                 logger.trace("Writing trace file failed", e);
             }

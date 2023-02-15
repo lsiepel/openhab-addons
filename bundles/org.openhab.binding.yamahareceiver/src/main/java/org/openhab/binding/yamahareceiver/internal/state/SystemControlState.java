@@ -12,12 +12,15 @@
  */
 package org.openhab.binding.yamahareceiver.internal.state;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * System AVR state (system power, etc)
  *
  * @author David Graeff - Initial contribution
  *
  */
+@NonNullByDefault
 public class SystemControlState implements Invalidateable {
     public boolean power;
     public boolean partyMode;

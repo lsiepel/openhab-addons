@@ -12,12 +12,15 @@
  */
 package org.openhab.binding.yamahareceiver.internal.protocol;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * An exception that is thrown if parsing of the received XML or JSON failed or
  * if data that was expected could not be found in the response.
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class ReceivedMessageParseException extends Exception {
 
     private static final long serialVersionUID = 2703218443322787635L;

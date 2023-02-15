@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.yamahareceiver.internal.state;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.yamahareceiver.internal.protocol.xml.InputWithNavigationControlXML;
 
 /**
@@ -19,8 +21,9 @@ import org.openhab.binding.yamahareceiver.internal.protocol.xml.InputWithNavigat
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public class NavigationControlState implements Invalidateable {
-    public String menuName = null;
+    public @Nullable String menuName = null;
     public int menuLayer = -1;
     public int currentLine = 0;
     public int maxLine = -1;

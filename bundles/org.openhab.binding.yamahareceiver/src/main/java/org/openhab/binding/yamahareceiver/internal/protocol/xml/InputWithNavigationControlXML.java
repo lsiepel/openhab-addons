@@ -200,7 +200,7 @@ public class InputWithNavigationControlXML extends AbstractInputControlXML imple
         String selectItemName = pathArr[pathArr.length - 1];
         int selectMenuLevel = pathArr.length - 1;
 
-        boolean sameMenu = state.menuName.equals(selectMenuName) && state.menuLayer == selectMenuLevel;
+        boolean sameMenu = selectMenuName.equals(state.menuName) && state.menuLayer == selectMenuLevel;
 
         if (sameMenu) {
             if (!selectItem(selectItemName)) {

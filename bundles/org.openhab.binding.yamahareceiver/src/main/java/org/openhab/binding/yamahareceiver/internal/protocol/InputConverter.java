@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.yamahareceiver.internal.protocol;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Performs conversion logic between canonical input names and underlying Yamaha protocol.
  *
@@ -20,6 +22,7 @@ package org.openhab.binding.yamahareceiver.internal.protocol;
  *
  * @author Tomasz Maruszak
  */
+@NonNullByDefault
 public interface InputConverter {
 
     /**

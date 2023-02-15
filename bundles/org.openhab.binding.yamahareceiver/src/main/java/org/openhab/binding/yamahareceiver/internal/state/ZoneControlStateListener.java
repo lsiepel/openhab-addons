@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.yamahareceiver.internal.state;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Listener for changes to {@link ZoneControlState}
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface ZoneControlStateListener {
     void zoneStateChanged(ZoneControlState msg);
 }

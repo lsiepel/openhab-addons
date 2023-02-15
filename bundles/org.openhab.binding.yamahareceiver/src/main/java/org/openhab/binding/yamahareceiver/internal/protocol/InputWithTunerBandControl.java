@@ -19,11 +19,14 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The DAB Band control protocol interface.
  *
  * @author Tomasz Maruszak - Initial contribution.
  */
+@NonNullByDefault
 public interface InputWithTunerBandControl extends IStateUpdatable {
     /**
      * List all inputs that are compatible with this kind of control

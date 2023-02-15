@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.Zone;
 import org.openhab.binding.yamahareceiver.internal.protocol.AbstractConnection;
 import org.openhab.binding.yamahareceiver.internal.protocol.ReceivedMessageParseException;
@@ -33,6 +35,7 @@ import org.w3c.dom.Node;
  *
  * @author Tomasz Maruszak - Initial contribution
  */
+@NonNullByDefault
 public class XMLProtocolService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLProtocolService.class);
@@ -47,7 +50,7 @@ public class XMLProtocolService {
      * @throws IOException
      * @throws ReceivedMessageParseException
      */
-    public static Node getZoneResponse(AbstractConnection con, Zone zone, String cmd)
+    public static @Nullable Node getZoneResponse(AbstractConnection con, Zone zone, String cmd)
             throws IOException, ReceivedMessageParseException {
         return getResponse(con, XMLUtils.wrZone(zone, cmd), zone.toString());
     }
@@ -63,7 +66,7 @@ public class XMLProtocolService {
      * @throws IOException
      * @throws ReceivedMessageParseException
      */
-    public static Node getZoneResponse(AbstractConnection con, Zone zone, String cmd, String path)
+    public static @Nullable Node getZoneResponse(AbstractConnection con, Zone zone, String cmd, String path)
             throws IOException, ReceivedMessageParseException {
         return getResponse(con, XMLUtils.wrZone(zone, cmd), zone + "/" + path);
     }
@@ -77,7 +80,7 @@ public class XMLProtocolService {
      * @throws IOException
      * @throws ReceivedMessageParseException
      */
-    public static Node getResponse(AbstractConnection con, String cmd, String path)
+    public static @Nullable Node getResponse(AbstractConnection con, String cmd, String path)
             throws IOException, ReceivedMessageParseException {
         String response = con.sendReceive(cmd);
         Document doc = XMLUtils.xml(response);

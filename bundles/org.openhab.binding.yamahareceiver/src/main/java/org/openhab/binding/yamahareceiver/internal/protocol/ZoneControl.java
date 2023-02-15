@@ -14,6 +14,7 @@ package org.openhab.binding.yamahareceiver.internal.protocol;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.yamahareceiver.internal.state.ZoneControlState;
 
 /**
@@ -21,6 +22,7 @@ import org.openhab.binding.yamahareceiver.internal.state.ZoneControlState;
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface ZoneControl extends IStateUpdatable {
     /**
      * Switches the zone on/off (off equals network standby here).

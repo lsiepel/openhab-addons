@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.Zone;
 import org.openhab.binding.yamahareceiver.internal.protocol.AbstractConnection;
 import org.openhab.binding.yamahareceiver.internal.protocol.InputConverter;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author Tomasz Maruszak - Initial contribution.
  *
  */
+@NonNullByDefault
 public class InputConverterXML implements InputConverter {
 
     private final Logger logger = LoggerFactory.getLogger(InputConverterXML.class);
@@ -70,7 +73,7 @@ public class InputConverterXML implements InputConverter {
      * @param setting
      * @return
      */
-    private Map<String, String> createMapFromSetting(String setting) {
+    private Map<String, String> createMapFromSetting(@Nullable String setting) {
         Map<String, String> map = new HashMap<>();
 
         if (setting != null && !setting.isEmpty()) {
@@ -110,7 +113,7 @@ public class InputConverterXML implements InputConverter {
         return inputsWithoutMapping;
     }
 
-    private static boolean startsWithAndLength(String str, String prefix, int extraLength) {
+    private static boolean startsWithAndLength(@Nullable String str, String prefix, int extraLength) {
         // Should be faster then regex
         return str != null && str.length() == prefix.length() + extraLength && str.startsWith(prefix);
     }
@@ -124,12 +127,15 @@ public class InputConverterXML implements InputConverter {
 
     @Override
     public String fromStateName(String name) {
-        String convertedName;
-        String method;
+        String convertedName = "";
+        String method = "";
 
         if (inputMap.containsKey(name)) {
             // Step 1: Check if the user defined custom mapping for their AVR
-            convertedName = inputMap.get(name);
+            String convertedNameLocal = inputMap.get(name);
+            if (convertedNameLocal != null) {
+                convertedName = convertedNameLocal;
+            }
             method = "user defined mapping";
         } else if (inputsWithoutMapping.contains(name)) {
             // Step 2: Check if input should not be mapped at all

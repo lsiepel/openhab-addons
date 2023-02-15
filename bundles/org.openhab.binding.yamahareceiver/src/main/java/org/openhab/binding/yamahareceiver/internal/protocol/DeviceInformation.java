@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.yamahareceiver.internal.protocol;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The device information protocol interface.
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface DeviceInformation extends IStateUpdatable {
 
 }

@@ -14,6 +14,7 @@ package org.openhab.binding.yamahareceiver.internal.protocol;
 
 import java.util.function.Supplier;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.yamahareceiver.internal.config.YamahaBridgeConfig;
 import org.openhab.binding.yamahareceiver.internal.config.YamahaZoneConfig;
 import org.openhab.binding.yamahareceiver.internal.state.AvailableInputStateListener;
@@ -35,6 +36,7 @@ import org.openhab.binding.yamahareceiver.internal.state.ZoneControlStateListene
  * @author David Graeff - Initial contribution
  * @author Tomasz Maruszak - Input mapping fix, refactoring
  */
+@NonNullByDefault
 public interface ProtocolFactory {
     /**
      * Asynchronous method to create and return a connection object. Depending

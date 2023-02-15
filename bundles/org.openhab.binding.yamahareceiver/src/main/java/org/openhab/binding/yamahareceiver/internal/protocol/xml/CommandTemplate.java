@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.yamahareceiver.internal.protocol.xml;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Template for XML commands
  *
  * @author Tomasz Maruszak - Initial contribution
  */
+@NonNullByDefault
 class CommandTemplate {
 
     private final String command;

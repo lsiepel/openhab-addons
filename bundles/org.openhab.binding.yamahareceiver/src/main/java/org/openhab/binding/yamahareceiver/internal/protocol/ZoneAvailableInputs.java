@@ -12,10 +12,13 @@
  */
 package org.openhab.binding.yamahareceiver.internal.protocol;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Implement this interface to get callbacks of this and that
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface ZoneAvailableInputs extends IStateUpdatable {
 }

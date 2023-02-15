@@ -19,12 +19,15 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The play controls protocol interface
  *
  * @author David Graeff - Initial contribution
  * @author Tomasz Maruszak - Spotify support, adding Server to supported preset inputs
  */
+@NonNullByDefault
 public interface InputWithPlayControl extends IStateUpdatable {
     /**
      * List all inputs that are compatible with this kind of control

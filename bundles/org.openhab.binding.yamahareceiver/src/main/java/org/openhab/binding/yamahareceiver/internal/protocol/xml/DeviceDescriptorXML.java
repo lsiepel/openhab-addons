@@ -26,6 +26,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.Feature;
 import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.Zone;
 import org.openhab.binding.yamahareceiver.internal.config.YamahaUtils;
@@ -42,11 +44,12 @@ import org.w3c.dom.Node;
  *
  * @author Tomasz Maruszak - Initial contribution
  */
+@NonNullByDefault
 public class DeviceDescriptorXML {
 
     private final Logger logger = LoggerFactory.getLogger(DeviceDescriptorXML.class);
 
-    private String unitName;
+    private String unitName = "";
     public SystemDescriptor system = new SystemDescriptor(null);
     public Map<Zone, ZoneDescriptor> zones = new HashMap<>();
     public Map<Feature, FeatureDescriptor> features = new HashMap<>();
@@ -55,7 +58,7 @@ public class DeviceDescriptorXML {
         state.properties.put("desc", this);
     }
 
-    public static DeviceDescriptorXML getAttached(DeviceInformationState state) {
+    public static @Nullable DeviceDescriptorXML getAttached(DeviceInformationState state) {
         return (DeviceDescriptorXML) state.properties.getOrDefault("desc", null);
     }
 
@@ -82,7 +85,7 @@ public class DeviceDescriptorXML {
 
         public final Set<String> commands;
 
-        public HasCommands(Element element) {
+        public HasCommands(@Nullable Element element) {
             Element cmdList = (Element) XMLUtils.getNode(element, "Cmd_List");
             if (cmdList != null) {
                 commands = XMLUtils.toStream(cmdList.getElementsByTagName("Define")).map(x -> x.getTextContent())
@@ -123,7 +126,7 @@ public class DeviceDescriptorXML {
 
     public class SystemDescriptor extends HasCommands {
 
-        public SystemDescriptor(Element element) {
+        public SystemDescriptor(@Nullable Element element) {
             super(element);
         }
     }
@@ -132,7 +135,7 @@ public class DeviceDescriptorXML {
 
         public final Zone zone;
 
-        public ZoneDescriptor(Zone zone, Element element) {
+        public ZoneDescriptor(Zone zone, @Nullable Element element) {
             super(element);
             this.zone = zone;
             logger.trace("Zone {} has commands: {}", zone, super.toString());
@@ -143,7 +146,7 @@ public class DeviceDescriptorXML {
 
         public final Feature feature;
 
-        public FeatureDescriptor(Feature feature, Element element) {
+        public FeatureDescriptor(Feature feature, @Nullable Element element) {
             super(element);
             this.feature = feature;
             logger.trace("Feature {} has commands: {}", feature, super.toString());
@@ -158,8 +161,9 @@ public class DeviceDescriptorXML {
     public void load(XMLConnection con) {
         // Get and store the Yamaha Description XML. This will be used to detect proper element naming in other areas.
         Node descNode = tryGetDescriptor(con);
-
-        unitName = descNode.getAttributes().getNamedItem("Unit_Name").getTextContent();
+        if (descNode != null) {
+            unitName = descNode.getAttributes().getNamedItem("Unit_Name").getTextContent();
+        }
 
         system = buildFeatureLookup(descNode, "Unit", tag -> tag, (tag, e) -> new SystemDescriptor(e))
                 .getOrDefault("System", this.system); // there will be only one System entry
@@ -167,8 +171,7 @@ public class DeviceDescriptorXML {
         zones = buildFeatureLookup(descNode, "Subunit", tag -> YamahaUtils.tryParseEnum(Zone.class, tag),
                 (zone, e) -> new ZoneDescriptor(zone, e));
 
-        features = buildFeatureLookup(descNode, "Source_Device",
-                tag -> XMLConstants.FEATURE_BY_YNC_TAG.getOrDefault(tag, null),
+        features = buildFeatureLookup(descNode, "Source_Device", tag -> XMLConstants.FEATURE_BY_YNC_TAG.get(tag),
                 (feature, e) -> new FeatureDescriptor(feature, e));
 
         logger.debug("Found system {}, zones {}, features {}", system != null ? 1 : 0, zones.size(), features.size());
@@ -180,7 +183,7 @@ public class DeviceDescriptorXML {
      * @param con
      * @return
      */
-    private Node tryGetDescriptor(XMLConnection con) {
+    private @Nullable Node tryGetDescriptor(XMLConnection con) {
         for (String path : Arrays.asList("/YamahaRemoteControl/desc.xml", "/YamahaRemoteControl/UnitDesc.xml")) {
             try {
                 String descXml = con.getResponse(path);
@@ -204,8 +207,8 @@ public class DeviceDescriptorXML {
         return null;
     }
 
-    private <T, V> Map<T, V> buildFeatureLookup(Node descNode, String funcValue, Function<String, T> converter,
-            BiFunction<T, Element, V> factory) {
+    private <T, V> Map<T, V> buildFeatureLookup(@Nullable Node descNode, String funcValue,
+            Function<String, @Nullable T> converter, BiFunction<T, Element, V> factory) {
         Map<T, V> groupedElements = new HashMap<>();
 
         if (descNode != null) {

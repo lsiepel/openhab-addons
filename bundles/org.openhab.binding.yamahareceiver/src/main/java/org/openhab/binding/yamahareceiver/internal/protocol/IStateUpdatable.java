@@ -14,11 +14,14 @@ package org.openhab.binding.yamahareceiver.internal.protocol;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * To offer a method to retrieve a specific state, a protocol part would extend this interface.
  *
  * @author David Graeff - Initial contribution
  */
+@NonNullByDefault
 public interface IStateUpdatable {
     /**
      * Updates the corresponding state. This method is blocking.

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.Feature;
 import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.Zone;
 import org.openhab.binding.yamahareceiver.internal.protocol.AbstractConnection;
@@ -39,6 +40,7 @@ import org.w3c.dom.Node;
  * @author David Graeff - Initial contribution
  * @author Tomasz Maruszak - DAB support, Spotify support, better feature detection
  */
+@NonNullByDefault
 public class DeviceInformationXML implements DeviceInformation {
     private final Logger logger = LoggerFactory.getLogger(DeviceInformationXML.class);
 

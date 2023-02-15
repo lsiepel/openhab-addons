@@ -19,12 +19,15 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * The preset control protocol interface
  *
  * @author David Graeff - Initial contribution
  * @author Tomasz Maruszak - Adding Spotify, Server to supported preset inputs
  */
+@NonNullByDefault
 public interface InputWithPresetControl extends IStateUpdatable {
 
     int PRESET_CHANNELS = 40;

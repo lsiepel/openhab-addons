@@ -17,6 +17,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants;
 
 /**
@@ -25,12 +27,14 @@ import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstant
  * @author David Graeff - Initial contribution
  * @author Tomasz Maruszak - DAB support, Spotify support, better feature detection
  */
+@NonNullByDefault
 public class DeviceInformationState implements Invalidateable {
-    public String host;
+    public @Nullable String host;
+
     // Some AVR information
-    public String name;
-    public String id;
-    public String version;
+    public String name = "N/A";
+    public String id = "";
+    public String version = "0.0";
     public final Set<YamahaReceiverBindingConstants.Zone> zones = new HashSet<>();
     public final Set<YamahaReceiverBindingConstants.Feature> features = new HashSet<>();
     /**

@@ -14,6 +14,7 @@ package org.openhab.binding.yamahareceiver.internal.protocol.xml;
 
 import java.util.function.Supplier;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.Zone;
 import org.openhab.binding.yamahareceiver.internal.protocol.AbstractConnection;
 import org.openhab.binding.yamahareceiver.internal.protocol.InputConverter;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Tomasz Maruszak - Initial contribution.
  */
+@NonNullByDefault
 public class ZoneBAvailableInputsXML extends ZoneAvailableInputsXML {
 
     public ZoneBAvailableInputsXML(AbstractConnection con, AvailableInputStateListener observer,

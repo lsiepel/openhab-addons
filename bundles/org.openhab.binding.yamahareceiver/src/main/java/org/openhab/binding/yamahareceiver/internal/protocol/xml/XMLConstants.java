@@ -15,6 +15,7 @@ package org.openhab.binding.yamahareceiver.internal.protocol.xml;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstants.Feature;
 
 /**
@@ -22,6 +23,7 @@ import org.openhab.binding.yamahareceiver.internal.YamahaReceiverBindingConstant
  *
  * @author Tomasz Maruszak - Initial contribution
  */
+@NonNullByDefault
 public class XMLConstants {
 
     public static final String ON = "On";

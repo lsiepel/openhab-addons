@@ -18,11 +18,12 @@ import static org.openhab.binding.yamahareceiver.internal.protocol.xml.XMLUtils.
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.yamahareceiver.internal.protocol.AbstractConnection;
 import org.openhab.binding.yamahareceiver.internal.protocol.InputWithPresetControl;
 import org.openhab.binding.yamahareceiver.internal.protocol.ReceivedMessageParseException;
 import org.openhab.binding.yamahareceiver.internal.state.DeviceInformationState;
-import org.openhab.binding.yamahareceiver.internal.state.PlayInfoState;
 import org.openhab.binding.yamahareceiver.internal.state.PresetInfoState;
 import org.openhab.binding.yamahareceiver.internal.state.PresetInfoStateListener;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ import org.w3c.dom.Node;
  * @author David Graeff
  * @author Tomasz Maruszak - Compatibility fixes
  */
+@NonNullByDefault
 public class InputWithPresetControlXML extends AbstractInputControlXML implements InputWithPresetControl {
 
     private static final String PRESET_LETTERS = "ABCD";
@@ -54,7 +56,7 @@ public class InputWithPresetControlXML extends AbstractInputControlXML implement
             "<Play_Control><Preset><Preset_Sel>%s</Preset_Sel></Preset></Play_Control>",
             "Play_Control/Preset/Preset_Sel");
 
-    private final PresetInfoStateListener observer;
+    private final @Nullable PresetInfoStateListener observer;
 
     /**
      * Create an InputWithPlayControl object for altering menu positions and requesting current menu information as well
