@@ -26,7 +26,6 @@ import org.openhab.binding.yamahareceiver.internal.protocol.ReceivedMessageParse
 import org.openhab.binding.yamahareceiver.internal.state.DeviceInformationState;
 import org.openhab.binding.yamahareceiver.internal.state.PlayInfoState;
 import org.openhab.binding.yamahareceiver.internal.state.PlayInfoStateListener;
-import org.openhab.binding.yamahareceiver.internal.state.PresetInfoState;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 

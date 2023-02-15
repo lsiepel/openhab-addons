@@ -26,7 +26,6 @@ import org.openhab.binding.yamahareceiver.internal.protocol.ReceivedMessageParse
 import org.openhab.binding.yamahareceiver.internal.protocol.ZoneAvailableInputs;
 import org.openhab.binding.yamahareceiver.internal.state.AvailableInputState;
 import org.openhab.binding.yamahareceiver.internal.state.AvailableInputStateListener;
-import org.openhab.binding.yamahareceiver.internal.state.ZoneControlState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

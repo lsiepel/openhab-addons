@@ -16,7 +16,6 @@ import java.util.function.Supplier;
 
 import org.openhab.binding.yamahareceiver.internal.config.YamahaBridgeConfig;
 import org.openhab.binding.yamahareceiver.internal.config.YamahaZoneConfig;
-import org.openhab.binding.yamahareceiver.internal.protocol.xml.XMLConnection;
 import org.openhab.binding.yamahareceiver.internal.state.AvailableInputStateListener;
 import org.openhab.binding.yamahareceiver.internal.state.DabBandStateListener;
 import org.openhab.binding.yamahareceiver.internal.state.DeviceInformationState;
