@@ -211,7 +211,7 @@ public class YamahaBridgeHandler extends BaseBridgeHandler
      */
     private void setupRefreshTimer(int initialWaitTime) {
         cancelRefreshTimer();
-        logger.trace("Setting up refresh timer with fixed delay {} seconds, starting in {} seconds",
+        logger.debug("Setting up refresh timer with fixed delay {} seconds, starting in {} seconds",
                 bridgeConfig.getRefreshInterval(), initialWaitTime);
         refreshTimer = scheduler.scheduleWithFixedDelay(() -> updateAllZoneInformation(), initialWaitTime,
                 bridgeConfig.getRefreshInterval(), TimeUnit.SECONDS);
@@ -232,16 +232,17 @@ public class YamahaBridgeHandler extends BaseBridgeHandler
      */
     void updateAllZoneInformation() {
         if (disposed) {
-            logger.trace("updateAllZoneInformation will be skipped because the bridge is disposed");
+            logger.debug("updateAllZoneInformation will be skipped because the bridge is disposed");
             return;
         }
 
         if (!ensureConnectionInitialized()) {
             // The initialization did not yet happen and the device is still offline (or not reachable)
+            logger.debug("The initialization did not yet happen and the device is still offline (or not reachable)");
             return;
         }
 
-        logger.trace("updateAllZoneInformation");
+        logger.debug("updateAllZoneInformation");
         try {
             // Set power = true before calling systemControl.update(),
             // otherwise the systemControlStateChanged method would call updateAllZoneInformation() again
