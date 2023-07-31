@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2022 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -62,10 +62,26 @@ class JsonResponseVehicleStatusTest {
     @Test
     void testGetVehicleStatus() {
         final VehicleStatus vehicleStatus = gson.fromJson(API_RESPONSE, VehicleStatus.class);
+
         Assertions.assertNotNull(vehicleStatus);
-        Assertions.assertNotNull(vehicleStatus.getOdometer().getMileage());
-        Assertions.assertNotNull(vehicleStatus.getIgnition().getType());
-        Assertions.assertNotNull(vehicleStatus.getEnvironment().getAir().getTemp());
-        Assertions.assertNotNull(vehicleStatus.getEnvironment().getLuminosity().isDay());
+
+        Odometer odometer = vehicleStatus.getOdometer();
+        Assertions.assertNotNull(odometer);
+        Assertions.assertNotNull(odometer.getMileage());
+
+        Ignition ignition = vehicleStatus.getIgnition();
+        Assertions.assertNotNull(ignition);
+        Assertions.assertNotNull(ignition.getType());
+
+        Environment environment = vehicleStatus.getEnvironment();
+        Assertions.assertNotNull(environment);
+
+        Air air = environment.getAir();
+        Assertions.assertNotNull(air);
+        Assertions.assertNotNull(air.getTemp());
+
+        Luminosity luminosity = environment.getLuminosity();
+        Assertions.assertNotNull(luminosity);
+        Assertions.assertNotNull(luminosity.isDay());
     }
 }

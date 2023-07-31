@@ -35,7 +35,6 @@ public class VehicleStatus {
     private @Nullable Environment environment;
     private @Nullable Ignition ignition;
     private @Nullable Kinetic kinetic;
-    @SerializedName("timed.odometer")
     private @Nullable Odometer odometer;
     private @Nullable Position lastPosition;
     private @Nullable Preconditionning preconditionning;
