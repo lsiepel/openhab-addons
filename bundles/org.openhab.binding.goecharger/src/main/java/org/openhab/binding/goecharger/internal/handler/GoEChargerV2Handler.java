@@ -18,9 +18,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.measure.quantity.ElectricCurrent;
-import javax.measure.quantity.Energy;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
@@ -61,6 +58,7 @@ import com.google.gson.annotations.SerializedName;
 public class GoEChargerV2Handler extends GoEChargerBaseHandler {
 
     private final Logger logger = LoggerFactory.getLogger(GoEChargerV2Handler.class);
+    private static int TIME_OUT_SECONDS = 5;
 
     private String filter = "";
 
@@ -244,28 +242,26 @@ public class GoEChargerV2Handler extends GoEChargerBaseHandler {
         switch (channelUID.getId()) {
             case MAX_CURRENT:
                 key = "amp";
-                if (command instanceof DecimalType) {
-                    value = String.valueOf(((DecimalType) command).intValue());
-                } else if (command instanceof QuantityType<?>) {
-                    value = String.valueOf(((QuantityType<ElectricCurrent>) command).toUnit(Units.AMPERE).intValue());
+                if (command instanceof DecimalType commandAsDecimal) {
+                    value = String.valueOf(commandAsDecimal.intValue());
+                } else if (command instanceof QuantityType<?> commandAsQuantityType) {
+                    value = String.valueOf(commandAsQuantityType.toUnit(Units.AMPERE).intValue());
                 }
                 break;
             case SESSION_CHARGE_CONSUMPTION_LIMIT:
                 key = "dwo";
                 var multiplier = 1000;
-                if (command instanceof DecimalType) {
-                    value = String.valueOf(((DecimalType) command).intValue() * multiplier);
-                } else if (command instanceof QuantityType<?>) {
-                    value = String.valueOf(
-                            ((QuantityType<Energy>) command).toUnit(Units.KILOWATT_HOUR).intValue() * multiplier);
+                if (command instanceof DecimalType commandAsDecimal) {
+                    value = String.valueOf(commandAsDecimal.intValue() * multiplier);
+                } else if (command instanceof QuantityType<?> commandAsQuantityType) {
+                    value = String.valueOf(commandAsQuantityType.toUnit(Units.KILOWATT_HOUR).intValue() * multiplier);
                 }
                 break;
             case PHASES:
                 key = "psm";
-                if (command instanceof DecimalType) {
-                    var phases = 1;
-                    var help = (DecimalType) command;
-                    if (help.intValue() == 3) {
+                if (command instanceof DecimalType commandAsDecimal) {
+                    int phases = 1;
+                    if (commandAsDecimal.intValue() == 3) {
                         // set value 2 for 3 phases
                         phases = 2;
                     }
@@ -274,14 +270,14 @@ public class GoEChargerV2Handler extends GoEChargerBaseHandler {
                 break;
             case FORCE_STATE:
                 key = "frc";
-                if (command instanceof DecimalType) {
-                    value = String.valueOf(((DecimalType) command).intValue());
+                if (command instanceof DecimalType commandAsDecimal) {
+                    value = String.valueOf(commandAsDecimal.intValue());
                 }
                 break;
             case TRANSACTION:
                 key = "trx";
-                if (command instanceof DecimalType) {
-                    value = String.valueOf(((DecimalType) command).intValue());
+                if (command instanceof DecimalType commandAsDecimal) {
+                    value = String.valueOf(commandAsDecimal.intValue());
                 }
                 break;
         }
@@ -327,7 +323,7 @@ public class GoEChargerV2Handler extends GoEChargerBaseHandler {
         try {
             HttpMethod httpMethod = HttpMethod.GET;
             ContentResponse contentResponse = httpClient.newRequest(urlStr).method(httpMethod)
-                    .timeout(5, TimeUnit.SECONDS).send();
+                    .timeout(TIME_OUT_SECONDS, TimeUnit.SECONDS).send();
             String response = contentResponse.getContentAsString();
 
             logger.trace("{} Response: {}", httpMethod.toString(), response);
@@ -365,7 +361,7 @@ public class GoEChargerV2Handler extends GoEChargerBaseHandler {
         logger.trace("GET URL = {}", urlStr);
 
         ContentResponse contentResponse = httpClient.newRequest(urlStr).method(HttpMethod.GET)
-                .timeout(5, TimeUnit.SECONDS).send();
+                .timeout(TIME_OUT_SECONDS, TimeUnit.SECONDS).send();
 
         String response = contentResponse.getContentAsString();
         logger.trace("GET Response: {}", response);
