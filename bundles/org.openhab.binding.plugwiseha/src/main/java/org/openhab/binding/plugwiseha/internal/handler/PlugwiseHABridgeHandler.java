@@ -202,7 +202,7 @@ public class PlugwiseHABridgeHandler extends BaseBridgeHandler {
 
             getThing().getThings().forEach((thing) -> {
                 ThingHandler thingHandler = thing.getHandler();
-                if (thingHandler instanceof PlugwiseHABaseHandler) {
+                if (thingHandler instanceof PlugwiseHABaseHandler baseHandler) {
                     ((PlugwiseHABaseHandler<PlugwiseHAModel, PlugwiseHAThingConfig>) thingHandler).refresh();
                 }
             });

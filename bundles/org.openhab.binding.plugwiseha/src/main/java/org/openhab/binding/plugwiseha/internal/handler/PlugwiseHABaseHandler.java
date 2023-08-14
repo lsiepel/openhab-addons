@@ -107,21 +107,16 @@ public abstract class PlugwiseHABaseHandler<E, C extends PlugwiseHAThingConfig> 
 
         if (checkConfig(config)) {
             Bridge bridge = getBridge();
-            if (bridge == null || bridge.getHandler() == null
-                    || !(bridge.getHandler() instanceof PlugwiseHABridgeHandler)) {
+            if (bridge != null && bridge.getHandler() instanceof PlugwiseHABridgeHandler bridgeHandler) {
+                if (bridge.getStatus() == OFFLINE) {
+                    updateStatus(OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE,
+                            "The Plugwise Home Automation bridge is currently offline.");
+                } else {
+                    initialize(config, bridgeHandler);
+                }
+            } else {
                 updateStatus(OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                         "You must choose a Plugwise Home Automation bridge for this thing.");
-                return;
-            }
-
-            if (bridge.getStatus() == OFFLINE) {
-                updateStatus(OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE,
-                        "The Plugwise Home Automation bridge is currently offline.");
-            }
-
-            PlugwiseHABridgeHandler bridgeHandler = (PlugwiseHABridgeHandler) bridge.getHandler();
-            if (bridgeHandler != null) {
-                initialize(config, bridgeHandler);
             }
         } else {
             logger.debug("Invalid config for Plugwise Home Automation thing handler with config = {}", config);
