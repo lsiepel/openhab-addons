@@ -72,7 +72,7 @@
     <bnd.version>6.4.0</bnd.version>
     <commons.net.version>3.9.0</commons.net.version>
     <eea.version>2.2.1</eea.version>
-    <jackson.version>2.14.1</jackson.version>
+    <jackson.version>2.15.2</jackson.version>
     <karaf.version>4.4.3</karaf.version>
     <netty.version>4.1.92.Final</netty.version>
     <okhttp.version>3.14.9</okhttp.version>
@@ -301,11 +301,11 @@ Import-Package: \\
           <version>3.10.1</version>
           <configuration>
             <compilerId>eclipse</compilerId>
-            <compilerArguments>
-              <annotationpath>CLASSPATH</annotationpath>
-              <classpath>${project.build.directory}/dependency</classpath>
-            </compilerArguments>
             <compilerArgs>
+              <arg>-annotationpath</arg>
+              <arg>CLASSPATH</arg>
+              <arg>-classpath</arg>
+              <arg>${project.build.directory}/dependency</arg>
               <arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot,+nullAnnotConflict,-nullUncheckedConversion</arg>
               <arg>-warn:+null,+inheritNullAnnot,-nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
               <arg>-nowarn:[${project.build.directory}/generated-sources]</arg>
