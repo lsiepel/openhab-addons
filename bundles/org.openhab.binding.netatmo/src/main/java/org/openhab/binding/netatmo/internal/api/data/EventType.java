@@ -46,17 +46,20 @@ public enum EventType {
     @SerializedName("daily_summary") // When the Outdoor Camera video summary of the last 24 hours is available
     DAILY_SUMMARY(ModuleType.PRESENCE),
 
+    @SerializedName("vehicle") // When the Outdoor Camera detects a car
+    VEHICLE(ModuleType.PRESENCE),
+
     @SerializedName("movement") // When the Indoor Camera detects motion
     MOVEMENT(ModuleType.WELCOME),
 
+    @SerializedName("alarm_started") // When the Indoor Camera triggers alarm
+    ALARM_STARTED(ModuleType.WELCOME),
+
     @SerializedName("human") // When the camera detects human motion
-    HUMAN(ModuleType.WELCOME, ModuleType.OUTDOOR, ModuleType.DOORBELL),
+    HUMAN(ModuleType.WELCOME, ModuleType.PRESENCE, ModuleType.DOORBELL),
 
     @SerializedName("animal") // When the camera detects animal motion
-    ANIMAL(ModuleType.WELCOME, ModuleType.OUTDOOR),
-
-    @SerializedName("vehicle") // When the Outdoor Camera detects a car
-    VEHICLE(ModuleType.OUTDOOR),
+    ANIMAL(ModuleType.WELCOME, ModuleType.PRESENCE),
 
     @SerializedName("new_module") // A new Module has been paired with the Indoor Camera
     NEW_MODULE(ModuleType.WELCOME),
@@ -143,7 +146,25 @@ public enum EventType {
     NEW_DEVICE(ModuleType.HOME),
 
     @SerializedName("co_detected")
-    CO_DETECTED(ModuleType.CO_DETECTOR);
+    CO_DETECTED(ModuleType.CO_DETECTOR),
+
+    @SerializedName("alarm_event") // an alarm event arrived on a weather station module
+    ALARM_EVENT(ModuleType.WEATHER_STATION),
+
+    @SerializedName("entered") // the alarm was raised
+    ALARM_ENTERED(ModuleType.WEATHER_STATION),
+
+    @SerializedName("exited") // the alarm is stopped
+    ALARM_EXITED(ModuleType.WEATHER_STATION),
+
+    @SerializedName("display_change") // a manual action has been done on the thermostat
+    DISPLAY_CHANGE(ModuleType.THERMOSTAT),
+
+    @SerializedName("set_point") // a setpoint has been set
+    SET_POINT(ModuleType.THERMOSTAT),
+
+    @SerializedName("cancel_set_point") // manual setpoint ended
+    CANCEL_SET_POINT(ModuleType.THERMOSTAT);
 
     public static final EnumSet<EventType> AS_SET = EnumSet.allOf(EventType.class);
 
@@ -160,5 +181,9 @@ public enum EventType {
 
     public boolean validFor(ModuleType searched) {
         return appliesTo.contains(searched);
+    }
+
+    public ModuleType getFirstModule() {
+        return appliesTo.iterator().next();
     }
 }
