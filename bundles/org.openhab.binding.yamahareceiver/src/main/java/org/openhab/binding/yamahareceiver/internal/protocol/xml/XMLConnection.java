@@ -77,15 +77,17 @@ public class XMLConnection extends AbstractConnection {
 
             // Set a timeout in case the device is not reachable (went offline)
             connection.setConnectTimeout(CONNECTION_TIMEOUT_MS);
-
             connection.setUseCaches(false);
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
             // Send request
-            try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
+            try {
+                DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
                 wr.writeBytes(message);
                 wr.flush();
+            } catch (IOException e) {
+                throw new IOException("Sending a value to the Yamaha AVR failed: " + e.getMessage());
             }
 
             if (connection.getResponseCode() != 200) {
