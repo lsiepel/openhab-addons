@@ -175,7 +175,7 @@ public class TibberHandler extends BaseThingHandler {
     public void getURLInput(String url) throws IOException {
         String jsonResponse = "";
         TibberPriceConsumptionHandler tibberQuery = new TibberPriceConsumptionHandler();
-
+        logger.debug("Building query with url: {} and Homeid {}", url, tibberConfig.getHomeid());
         InputStream inputStream = tibberQuery.getInputStream(tibberConfig.getHomeid());
         jsonResponse = HttpUtil.executeUrl("POST", url, httpHeader, inputStream, null, REQUEST_TIMEOUT);
         logger.debug("API response: {}", jsonResponse);
@@ -266,6 +266,7 @@ public class TibberHandler extends BaseThingHandler {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                     "Unexpected response from Tibber: " + jsonResponse);
             try {
+                logger.debug("Taking a 300 second pause before resuming thread");
                 Thread.sleep(300 * 1000);
                 return;
             } catch (InterruptedException e) {
@@ -298,8 +299,9 @@ public class TibberHandler extends BaseThingHandler {
     }
 
     public void startRefresh(int refresh) {
+        ScheduledFuture<?> pollingJob = this.pollingJob;
         if (pollingJob == null) {
-            pollingJob = scheduler.scheduleWithFixedDelay(() -> {
+            this.pollingJob = scheduler.scheduleWithFixedDelay(() -> {
                 try {
                     updateRequest();
                 } catch (IOException e) {
@@ -314,7 +316,7 @@ public class TibberHandler extends BaseThingHandler {
         if ("true".equals(rtEnabled) && !isConnected()) {
             logger.debug("Attempting to reopen Websocket connection");
             getSubscriptionUrl();
-
+            String subscriptionURL = this.subscriptionURL;
             if (subscriptionURL == null || subscriptionURL.isBlank()) {
                 logger.debug("Unexpected subscription result from the server");
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
@@ -447,6 +449,8 @@ public class TibberHandler extends BaseThingHandler {
                 logger.warn("Websocket Connect Exception: {}", e.getMessage());
             } catch (URISyntaxException e) {
                 logger.warn("Websocket URI Exception: {}", e.getMessage());
+            } catch (RuntimeException e) {
+                logger.warn("RuntimeException: {}", e.getMessage());
             }
         } else {
             logger.warn("Open: Websocket client already running");
