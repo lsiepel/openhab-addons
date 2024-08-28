@@ -1,0 +1,328 @@
+{
+    "mediaPlayback": {
+        "supportedPlaybackCommands": {
+            "value": [
+                "play",
+                "pause",
+                "stop",
+                "fastForward",
+                "rewind"
+            ],
+            "timestamp": "2024-01-27T23:20:33.354Z"
+        },
+        "playbackStatus": {
+            "value": null
+        }
+    },
+    "samsungvd.supportsPowerOnByOcf": {
+        "supportsPowerOnByOcf": {
+            "value": "false",
+            "timestamp": "2024-08-28T06:25:18.781Z"
+        }
+    },
+    "samsungvd.deviceInfoPrivate": {},
+    "mediaInputSource": {
+        "supportedInputSources": {
+            "value": [
+                "digitalTv",
+                "HDMI1",
+                "HDMI2",
+                "HDMI3"
+            ],
+            "timestamp": "2024-01-27T23:20:33.370Z"
+        },
+        "inputSource": {
+            "value": "digitalTv",
+            "timestamp": "2024-01-29T20:10:44.319Z"
+        }
+    },
+    "switch": {
+        "switch": {
+            "value": "on",
+            "timestamp": "2024-08-28T17:15:51.527Z"
+        }
+    },
+    "ocf": {
+        "st": {
+            "value": "2024-01-27T19:53:52Z",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "mndt": {
+            "value": "2019-01-01",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "mnfv": {
+            "value": "T-MSLDEUC-1420.0",
+            "timestamp": "2024-04-01T22:01:43.541Z"
+        },
+        "mnhw": {
+            "value": "0-0",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "di": {
+            "value": "ebe898d3-ebeb-45d0-810a-e6ec04c18be7",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "mnsl": {
+            "value": "http://www.samsung.com/sec/tv/overview/",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "dmv": {
+            "value": "res.1.1.0,sh.1.1.0",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "n": {
+            "value": "[TV] Samsung 7 Series (50)",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "mnmo": {
+            "value": "UE50RU7402UXXH",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "vid": {
+            "value": "VD-STV_2018_K",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "mnmn": {
+            "value": "Samsung Electronics",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "mnml": {
+            "value": "http://www.samsung.com",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "mnpv": {
+            "value": "Tizen 5.0",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "mnos": {
+            "value": "4.1.10",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "pi": {
+            "value": "ebe898d3-ebeb-45d0-810a-e6ec04c18be7",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        },
+        "icv": {
+            "value": "core.1.1.0",
+            "timestamp": "2024-01-27T23:20:35.352Z"
+        }
+    },
+    "samsungvd.contentInfo": {},
+    "custom.accessibility": {},
+    "custom.disabledCapabilities": {
+        "disabledCapabilities": {
+            "value": [
+                "samsungvd.ambient",
+                "samsungvd.ambient18",
+                "samsungvd.ambientContent",
+                "sec.diagnosticsInformation"
+            ],
+            "timestamp": "2024-01-27T23:20:33.354Z"
+        }
+    },
+    "samsungvd.remoteControl": {},
+    "sec.diagnosticsInformation": {
+        "logType": {
+            "value": null
+        },
+        "endpoint": {
+            "value": null
+        },
+        "minVersion": {
+            "value": null
+        },
+        "signinPermission": {
+            "value": null
+        },
+        "setupId": {
+            "value": null
+        },
+        "protocolType": {
+            "value": null
+        },
+        "tsId": {
+            "value": null
+        },
+        "mnId": {
+            "value": null
+        },
+        "dumpType": {
+            "value": null
+        }
+    },
+    "custom.launchapp": {},
+    "samsungvd.firmwareVersion": {
+        "firmwareVersion": {
+            "value": "2.4.0",
+            "timestamp": "2024-08-28T06:25:18.781Z"
+        }
+    },
+    "audioVolume": {
+        "volume": {
+            "value": 20,
+            "unit": "%",
+            "timestamp": "2024-01-27T23:20:34.571Z"
+        }
+    },
+    "samsungvd.mediaInputSource": {
+        "supportedInputSourcesMap": {
+            "value": [
+                {
+                    "id": "dtv",
+                    "name": "TV"
+                },
+                {
+                    "id": "HDMI1",
+                    "name": "Shield"
+                },
+                {
+                    "id": "HDMI2",
+                    "name": "Άγνωστο (HDMI 2)"
+                },
+                {
+                    "id": "HDMI3",
+                    "name": "LG SOUND BAR"
+                }
+            ],
+            "timestamp": "2024-08-28T17:15:51.596Z"
+        },
+        "inputSource": {
+            "value": "dtv",
+            "timestamp": "2024-08-28T17:15:51.596Z"
+        }
+    },
+    "custom.tvsearch": {},
+    "samsungvd.ambient": {},
+    "refresh": {},
+    "custom.error": {
+        "error": {
+            "value": null
+        }
+    },
+    "execute": {
+        "data": {
+            "value": {
+                "payload": {
+                    "rt": [
+                        "x.com.samsung.tv.deviceinfo"
+                    ],
+                    "if": [
+                        "oic.if.baseline",
+                        "oic.if.r"
+                    ],
+                    "x.com.samsung.country": "GREECE",
+                    "x.com.samsung.infolinkversion": "T-INFOLINK2019-1012",
+                    "x.com.samsung.modelid": "19_MUSEL_UHD",
+                    "x.com.samsung.tv.ambientsupport": false,
+                    "x.com.samsung.tv.blemac": "D0:03:DF:8D:AC:BB",
+                    "x.com.samsung.tv.btmac": "D0:03:DF:8D:AC:BB",
+                    "x.com.samsung.tv.category": "tv",
+                    "x.com.samsung.tv.countrycode": "GR",
+                    "x.com.samsung.tv.ethmac": "00:7c:2d:44:b7:04",
+                    "x.com.samsung.tv.mnid": "0AJK",
+                    "x.com.samsung.tv.onsupport": true,
+                    "x.com.samsung.tv.p2pmac": "d2:03:df:8d:ac:ba",
+                    "x.com.samsung.tv.paneltime": 52788,
+                    "x.com.samsung.tv.setupid": "101",
+                    "x.com.samsung.tv.sn": "0ECD3HHM500265R",
+                    "x.com.samsung.tv.swmodel": "URU7400",
+                    "x.com.samsung.tv.thingversion": "2.4.0",
+                    "x.com.samsung.tv.ttxsupport": true,
+                    "x.com.samsung.tv.udn": "4561f668-a097-42dd-97ec-883605d6039e",
+                    "x.com.samsung.tv.wifimac": "d0:03:df:8d:ac:ba"
+                }
+            },
+            "data": {
+                "href": "/sec/tv/deviceinfo"
+            },
+            "timestamp": "2024-01-27T23:20:35.246Z"
+        }
+    },
+    "tvChannel": {
+        "tvChannel": {
+            "value": "",
+            "timestamp": "2024-08-28T17:20:47.202Z"
+        },
+        "tvChannelName": {
+            "value": "9Ur5IzDKqV.TizenYouTube",
+            "timestamp": "2024-08-28T17:20:47.202Z"
+        }
+    },
+    "custom.picturemode": {
+        "pictureMode": {
+            "value": "Φυσική εικόνα",
+            "timestamp": "2024-01-27T23:20:34.451Z"
+        },
+        "supportedPictureModes": {
+            "value": [
+                "Δυναμική",
+                "Τυπικό",
+                "Φυσική εικόνα",
+                "Ταινία"
+            ],
+            "timestamp": "2024-01-27T23:20:34.451Z"
+        },
+        "supportedPictureModesMap": {
+            "value": [
+                {
+                    "id": "modeDynamic",
+                    "name": "Δυναμική"
+                },
+                {
+                    "id": "modeStandard",
+                    "name": "Τυπικό"
+                },
+                {
+                    "id": "modeNatural",
+                    "name": "Φυσική εικόνα"
+                },
+                {
+                    "id": "modeMovie",
+                    "name": "Ταινία"
+                }
+            ],
+            "timestamp": "2024-01-27T23:20:34.451Z"
+        }
+    },
+    "samsungvd.ambientContent": {
+        "supportedAmbientApps": {
+            "value": [],
+            "timestamp": "2024-01-27T23:20:33.354Z"
+        }
+    },
+    "custom.recording": {},
+    "samsungvd.ambient18": {},
+    "custom.soundmode": {
+        "supportedSoundModesMap": {
+            "value": [
+                {
+                    "id": "modeStandard",
+                    "name": "Τυπικό"
+                }
+            ],
+            "timestamp": "2024-01-27T23:20:34.647Z"
+        },
+        "soundMode": {
+            "value": "Τυπικό",
+            "timestamp": "2024-01-27T23:20:34.647Z"
+        },
+        "supportedSoundModes": {
+            "value": [
+                "Τυπικό"
+            ],
+            "timestamp": "2024-01-27T23:20:34.647Z"
+        }
+    },
+    "audioMute": {
+        "mute": {
+            "value": "unmuted",
+            "timestamp": "2024-01-27T23:20:34.571Z"
+        }
+    },
+    "mediaTrackControl": {
+        "supportedTrackControlCommands": {
+            "value": null
+        }
+    }
+}
