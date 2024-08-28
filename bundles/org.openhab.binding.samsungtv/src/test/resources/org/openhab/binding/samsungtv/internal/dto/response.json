@@ -241,7 +241,7 @@
     },
     "tvChannel": {
         "tvChannel": {
-            "value": "",
+            "value": "1",
             "timestamp": "2024-08-28T17:20:47.202Z"
         },
         "tvChannelName": {
