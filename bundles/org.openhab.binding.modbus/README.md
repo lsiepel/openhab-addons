@@ -16,13 +16,6 @@ The binding has the following extensions:
 
 <!--list-subs-->
 
-The rest of this page contains details for configuring this binding:
-
-{::options toc_levels="2..4"/}
-
-- TOC
-{:toc}
-
 ## Main Features
 
 The binding polls (or _reads_) Modbus data using function codes (FC) FC01 (Read coils), FC02 (Read discrete inputs), FC03 (Read multiple holding registers) or FC04 (Read input registers).
@@ -339,10 +332,10 @@ Note that the main binding does not recognize any devices, so it is pointless to
 
 > In the traditional standard, [entity] numbers for those entities start with a digit, followed by a number of four digits in range 1–9,999:
 >
-> - coils numbers start with a zero and then span from 00001 to 09999
-> - discrete input numbers start with a one and then span from 10001 to 19999
-> - input register numbers start with a three and then span from 30001 to 39999
-> - holding register numbers start with a four and then span from 40001 to 49999
+>- coils numbers start with a zero and then span from 00001 to 09999
+>- discrete input numbers start with a one and then span from 10001 to 19999
+>- input register numbers start with a three and then span from 30001 to 39999
+>- holding register numbers start with a four and then span from 40001 to 49999
 >
 > This translates into [entity] addresses between 0 and 9,998 in data frames.
 

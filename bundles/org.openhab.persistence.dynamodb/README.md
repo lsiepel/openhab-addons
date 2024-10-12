@@ -13,14 +13,6 @@ Features:
 
 This service is provided "AS IS", and the user takes full responsibility of any charges or damage to Amazon data.
 
-## Table of Contents
-
-{::options toc_levels="2..4"/}
-<!-- markdownlint-disable-next-line ul-style -->
-- TOC
-
-{:toc}
-
 ## Prerequisites
 
 You must first set up an Amazon account as described below.
@@ -32,14 +24,12 @@ Please also note possible [Free Tier](https://aws.amazon.com/free/) benefits.
 
 ### Setting Up an Amazon Account
 
-<!-- markdownlint-disable-next-line no-emphasis-as-heading -->
-**Login to AWS web console**
+#### Login to AWS Web Console
 
 - [Sign up](https://aws.amazon.com/) for Amazon AWS.
 - Select the AWS region in the [AWS console](https://console.aws.amazon.com/) using [these instructions](https://docs.aws.amazon.com/awsconsolehelpdocs/latest/gsg/getting-started.html#select-region). Note the region identifier in the URL (e.g. `https://eu-west-1.console.aws.amazon.com/console/home?region=eu-west-1` means that region id is `eu-west-1`).
 
-<!-- markdownlint-disable-next-line no-emphasis-as-heading -->
-**Create policy controlling permissions for AWS user**
+#### Create Policy Controlling Permissions for AWS User
 
 Here we create AWS IAM Policy to limit exposure to AWS resources.
 This way, openHAB DynamoDB addon has limited access to AWS, even if credentials would be compromised.
@@ -48,68 +38,65 @@ This way, openHAB DynamoDB addon has limited access to AWS, even if credentials 
 New table schema is the default for fresh openHAB installations and for users that are taking DynamoDB into use for the first time.
 For users with old table schema, one can use pre-existing policy `AmazonDynamoDBFullAccess` (although it gives wider-than-necessary permissions).
 
-  1. Open Services menu, and search for _IAM_.
-  2. From top right, press the small arrow on top right corner close to your name. Copy the _Account ID_ to clipboard by pressing the small "copy" icon
+1. Open Services menu, and search for _IAM_.
+2. From top right, press the small arrow on top right corner close to your name. Copy the _Account ID_ to clipboard by pressing the small "copy" icon
   ![AWS Account ID](doc/aws_account_id.png)
-  3. In IAM dialog, select _Policies_ from the menu on the left
-  4. Click _Create policy_
-  5. Open _JSON_ tab and input the below policy code.
-  6. Make the below the changes to the policy JSON `Resource` section
+3. In IAM dialog, select _Policies_ from the menu on the left
+4. Click _Create policy_
+5. Open _JSON_ tab and input the below policy code.
+6. Make the below the changes to the policy JSON `Resource` section
+    - Modify the AWS account id from `055251986555` to to the one you have on clipboard (see step 2 above)
+    - If you are on some other region than `eu-west-1`, change the entry accordingly
 
-- Modify the AWS account id from `055251986555` to to the one you have on clipboard (see step 2 above)
-- If you are on some other region than `eu-west-1`, change the entry accordingly
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
+        ```json
         {
-            "Sid": "VisualEditor0",
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:BatchGetItem",
-                "dynamodb:BatchWriteItem",
-                "dynamodb:UpdateTimeToLive",
-                "dynamodb:ConditionCheckItem",
-                "dynamodb:PutItem",
-                "dynamodb:DeleteItem",
-                "dynamodb:Scan",
-                "dynamodb:Query",
-                "dynamodb:UpdateItem",
-                "dynamodb:DescribeTimeToLive",
-                "dynamodb:DeleteTable",
-                "dynamodb:CreateTable",
-                "dynamodb:DescribeTable",
-                "dynamodb:GetItem",
-                "dynamodb:UpdateTable"
-            ],
-            "Resource": [
-                "arn:aws:dynamodb:eu-west-1:055251986555:table/openhab",
-                "arn:aws:dynamodb:eu-west-1:055251986555:table/openhab/index/*"
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "VisualEditor0",
+                    "Effect": "Allow",
+                    "Action": [
+                        "dynamodb:BatchGetItem",
+                        "dynamodb:BatchWriteItem",
+                        "dynamodb:UpdateTimeToLive",
+                        "dynamodb:ConditionCheckItem",
+                        "dynamodb:PutItem",
+                        "dynamodb:DeleteItem",
+                        "dynamodb:Scan",
+                        "dynamodb:Query",
+                        "dynamodb:UpdateItem",
+                        "dynamodb:DescribeTimeToLive",
+                        "dynamodb:DeleteTable",
+                        "dynamodb:CreateTable",
+                        "dynamodb:DescribeTable",
+                        "dynamodb:GetItem",
+                        "dynamodb:UpdateTable"
+                    ],
+                    "Resource": [
+                        "arn:aws:dynamodb:eu-west-1:055251986555:table/openhab",
+                        "arn:aws:dynamodb:eu-west-1:055251986555:table/openhab/index/*"
+                    ]
+                },
+                {
+                    "Sid": "VisualEditor1",
+                    "Effect": "Allow",
+                    "Action": [
+                        "dynamodb:ListTables",
+                        "dynamodb:DescribeReservedCapacity",
+                        "dynamodb:DescribeLimits"
+                    ],
+                    "Resource": "*"
+                }
             ]
-        },
-        {
-            "Sid": "VisualEditor1",
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:ListTables",
-                "dynamodb:DescribeReservedCapacity",
-                "dynamodb:DescribeLimits"
-            ],
-            "Resource": "*"
         }
-    ]
-}
-```
-<!-- markdownlint-disable ol-prefix -->
-  4. Click _Next: Tags_
-  5. Click _Next: Review_
-  6. Enter `openhab-dynamodb-policy` as the _Name_
-  7. Click _Create policy_ to finish policy creation
-<!-- markdownlint-enable ol-prefix -->
+        ```
 
-<!-- markdownlint-disable-next-line no-emphasis-as-heading -->
-**Create user for openHAB**
+7. Click _Next: Tags_
+8. Click _Next: Review_
+9. Enter `openhab-dynamodb-policy` as the _Name_
+10. Click _Create policy_ to finish policy creation
+
+#### Create user for openHAB
 
 Here we create AWS user with programmatic access to the DynamoDB.
 We associate the user with the policy created above.
@@ -156,23 +143,19 @@ Only one table will be created for all data. The table will have the following f
 
 Other notes
 
-<!-- markdownlint-disable ul-style -->
 - `i` and `t` forms the composite primary key (partition key, sort key) for the table
 - Only one of `s` or `n` attributes are specified, not both. Most items are converted to number type for most compact representation.
 - Compared to legacy format, data overhead is minimizing by using short attribute names, number timestamps and having only single table.
 - `exp` attribute is used with DynamoDB Time To Live (TTL) feature to automatically delete old data
-<!-- markdownlint-enable ul-style -->
 
 #### Legacy schema
 
 Configure the addon to use legacy schema by setting `tablePrefix` parameter.
 
-<!-- markdownlint-disable ul-style -->
 - When an item is persisted via this service, a table is created (if necessary).
 - The service will create at most two tables for different item types.
 - The tables will be named `<tablePrefix><item-type>`, where the `<item-type>` is either `bigdecimal` (numeric items) or `string` (string and complex items).
 - Each table will have three columns: `itemname` (item name), `timeutc` (in ISO 8601 format with millisecond accuracy), and `itemstate` (either a number or string representing item state).
-<!-- markdownlint-enable ul-style -->
 
 ### Credentials Configuration Using Access Key and Secret Key
 
