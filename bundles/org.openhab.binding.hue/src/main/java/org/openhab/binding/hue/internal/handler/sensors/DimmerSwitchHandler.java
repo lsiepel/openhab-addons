@@ -29,6 +29,7 @@ import org.openhab.binding.hue.internal.api.dto.clip1.FullSensor;
 import org.openhab.binding.hue.internal.api.dto.clip1.SensorConfigUpdate;
 import org.openhab.binding.hue.internal.handler.HueSensorHandler;
 import org.openhab.core.config.core.Configuration;
+import org.openhab.core.i18n.TimeZoneProvider;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
@@ -43,9 +44,11 @@ import org.openhab.core.thing.ThingTypeUID;
 public class DimmerSwitchHandler extends HueSensorHandler {
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Set.of(THING_TYPE_DIMMER_SWITCH);
+    public final ZoneId zoneId ;
 
-    public DimmerSwitchHandler(Thing thing) {
+    public DimmerSwitchHandler(Thing thing, TimeZoneProvider timeZoneProvider) {
         super(thing);
+        zoneId = timeZoneProvider.getTimeZone()
     }
 
     @Override
@@ -55,7 +58,7 @@ public class DimmerSwitchHandler extends HueSensorHandler {
 
     @Override
     protected void doSensorStateChanged(FullSensor sensor, Configuration config) {
-        ZoneId zoneId = ZoneId.systemDefault();
+        
         ZonedDateTime now = ZonedDateTime.now(zoneId), timestamp = now;
 
         Object lastUpdated = sensor.getState().get(FullSensor.STATE_LAST_UPDATED);

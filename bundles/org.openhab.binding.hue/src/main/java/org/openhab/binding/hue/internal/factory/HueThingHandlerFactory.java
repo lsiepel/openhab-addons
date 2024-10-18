@@ -195,9 +195,9 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
         } else if (HueLightHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return new HueLightHandler(thing, stateDescriptionProvider);
         } else if (DimmerSwitchHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-            return new DimmerSwitchHandler(thing);
+            return new DimmerSwitchHandler(thing, timeZoneProvider);
         } else if (TapSwitchHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-            return new TapSwitchHandler(thing);
+            return new TapSwitchHandler(thing, timeZoneProvider);
         } else if (PresenceHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             return new PresenceHandler(thing);
         } else if (GeofencePresenceHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
