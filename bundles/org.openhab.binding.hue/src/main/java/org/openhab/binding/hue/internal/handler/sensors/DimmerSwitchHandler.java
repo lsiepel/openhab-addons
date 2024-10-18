@@ -58,7 +58,6 @@ public class DimmerSwitchHandler extends HueSensorHandler {
 
     @Override
     protected void doSensorStateChanged(FullSensor sensor, Configuration config) {
-
         ZonedDateTime now = ZonedDateTime.now(zoneId), timestamp = now;
 
         Object lastUpdated = sensor.getState().get(FullSensor.STATE_LAST_UPDATED);
