@@ -16,16 +16,20 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Computes a rolling average of readings that is passed on to the next publisher
  * after a given time frame.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public abstract class RollingAveragePublisher<R extends Reading> implements ReadingPublisher<R> {
     private final ReadingPublisher<R> publisher;
 
-    private ScheduledFuture<?> valueUpdateJob;
+    private @Nullable ScheduledFuture<?> valueUpdateJob;
     private RollingReadingAverage<R> rollingAvg;
 
     public RollingAveragePublisher(int bufferSize, int interval, ReadingPublisher<R> p,
@@ -39,15 +43,18 @@ public abstract class RollingAveragePublisher<R extends Reading> implements Read
     public abstract RollingReadingAverage<R> createRollingReadingAverage(int bufferSize);
 
     @Override
-    public void publish(R reading) {
-        rollingAvg.add(reading);
+    public void publish(@Nullable R reading) {
+        if (reading != null) {
+            rollingAvg.add(reading);
+        }
     }
 
     @Override
     public void dispose() {
+        ScheduledFuture<?> valueUpdateJob = this.valueUpdateJob;
         if (valueUpdateJob != null) {
             valueUpdateJob.cancel(true);
-            valueUpdateJob = null;
+            this.valueUpdateJob = null;
         }
 
         publisher.dispose();

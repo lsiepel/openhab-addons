@@ -12,13 +12,16 @@
  */
 package org.openhab.binding.jeelink.internal.config;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Configuration for a LaCrossTemperatureSensorHandler.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class LaCrosseTemperatureSensorConfig extends BufferedSensorConfig {
-    public float minTemp;
-    public float maxTemp;
-    public float maxDiff;
+    public float minTemp = -100;
+    public float maxTemp = 100;
+    public float maxDiff = 2;
 }

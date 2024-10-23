@@ -15,6 +15,8 @@ package org.openhab.binding.jeelink.internal.emt7110;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
 
 /**
@@ -22,12 +24,13 @@ import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
  *
  * @author Timo Schober - Initial contribution
  */
+@NonNullByDefault
 public class Emt7110ReadingConverter implements JeeLinkReadingConverter<Emt7110Reading> {
     private static final Pattern READING_P = Pattern.compile(
             "OK EMT7110\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)");
 
     @Override
-    public Emt7110Reading createReading(String inputLine) {
+    public @Nullable Emt7110Reading createReading(String inputLine) {
         // parse lines only if we have registered listeners
         if (inputLine != null) {
             Matcher matcher = READING_P.matcher(inputLine);

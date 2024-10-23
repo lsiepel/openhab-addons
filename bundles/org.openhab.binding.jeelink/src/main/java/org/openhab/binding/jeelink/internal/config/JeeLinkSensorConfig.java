@@ -12,12 +12,16 @@
  */
 package org.openhab.binding.jeelink.internal.config;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Configuration for a JeeLinkSensorHandler.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class JeeLinkSensorConfig {
-    public String sensorId;
-    public int sensorTimeout;
+    public @Nullable String sensorId;
+    public int sensorTimeout = 600;
 }

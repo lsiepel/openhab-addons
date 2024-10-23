@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.jeelink.internal.ec3k;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.RollingReadingAverage;
 
 /**
@@ -19,13 +21,14 @@ import org.openhab.binding.jeelink.internal.RollingReadingAverage;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Ec3kRollingReadingAverage extends RollingReadingAverage<Ec3kReading> {
     public Ec3kRollingReadingAverage(int bufferSize) {
         super(new Ec3kReading[bufferSize]);
     }
 
     @Override
-    protected Ec3kReading add(Ec3kReading value1, Ec3kReading value2) {
+    protected Ec3kReading add(Ec3kReading value1, @Nullable Ec3kReading value2) {
         if (value2 != null) {
             return new Ec3kReading(value2.getSensorId(), value1.getCurrentWatt() + value2.getCurrentWatt(),
                     value2.getMaxWatt(), value2.getConsumptionTotal(), value2.getApplianceTime(),
@@ -37,7 +40,7 @@ public class Ec3kRollingReadingAverage extends RollingReadingAverage<Ec3kReading
     }
 
     @Override
-    protected Ec3kReading substract(Ec3kReading from, Ec3kReading value) {
+    protected Ec3kReading substract(Ec3kReading from, @Nullable Ec3kReading value) {
         float newCurrWatt = from.getCurrentWatt();
 
         if (value != null) {

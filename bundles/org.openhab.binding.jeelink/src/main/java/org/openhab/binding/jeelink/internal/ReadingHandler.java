@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.jeelink.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Interface for classes that handle Readings.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public interface ReadingHandler<R extends Reading> {
     void handleReading(R r);
 

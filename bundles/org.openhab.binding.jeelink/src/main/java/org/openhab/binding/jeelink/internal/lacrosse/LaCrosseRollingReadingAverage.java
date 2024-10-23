@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.jeelink.internal.lacrosse;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.RollingReadingAverage;
 
 /**
@@ -19,13 +21,15 @@ import org.openhab.binding.jeelink.internal.RollingReadingAverage;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class LaCrosseRollingReadingAverage extends RollingReadingAverage<LaCrosseTemperatureReading> {
     public LaCrosseRollingReadingAverage(int bufferSize) {
         super(new LaCrosseTemperatureReading[bufferSize]);
     }
 
     @Override
-    protected LaCrosseTemperatureReading add(LaCrosseTemperatureReading value1, LaCrosseTemperatureReading value2) {
+    protected LaCrosseTemperatureReading add(LaCrosseTemperatureReading value1,
+            @Nullable LaCrosseTemperatureReading value2) {
         if (value2 != null) {
             return new LaCrosseTemperatureReading(value2.getSensorId(), value2.getSensorType(), value2.getChannel(),
                     value1.getTemperature() + value2.getTemperature(), value1.getHumidity() + value2.getHumidity(),
@@ -37,7 +41,8 @@ public class LaCrosseRollingReadingAverage extends RollingReadingAverage<LaCross
     }
 
     @Override
-    protected LaCrosseTemperatureReading substract(LaCrosseTemperatureReading from, LaCrosseTemperatureReading value) {
+    protected LaCrosseTemperatureReading substract(LaCrosseTemperatureReading from,
+            @Nullable LaCrosseTemperatureReading value) {
         float newTemp = from.getTemperature();
         int newHum = from.getHumidity();
 

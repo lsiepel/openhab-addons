@@ -12,12 +12,16 @@
  */
 package org.openhab.binding.jeelink.internal.connection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Listener that is notified on connection status changes of JeeLinkConnections
  * as well as when input has been read from the connection.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public interface ConnectionListener {
     /**
      * Called when the connection has been opened.
@@ -34,7 +38,7 @@ public interface ConnectionListener {
      *
      * @param cause a text describing the cause of the abort.
      */
-    void connectionAborted(String cause);
+    void connectionAborted(@Nullable String cause);
 
     /**
      * Called whenever input has been read from the connection.

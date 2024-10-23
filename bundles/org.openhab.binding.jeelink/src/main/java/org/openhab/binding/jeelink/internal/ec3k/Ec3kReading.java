@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.jeelink.internal.ec3k;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.jeelink.internal.Reading;
 
 /**
@@ -19,6 +20,7 @@ import org.openhab.binding.jeelink.internal.Reading;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Ec3kReading implements Reading {
     private float currentWatt;
     private float maxWatt;

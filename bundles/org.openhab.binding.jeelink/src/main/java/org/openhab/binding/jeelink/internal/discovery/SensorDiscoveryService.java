@@ -17,6 +17,7 @@ import static org.openhab.binding.jeelink.internal.JeeLinkBindingConstants.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.jeelink.internal.JeeLinkHandler;
 import org.openhab.binding.jeelink.internal.Reading;
 import org.openhab.binding.jeelink.internal.ReadingHandler;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class SensorDiscoveryService extends AbstractDiscoveryService implements ReadingHandler<Reading> {
     private static final int DISCOVER_TIMEOUT_SECONDS = 30;
 

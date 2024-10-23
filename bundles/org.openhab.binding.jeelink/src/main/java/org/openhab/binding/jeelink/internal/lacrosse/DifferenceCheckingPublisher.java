@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.jeelink.internal.lacrosse;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.ReadingPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +24,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class DifferenceCheckingPublisher implements ReadingPublisher<LaCrosseTemperatureReading> {
     private final Logger logger = LoggerFactory.getLogger(DifferenceCheckingPublisher.class);
 
     private final ReadingPublisher<LaCrosseTemperatureReading> publisher;
     private final float allowedDifference;
 
-    private LaCrosseTemperatureReading lastReading;
+    private @Nullable LaCrosseTemperatureReading lastReading;
 
     public DifferenceCheckingPublisher(float difference, ReadingPublisher<LaCrosseTemperatureReading> p) {
         allowedDifference = difference;
@@ -36,12 +39,13 @@ public class DifferenceCheckingPublisher implements ReadingPublisher<LaCrosseTem
     }
 
     @Override
-    public void publish(LaCrosseTemperatureReading reading) {
-        if (lastReading == null
-                || Math.abs(reading.getTemperature() - lastReading.getTemperature()) < allowedDifference) {
+    public void publish(@Nullable LaCrosseTemperatureReading reading) {
+        if (reading != null && (lastReading == null
+                || Math.abs(reading.getTemperature() - lastReading.getTemperature()) < allowedDifference)) {
             publisher.publish(reading);
         } else {
-            logger.debug("Ignoring reading {} differing too much from previous value", reading.getTemperature());
+            logger.debug("Ignoring reading {} differing too much from previous value",
+                    reading != null ? reading.getTemperature() : "'null'");
         }
 
         lastReading = reading;

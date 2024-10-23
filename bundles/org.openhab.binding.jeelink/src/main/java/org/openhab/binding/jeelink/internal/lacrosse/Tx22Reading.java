@@ -12,20 +12,25 @@
  */
 package org.openhab.binding.jeelink.internal.lacrosse;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Reading of a TX22 Temperature/Humidity Sensor.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Tx22Reading extends LaCrosseTemperatureReading {
-    private Integer rain;
-    private Float windDirection;
-    private Float windSpeed;
-    private Float windGust;
-    private Integer pressure;
+    private @Nullable Integer rain;
+    private @Nullable Float windDirection;
+    private @Nullable Float windSpeed;
+    private @Nullable Float windGust;
+    private @Nullable Integer pressure;
 
-    public Tx22Reading(int sensorId, int sensorType, int channel, Float temp, Integer humidity, boolean batteryNew,
-            boolean batteryLow, Integer rain, Float windDirection, Float windSpeed, Float windGust, Integer pressure) {
+    public Tx22Reading(int sensorId, int sensorType, int channel, @Nullable Float temp, @Nullable Integer humidity,
+            boolean batteryNew, boolean batteryLow, @Nullable Integer rain, @Nullable Float windDirection,
+            @Nullable Float windSpeed, @Nullable Float windGust, @Nullable Integer pressure) {
         super(String.valueOf(sensorId), sensorType, channel, temp, humidity, batteryNew, batteryLow);
 
         this.rain = rain;
@@ -35,23 +40,23 @@ public class Tx22Reading extends LaCrosseTemperatureReading {
         this.pressure = pressure;
     }
 
-    public Integer getRain() {
+    public @Nullable Integer getRain() {
         return rain;
     }
 
-    public Float getWindDirection() {
+    public @Nullable Float getWindDirection() {
         return windDirection;
     }
 
-    public Float getWindSpeed() {
+    public @Nullable Float getWindSpeed() {
         return windSpeed;
     }
 
-    public Float getWindGust() {
+    public @Nullable Float getWindGust() {
         return windGust;
     }
 
-    public Integer getPressure() {
+    public @Nullable Integer getPressure() {
         return pressure;
     }
 

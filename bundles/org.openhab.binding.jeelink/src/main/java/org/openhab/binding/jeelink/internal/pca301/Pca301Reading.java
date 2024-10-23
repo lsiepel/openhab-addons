@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.jeelink.internal.pca301;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.jeelink.internal.Reading;
 
 /**
@@ -19,6 +20,7 @@ import org.openhab.binding.jeelink.internal.Reading;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Pca301Reading implements Reading {
     private final String sensorId;
     private final int channel;

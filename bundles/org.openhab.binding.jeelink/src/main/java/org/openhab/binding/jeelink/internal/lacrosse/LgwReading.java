@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.jeelink.internal.lacrosse;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.Reading;
 
 /**
@@ -19,13 +21,14 @@ import org.openhab.binding.jeelink.internal.Reading;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class LgwReading implements Reading {
     private String sensorId;
-    private Float temp;
-    private Integer humidity;
-    private Integer pressure;
+    private @Nullable Float temp;
+    private @Nullable Integer humidity;
+    private @Nullable Integer pressure;
 
-    public LgwReading(int sensorId, Float temp, Integer humidity, Integer pressure) {
+    public LgwReading(int sensorId, @Nullable Float temp, @Nullable Integer humidity, @Nullable Integer pressure) {
         this.sensorId = String.valueOf(sensorId);
         this.temp = temp;
         this.humidity = humidity;
@@ -37,15 +40,15 @@ public class LgwReading implements Reading {
         return sensorId;
     }
 
-    public Float getTemperature() {
+    public @Nullable Float getTemperature() {
         return temp;
     }
 
-    public Integer getHumidity() {
+    public @Nullable Integer getHumidity() {
         return humidity;
     }
 
-    public Integer getPressure() {
+    public @Nullable Integer getPressure() {
         return pressure;
     }
 

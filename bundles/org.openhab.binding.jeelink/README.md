@@ -40,68 +40,70 @@ PCA301 sockets are polled every 120 seconds by default. This results in sockets 
 
 ### JeeLink / LaCrosseGateway (connected to USB)
 
-| Parameter     | Item Type | Description                                                                                                                                  |
-|---------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| Serial Port   | String    | The serial port name for the USB receiver / LaCrosseGateway. Valid values are e.g. COM1 for Windows and /dev/ttyS0 or /dev/ttyUSB0 for Linux |
-| Baud Rate     | Number    | The baud rate of the USB Receiver. Valid values are 9600, 19200, 38400, 57600 (default), and 115200                                          |
-| Init Commands | String    | A semicolon separated list of init commands that will be send to the Jeelink / LaCrosseGateway, e.g. "0a" for disabling the LED              |
+| Parameter         | Item Type | Description                                                                                                                                  |
+|-------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| serialPort        | String    | The serial port name for the USB receiver / LaCrosseGateway. Valid values are e.g. COM1 for Windows and /dev/ttyS0 or /dev/ttyUSB0 for Linux |
+| baudRate          | Number    | The baud rate of the USB Receiver. Valid values are 9600, 19200, 38400, 57600 (default), and 115200                                          |
+| initCommands      | String    | A semicolon separated list of init commands that will be send to the Jeelink / LaCrosseGateway, e.g. "0a" for disabling the LED              |
+| initDelay         | String    | Time after which the init command is send after the connection has been established if no readings have been received.                       |
+| reconnectInterval | String    | The number of seconds after which a reconnect is triggered when no values could be read fron any of the sensors.                             |
 
 The available init commands depend on the sketch that is running on the USB stick / LaCrosseGateway.
 
 ### JeeLink / LaCrosseGateway (connected over TCP)
 
-| Parameter     | Item Type | Description                                                                                                                       |
-|---------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------|
-| IP Address    | String    | The IP address of the Server to which the USB Receiver is connected, or the IP address of the LaCrosseGateway                     |
-| TCP Port      | Number    | The TCP port over which the serial port is made available, or the LaCrosseGateway port (which usually is 81)                      |
-| Init Commands | String    | A semicolon separated list of init commands that will be send to the Jeelink / LaCrosseGateway, e.g. "0a" for disabling the LED   |
+| Parameter    | Item Type | Description                                                                                                                     |
+|--------------|-----------|---------------------------------------------------------------------------------------------------------------------------------|
+| ipAddress    | String    | The IP address of the Server to which the USB Receiver is connected, or the IP address of the LaCrosseGateway                   |
+| port         | Number    | The TCP port over which the serial port is made available, or the LaCrosseGateway port (which usually is 81)                    |
+| initCommands | String    | A semicolon separated list of init commands that will be send to the Jeelink / LaCrosseGateway, e.g. "0a" for disabling the LED |
 
 ### LaCrosse temperature sensors
 
-| Parameter                  | Item Type | Description                                                                                                                                          |
-|----------------------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Sensor ID                  | Number    | The ID of the connected sensor                                                                                                                       |
-| Sensor Timeout             | Number    | The amount of time in seconds that should result in OFFLINE status when no readings have been received from the sensor                               |
-| Update Interval            | Number    | The update interval in seconds how often value updates are propagated. A value of 0 leads to propagation of every value                              |
-| Buffer Size                | Number    | The number of readings used for computing the rolling average                                                                                        |
-| Lower Temperature Limit    | Decimal   | The lowest allowed valid temperature. Lower temperature readings will be ignored                                                                     |
-| Upper Temperature Limit    | Decimal   | The highest allowed valid temperature. Higher temperature readings will be ignored                                                                   |
-| Maximum allowed difference | Decimal   | The maximum allowed difference from a value to the previous value (0 disables this check). If the difference is higher, the reading will be ignored. |
+| Parameter      | Item Type | Description                                                                                                                                          |
+|----------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| sensorId       | Number    | The ID of the connected sensor                                                                                                                       |
+| sensorTimeout  | Number    | The amount of time in seconds that should result in OFFLINE status when no readings have been received from the sensor                               |
+| updateInterval | Number    | The update interval in seconds how often value updates are propagated. A value of 0 leads to propagation of every value                              |
+| bufferSize     | Number    | The number of readings used for computing the rolling average                                                                                        |
+| minTemp        | Decimal   | The lowest allowed valid temperature. Lower temperature readings will be ignored                                                                     |
+| maxTemp        | Decimal   | The highest allowed valid temperature. Higher temperature readings will be ignored                                                                   |
+| maxDiff        | Decimal   | The maximum allowed difference from a value to the previous value (0 disables this check). If the difference is higher, the reading will be ignored. |
 
 ### EC3000 power monitors
 
 | Parameter       | Item Type | Description                                                                                                             |
 |-----------------|-----------|-------------------------------------------------------------------------------------------------------------------------|
-| Sensor ID       | Number    | The ID of the connected sensor                                                                                          |
-| Sensor Timeout  | Number    | The amount of time in seconds that should result in OFFLINE status when no readings have been received from the sensor  |
-| Update Interval | Number    | The update interval in seconds how often value updates are propagated. A value of 0 leads to propagation of every value |
-| Buffer Size     | Number    | The number of readings used for computing the rolling average                                                           |
+| sensorId       | Number    | The ID of the connected sensor                                                                                          |
+| sensorTimeout  | Number    | The amount of time in seconds that should result in OFFLINE status when no readings have been received from the sensor  |
+| updateInterval | Number    | The update interval in seconds how often value updates are propagated. A value of 0 leads to propagation of every value |
+| bufferSize     | Number    | The number of readings used for computing the rolling average                                                           |
 
 ### PCA301 power monitoring wireless sockets
 
 | Parameter         | Item Type    | Description                                                                                                            |
 |-------------------|--------------|------------------------------------------------------------------------------------------------------------------------|
-| Sensor ID         | Number       | The ID of the connected sensor                                                                                         |
-| Sensor Timeout    | Number       | The amount of time in seconds that should result in OFFLINE status when no readings have been received from the sensor |
-| Retry Count       | Number       | The number of times a switch command will be resent to the socket until giving up                                      |
+| sensorId         | Number       | The ID of the connected sensor                                                                                         |
+| sensorTimeout    | Number       | The amount of time in seconds that should result in OFFLINE status when no readings have been received from the sensor |
+| sendCount         | Number       | The number of times a switch command will be resent to the socket until giving up                                      |
 
 ### Revolt power monitors
 
 | Parameter         | Item Type    | Description                                                                                                            |
 |-------------------|--------------|------------------------------------------------------------------------------------------------------------------------|
-| Sensor ID         | Number       | The ID of the connected sensor                                                                                         |
-| Sensor Timeout    | Number       | The amount of time in seconds that should result in OFFLINE status when no readings have been received from the sensor |
+| sensorId         | Number       | The ID of the connected sensor                                                                                         |
+| sensorTimeout    | Number       | The amount of time in seconds that should result in OFFLINE status when no readings have been received from the sensor |
 
 ### EMT7110 energy meter
 
 | Parameter         | Item Type    | Description                                                                                                            |
 |-------------------|--------------|------------------------------------------------------------------------------------------------------------------------|
-| Sensor ID         | Number       | The ID of the connected sensor                                                                                         |
-| Sensor Timeout    | Number       | The amount of time in seconds that should result in OFFLINE status when no readings have been received from the sensor |
+| sensorId         | Number       | The ID of the connected sensor                                                                                         |
+| sensorTimeout    | Number       | The amount of time in seconds that should result in OFFLINE status when no readings have been received from the sensor |
 
 ## Channels
 
-### LaCrosse temperature sensors
+### LaCrosse Temperature Sensors
 
 | Channel Type ID | Item Type             | Description                                       |
 |-----------------|-----------------------|---------------------------------------------------|
@@ -110,7 +112,7 @@ The available init commands depend on the sketch that is running on the USB stic
 | batteryNew      | Contact               | Whether the battery is new (CLOSED) or not (OPEN) |
 | batteryLow      | Contact               | Whether the battery is low (CLOSED) or not (OPEN) |
 
-### TX22 temperature and humidity sensors
+### TX22 Temperature and Humidity Sensors
 
 | Channel Type ID | Item Type             | Description                |
 |-----------------|-----------------------|----------------------------|
@@ -122,7 +124,7 @@ The available init commands depend on the sketch that is running on the USB stic
 | windAngle       | Number:Angle          | Current wind direction     |
 | gustStrength    | Number:Speed          | Gust speed                 |
 
-### EC3000 power monitors
+### EC3000 Power Monitors
 
 | Channel Type ID  | Item Type     | Description                               |
 |------------------|---------------|-------------------------------------------|
@@ -133,7 +135,7 @@ The available init commands depend on the sketch that is running on the USB stic
 | sensorTime       | Number:Time   | Total turn on time of power monitor       |
 | resets           | Number        | Number of resets                          |
 
-### PCA301 power monitoring wireless sockets
+### PCA301 Power Monitoring Wireless Sockets
 
 | Channel Type ID         | Item Type     | Description                                          |
 |-------------------------|---------------|------------------------------------------------------|
@@ -141,7 +143,7 @@ The available init commands depend on the sketch that is running on the USB stic
 | currentPower            | Number:Power  | Current power draw                                   |
 | consumptionTotal        | Number:Energy | Total energy consumption                             |
 
-### Revolt power monitors
+### Revolt Power Monitors
 
 | Channel Type ID   | Item Type                | Description                               |
 |-------------------|--------------------------|-------------------------------------------|
@@ -152,7 +154,7 @@ The available init commands depend on the sketch that is running on the USB stic
 | electricPotential | Number:ElectricPotential | The measured Electric Potential           |
 | powerFrequency    | Number:Frequency         | The measured AC power frequency           |
 
-### EMT7110 energy meter
+### EMT7110 Energy Meter
 
 | Channel Type ID   | Item Type                | Description                           |
 |-------------------|--------------------------|---------------------------------------|
@@ -163,7 +165,7 @@ The available init commands depend on the sketch that is running on the USB stic
 
 ## Commands
 
-### PCA301 power monitoring wireless sockets
+### PCA301 Power Monitoring Wireless Sockets
 
 | Channel Type ID         | Item Type    | Description                                       |
 |-------------------------|--------------|---------------------------------------------------|

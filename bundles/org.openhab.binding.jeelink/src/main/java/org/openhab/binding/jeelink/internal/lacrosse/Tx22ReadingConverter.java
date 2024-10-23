@@ -15,6 +15,8 @@ package org.openhab.binding.jeelink.internal.lacrosse;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Tx22ReadingConverter implements JeeLinkReadingConverter<Tx22Reading> {
     private static final Pattern LINE_P = Pattern.compile(
             "OK\\s+WS\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)(?:\\s+([0-9]+)\\s+([0-9]+))?");
@@ -31,7 +34,7 @@ public class Tx22ReadingConverter implements JeeLinkReadingConverter<Tx22Reading
     private final Logger logger = LoggerFactory.getLogger(Tx22ReadingConverter.class);
 
     @Override
-    public Tx22Reading createReading(String inputLine) {
+    public @Nullable Tx22Reading createReading(@Nullable String inputLine) {
         // parse lines only if we have registered listeners
         if (inputLine != null) {
             Matcher matcher = LINE_P.matcher(inputLine);

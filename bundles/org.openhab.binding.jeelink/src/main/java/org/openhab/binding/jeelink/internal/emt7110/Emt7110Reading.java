@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.jeelink.internal.emt7110;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.jeelink.internal.Reading;
 
 /**
@@ -19,6 +20,7 @@ import org.openhab.binding.jeelink.internal.Reading;
  *
  * @author Timo Schober - Initial contribution
  */
+@NonNullByDefault
 public class Emt7110Reading implements Reading {
     private final String sensorId;
     private final float voltage;

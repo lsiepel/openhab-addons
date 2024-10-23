@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.jeelink.internal.ec3k;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.jeelink.internal.JeeLinkBindingConstants;
 import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
 import org.openhab.binding.jeelink.internal.JeeLinkSensorHandler;
@@ -23,6 +24,7 @@ import org.openhab.core.thing.Thing;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Ec3kSensorDefinition extends SensorDefinition<Ec3kReading> {
 
     public Ec3kSensorDefinition() {

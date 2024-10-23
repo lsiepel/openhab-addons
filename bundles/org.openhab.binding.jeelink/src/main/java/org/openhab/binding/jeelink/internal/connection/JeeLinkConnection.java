@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.jeelink.internal.connection;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Interface for connections to JeeLink USB Receivers.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public interface JeeLinkConnection {
     /**
      * closes the connection to the receiver.

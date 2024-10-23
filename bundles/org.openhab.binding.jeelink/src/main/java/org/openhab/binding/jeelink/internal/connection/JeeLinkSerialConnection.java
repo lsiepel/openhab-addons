@@ -18,6 +18,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.TooManyListenersException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.io.transport.serial.PortInUseException;
 import org.openhab.core.io.transport.serial.SerialPort;
 import org.openhab.core.io.transport.serial.SerialPortEvent;
@@ -32,11 +34,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class JeeLinkSerialConnection extends AbstractJeeLinkConnection {
     private final Logger logger = LoggerFactory.getLogger(JeeLinkSerialConnection.class);
 
     private final int baudRate;
-    private SerialPort serialPort;
+    private @Nullable SerialPort serialPort;
     private final SerialPortIdentifier serialPortIdentifier;
     private boolean open;
 
@@ -53,6 +56,7 @@ public class JeeLinkSerialConnection extends AbstractJeeLinkConnection {
     public synchronized void closeConnection() {
         if (open) {
             logger.debug("Closing serial connection to port {}...", port);
+            SerialPort serialPort = this.serialPort;
 
             serialPort.notifyOnDataAvailable(false);
             serialPort.removeEventListener();
@@ -68,7 +72,7 @@ public class JeeLinkSerialConnection extends AbstractJeeLinkConnection {
         try {
             if (!open) {
                 logger.debug("Opening serial connection to port {} with baud rate {}...", port, baudRate);
-                serialPort = serialPortIdentifier.open("openhab", 3000);
+                SerialPort serialPort = serialPortIdentifier.open("openhab", 3000);
                 open = true;
 
                 serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
@@ -92,6 +96,7 @@ public class JeeLinkSerialConnection extends AbstractJeeLinkConnection {
                 });
 
                 serialPort.notifyOnDataAvailable(true);
+                this.serialPort = serialPort;
                 notifyOpen();
             }
         } catch (UnsupportedCommOperationException | IOException | TooManyListenersException ex) {
@@ -103,7 +108,7 @@ public class JeeLinkSerialConnection extends AbstractJeeLinkConnection {
     }
 
     @Override
-    public OutputStream getInitStream() throws IOException {
+    public @Nullable OutputStream getInitStream() throws IOException {
         return open ? serialPort.getOutputStream() : null;
     }
 }

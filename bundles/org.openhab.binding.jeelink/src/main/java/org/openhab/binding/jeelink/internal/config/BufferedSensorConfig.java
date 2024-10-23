@@ -12,12 +12,15 @@
  */
 package org.openhab.binding.jeelink.internal.config;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Configuration for a Handler that is able to buffer values.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class BufferedSensorConfig extends JeeLinkSensorConfig {
-    public int updateInterval;
-    public int bufferSize;
+    public int updateInterval = 60;
+    public int bufferSize = 20;
 }

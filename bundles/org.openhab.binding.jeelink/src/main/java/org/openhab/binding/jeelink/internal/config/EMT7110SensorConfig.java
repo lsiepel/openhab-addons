@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.jeelink.internal.config;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Configuration for a EMT7110SensorHandler.
  *
  * @author Timo Schober - Initial contribution
  */
+@NonNullByDefault
 public class EMT7110SensorConfig extends JeeLinkSensorConfig {
 
 }

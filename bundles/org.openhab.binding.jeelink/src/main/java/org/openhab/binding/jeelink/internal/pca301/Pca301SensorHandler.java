@@ -20,6 +20,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.JeeLinkHandler;
 import org.openhab.binding.jeelink.internal.JeeLinkSensorHandler;
 import org.openhab.binding.jeelink.internal.ReadingPublisher;
@@ -29,6 +31,8 @@ import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
@@ -39,14 +43,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Pca301SensorHandler extends JeeLinkSensorHandler<Pca301Reading> {
     private final Logger logger = LoggerFactory.getLogger(Pca301SensorHandler.class);
 
-    private JeeLinkHandler bridge;
-    private OnOffType state;
+    private @Nullable JeeLinkHandler bridge;
+    private @Nullable OnOffType state;
     private final AtomicInteger channel = new AtomicInteger(-1);
 
-    private ScheduledFuture<?> retry;
+    private @Nullable ScheduledFuture<?> retry;
     private int sendCount;
 
     public Pca301SensorHandler(Thing thing, String sensorType) {
@@ -62,7 +67,11 @@ public class Pca301SensorHandler extends JeeLinkSensorHandler<Pca301Reading> {
     public void initialize() {
         super.initialize();
 
-        bridge = (JeeLinkHandler) getBridge().getHandler();
+        if (!(getBridge() instanceof JeeLinkHandler bridgeHandler)) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED);
+            return;
+        }
+        this.bridge = bridgeHandler;
 
         Pca301SensorConfig cfg = getConfigAs(Pca301SensorConfig.class);
         sendCount = cfg.sendCount;
@@ -98,19 +107,20 @@ public class Pca301SensorHandler extends JeeLinkSensorHandler<Pca301Reading> {
     public ReadingPublisher<Pca301Reading> createPublisher() {
         return new ReadingPublisher<>() {
             @Override
-            public void publish(Pca301Reading reading) {
+            public void publish(@Nullable Pca301Reading reading) {
                 if (reading != null) {
                     channel.set(reading.getChannel());
 
                     BigDecimal current = new BigDecimal(reading.getCurrent()).setScale(1, RoundingMode.HALF_UP);
-                    state = OnOffType.from(reading.isOn());
+                    OnOffType stateLocal = state = OnOffType.from(reading.isOn());
 
                     updateState(CURRENT_POWER_CHANNEL, new QuantityType<>(current, Units.WATT));
                     updateState(CONSUMPTION_CHANNEL, new QuantityType<>(reading.getTotal(), Units.WATT_HOUR));
-                    updateState(SWITCHING_STATE_CHANNEL, state);
+                    updateState(SWITCHING_STATE_CHANNEL, stateLocal);
 
                     logger.debug("updated states for thing {} ({}): state={}, current={}, total={}",
-                            getThing().getLabel(), getThing().getUID().getId(), state, current, reading.getTotal());
+                            getThing().getLabel(), getThing().getUID().getId(), stateLocal, current,
+                            reading.getTotal());
                 }
             }
 
@@ -169,9 +179,10 @@ public class Pca301SensorHandler extends JeeLinkSensorHandler<Pca301Reading> {
     }
 
     private synchronized void cancelRetry() {
+        ScheduledFuture<?> retry = this.retry;
         if (retry != null) {
             retry.cancel(true);
-            retry = null;
+            this.retry = null;
         }
     }
 }

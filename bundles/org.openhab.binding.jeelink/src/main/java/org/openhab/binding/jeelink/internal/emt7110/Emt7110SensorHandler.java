@@ -14,6 +14,8 @@ package org.openhab.binding.jeelink.internal.emt7110;
 
 import static org.openhab.binding.jeelink.internal.JeeLinkBindingConstants.*;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.JeeLinkSensorHandler;
 import org.openhab.binding.jeelink.internal.ReadingPublisher;
 import org.openhab.core.library.types.QuantityType;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timo Schober - Initial contribution
  */
+@NonNullByDefault
 public class Emt7110SensorHandler extends JeeLinkSensorHandler<Emt7110Reading> {
     private final Logger logger = LoggerFactory.getLogger(Emt7110SensorHandler.class);
 
@@ -63,7 +66,7 @@ public class Emt7110SensorHandler extends JeeLinkSensorHandler<Emt7110Reading> {
     public ReadingPublisher<Emt7110Reading> createPublisher() {
         return new ReadingPublisher<>() {
             @Override
-            public void publish(Emt7110Reading reading) {
+            public void publish(@Nullable Emt7110Reading reading) {
                 if (reading != null) {
                     updateState(CURRENT_POWER_CHANNEL, new QuantityType<>(reading.getPower(), Units.WATT));
                     updateState(CONSUMPTION_CHANNEL, new QuantityType<>(reading.getaPower(), Units.KILOWATT_HOUR));

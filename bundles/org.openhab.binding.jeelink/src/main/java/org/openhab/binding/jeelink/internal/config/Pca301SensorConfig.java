@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.jeelink.internal.config;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Configuration for a Pca301SensorHandler.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Pca301SensorConfig extends JeeLinkSensorConfig {
-    public int sendCount;
+    public int sendCount = 10;
 }

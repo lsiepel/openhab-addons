@@ -12,12 +12,15 @@
  */
 package org.openhab.binding.jeelink.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Interface for a Reading from a Sensor. Addiionally provided basic arithmetic operations needed
  * for computing average values for readings.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public interface Reading {
     /**
      * @return the sensor ID of the sensor that provided this reading.

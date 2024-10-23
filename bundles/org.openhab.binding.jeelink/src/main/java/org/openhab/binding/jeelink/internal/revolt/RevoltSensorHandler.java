@@ -17,6 +17,8 @@ import static org.openhab.binding.jeelink.internal.JeeLinkBindingConstants.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.JeeLinkSensorHandler;
 import org.openhab.binding.jeelink.internal.ReadingPublisher;
 import org.openhab.core.library.types.DecimalType;
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class RevoltSensorHandler extends JeeLinkSensorHandler<RevoltReading> {
     private final Logger logger = LoggerFactory.getLogger(RevoltSensorHandler.class);
 
@@ -48,7 +51,7 @@ public class RevoltSensorHandler extends JeeLinkSensorHandler<RevoltReading> {
     public ReadingPublisher<RevoltReading> createPublisher() {
         return new ReadingPublisher<>() {
             @Override
-            public void publish(RevoltReading reading) {
+            public void publish(@Nullable RevoltReading reading) {
                 if (reading != null && getThing().getStatus() == ThingStatus.ONLINE) {
                     BigDecimal power = new BigDecimal(reading.getPower()).setScale(1, RoundingMode.HALF_UP);
                     BigDecimal powerFactor = new BigDecimal(reading.getPowerFactor()).setScale(2, RoundingMode.HALF_UP);

@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.jeelink.internal.lacrosse;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.ReadingPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class BoundsCheckingPublisher implements ReadingPublisher<LaCrosseTemperatureReading> {
     private final Logger logger = LoggerFactory.getLogger(BoundsCheckingPublisher.class);
 
@@ -36,11 +39,13 @@ public class BoundsCheckingPublisher implements ReadingPublisher<LaCrosseTempera
     }
 
     @Override
-    public void publish(LaCrosseTemperatureReading reading) {
-        if (reading.getTemperature() >= minTemp && reading.getTemperature() <= maxTemp) {
+    public void publish(@Nullable LaCrosseTemperatureReading reading) {
+        Float temperature = reading != null ? reading.getTemperature() : null;
+
+        if (temperature != null && temperature >= minTemp && temperature <= maxTemp) {
             publisher.publish(reading);
         } else {
-            logger.debug("Ignoring out of bounds reading {}", reading.getTemperature());
+            logger.debug("Ignoring out of bounds reading {}", temperature);
         }
     }
 

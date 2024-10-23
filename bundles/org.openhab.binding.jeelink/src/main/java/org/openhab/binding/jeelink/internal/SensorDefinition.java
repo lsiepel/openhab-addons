@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.ec3k.Ec3kSensorDefinition;
 import org.openhab.binding.jeelink.internal.emt7110.Emt7110SensorDefinition;
 import org.openhab.binding.jeelink.internal.lacrosse.LaCrosseSensorDefinition;
@@ -34,6 +36,7 @@ import org.openhab.core.thing.binding.ThingHandler;
  *
  * @param <R> the Reading type this sensor provides.
  */
+@NonNullByDefault
 public abstract class SensorDefinition<R extends Reading> {
     public static final String ALL_TYPE = "All";
 
@@ -69,7 +72,7 @@ public abstract class SensorDefinition<R extends Reading> {
 
     public abstract JeeLinkReadingConverter<R> createConverter();
 
-    public static SensorDefinition<?> getSensorDefinition(Reading reading) {
+    public static @Nullable SensorDefinition<?> getSensorDefinition(Reading reading) {
         for (SensorDefinition<?> sensor : SENSOR_DEFS) {
             if (sensor.getReadingClass().equals(reading.getClass())) {
                 return sensor;
@@ -83,7 +86,7 @@ public abstract class SensorDefinition<R extends Reading> {
         return SENSOR_DEFS;
     }
 
-    public static ThingHandler createHandler(ThingTypeUID thingTypeUid, Thing thing) {
+    public static @Nullable ThingHandler createHandler(ThingTypeUID thingTypeUid, Thing thing) {
         for (SensorDefinition<?> sensor : SENSOR_DEFS) {
             if (sensor.getThingTypeUID().equals(thingTypeUid)) {
                 return sensor.createHandler(thing);
@@ -93,7 +96,7 @@ public abstract class SensorDefinition<R extends Reading> {
         return null;
     }
 
-    public static JeeLinkReadingConverter<?> getConverter(String sensorType) {
+    public static @Nullable JeeLinkReadingConverter<?> getConverter(String sensorType) {
         for (SensorDefinition<?> sensor : SENSOR_DEFS) {
             if (sensor.getSensorType().equals(sensorType)) {
                 return sensor.createConverter();

@@ -12,11 +12,16 @@
  */
 package org.openhab.binding.jeelink.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Interface for converting input read from a JeeLinkConnection to a Reading.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public interface JeeLinkReadingConverter<R extends Reading> {
+    @Nullable
     R createReading(String inputLine);
 }

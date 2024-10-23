@@ -12,17 +12,21 @@
  */
 package org.openhab.binding.jeelink.internal.config;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Configuration for a JeeLinkHandler.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class JeeLinkConfig {
-    public String ipAddress;
-    public Integer port;
-    public String serialPort;
-    public Integer baudRate;
-    public String initCommands;
-    public Integer initDelay;
-    public Integer reconnectInterval;
+    public String ipAddress = "";
+    public int port = 81;
+    public @Nullable String serialPort;
+    public int baudRate = 57600;
+    public @Nullable String initCommands;
+    public int initDelay = 10;
+    public int reconnectInterval = 300;
 }

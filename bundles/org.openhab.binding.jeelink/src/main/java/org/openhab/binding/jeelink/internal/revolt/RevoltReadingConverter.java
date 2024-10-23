@@ -15,6 +15,8 @@ package org.openhab.binding.jeelink.internal.revolt;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
 
 /**
@@ -22,6 +24,7 @@ import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class RevoltReadingConverter implements JeeLinkReadingConverter<RevoltReading> {
     private static final Pattern LINE_P = Pattern.compile("""
             r([0-9A-Za-z]{4})([0-9A-Za-z]{2})([0-9A-Za-z]{4})([0-9A-Za-z]{2})([0-9A-Za-z]{4})\
@@ -29,7 +32,7 @@ public class RevoltReadingConverter implements JeeLinkReadingConverter<RevoltRea
             """);
 
     @Override
-    public RevoltReading createReading(String inputLine) {
+    public @Nullable RevoltReading createReading(@Nullable String inputLine) {
         if (inputLine != null) {
             Matcher matcher = LINE_P.matcher(inputLine);
             if (matcher.matches()) {

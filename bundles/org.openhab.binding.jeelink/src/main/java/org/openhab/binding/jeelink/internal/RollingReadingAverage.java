@@ -12,15 +12,19 @@
  */
 package org.openhab.binding.jeelink.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Computes a rolling average of readings.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public abstract class RollingReadingAverage<R extends Reading> {
     private int size = 0;
     private int maxSize;
-    private R total = null;
+    private @Nullable R total = null;
     private int index = 0;
     private R[] samples;
 
@@ -33,12 +37,13 @@ public abstract class RollingReadingAverage<R extends Reading> {
         if (size < maxSize) {
             size++;
         }
-
-        if (total == null) {
+        @Nullable
+        R totalLocal = total;
+        if (totalLocal == null) {
             total = reading;
         } else {
-            total = add(total, reading);
-            total = substract(total, samples[index]);
+            totalLocal = add(totalLocal, reading);
+            total = substract(totalLocal, samples[index]);
         }
 
         samples[index] = reading;
@@ -47,16 +52,18 @@ public abstract class RollingReadingAverage<R extends Reading> {
         }
     }
 
-    public R getAverage() {
+    public @Nullable R getAverage() {
+        @Nullable
+        R total = this.total;
         if (total == null) {
             return null;
         }
         return divide(total, size);
     }
 
-    protected abstract R add(R value1, R value2);
+    protected abstract R add(R value1, @Nullable R value2);
 
-    protected abstract R substract(R from, R value);
+    protected abstract R substract(R from, @Nullable R value);
 
     protected abstract R divide(R value, int count);
 }

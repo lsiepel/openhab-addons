@@ -17,6 +17,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public abstract class AbstractJeeLinkConnection implements JeeLinkConnection {
     private final Logger logger = LoggerFactory.getLogger(AbstractJeeLinkConnection.class);
 
@@ -48,7 +51,7 @@ public abstract class AbstractJeeLinkConnection implements JeeLinkConnection {
     /**
      * returns the stream that can be used to write the init commands to the receiver.
      */
-    protected abstract OutputStream getInitStream() throws IOException;
+    protected abstract @Nullable OutputStream getInitStream() throws IOException;
 
     protected void notifyOpen() {
         connectionListener.connectionOpened();
@@ -58,7 +61,7 @@ public abstract class AbstractJeeLinkConnection implements JeeLinkConnection {
         connectionListener.connectionClosed();
     }
 
-    protected void notifyAbort(String cause) {
+    protected void notifyAbort(@Nullable String cause) {
         connectionListener.connectionAborted(cause);
         initialized.set(false);
     }

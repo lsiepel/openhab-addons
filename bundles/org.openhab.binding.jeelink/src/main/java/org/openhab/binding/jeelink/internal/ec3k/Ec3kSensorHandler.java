@@ -17,6 +17,8 @@ import static org.openhab.binding.jeelink.internal.JeeLinkBindingConstants.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.JeeLinkSensorHandler;
 import org.openhab.binding.jeelink.internal.ReadingPublisher;
 import org.openhab.binding.jeelink.internal.RollingAveragePublisher;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Ec3kSensorHandler extends JeeLinkSensorHandler<Ec3kReading> {
     private final Logger logger = LoggerFactory.getLogger(Ec3kSensorHandler.class);
 
@@ -51,7 +54,7 @@ public class Ec3kSensorHandler extends JeeLinkSensorHandler<Ec3kReading> {
     public ReadingPublisher<Ec3kReading> createPublisher() {
         ReadingPublisher<Ec3kReading> publisher = new ReadingPublisher<>() {
             @Override
-            public void publish(Ec3kReading reading) {
+            public void publish(@Nullable Ec3kReading reading) {
                 if (reading != null && getThing().getStatus() == ThingStatus.ONLINE) {
                     BigDecimal currentWatt = new BigDecimal(reading.getCurrentWatt()).setScale(1, RoundingMode.HALF_UP);
                     BigDecimal maxWatt = new BigDecimal(reading.getMaxWatt()).setScale(1, RoundingMode.HALF_UP);

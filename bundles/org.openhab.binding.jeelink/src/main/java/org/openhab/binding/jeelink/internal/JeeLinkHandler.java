@@ -22,6 +22,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.config.JeeLinkConfig;
 import org.openhab.binding.jeelink.internal.connection.ConnectionListener;
 import org.openhab.binding.jeelink.internal.connection.JeeLinkConnection;
@@ -34,7 +36,6 @@ import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.BaseBridgeHandler;
-import org.openhab.core.thing.binding.BridgeHandler;
 import org.openhab.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
-public class JeeLinkHandler extends BaseBridgeHandler implements BridgeHandler, ConnectionListener {
+@NonNullByDefault
+public class JeeLinkHandler extends BaseBridgeHandler implements ConnectionListener {
     private final Logger logger = LoggerFactory.getLogger(JeeLinkHandler.class);
 
     private final List<JeeLinkReadingConverter<?>> converters = new ArrayList<>();
@@ -52,13 +54,14 @@ public class JeeLinkHandler extends BaseBridgeHandler implements BridgeHandler, 
     private final Map<Class<?>, Set<ReadingHandler<? extends Reading>>> readingClassHandlerMap = new HashMap<>();
     private final SerialPortManager serialPortManager;
 
-    private JeeLinkConnection connection;
+    private @Nullable JeeLinkConnection connection;
     private AtomicBoolean connectionInitialized = new AtomicBoolean(false);
-    private ScheduledFuture<?> connectJob;
-    private ScheduledFuture<?> initJob;
+    private @Nullable ScheduledFuture<?> connectJob;
+    private @Nullable ScheduledFuture<?> initJob;
 
     private long lastReadingTime;
-    private ScheduledFuture<?> monitorJob;
+    private @Nullable ScheduledFuture<?> monitorJob;
+    private long lastMonitorTime;
 
     public JeeLinkHandler(Bridge bridge, SerialPortManager serialPortManager) {
         super(bridge);
@@ -68,19 +71,21 @@ public class JeeLinkHandler extends BaseBridgeHandler implements BridgeHandler, 
     @Override
     public void initialize() {
         JeeLinkConfig cfg = getConfig().as(JeeLinkConfig.class);
-
-        if (cfg.serialPort != null && cfg.baudRate != null) {
-            SerialPortIdentifier serialPortIdentifier = serialPortManager.getIdentifier(cfg.serialPort);
+        String serialPort = cfg.serialPort;
+        if (serialPort != null) {
+            SerialPortIdentifier serialPortIdentifier = serialPortManager.getIdentifier(serialPort);
             if (serialPortIdentifier == null) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                        "Port not found: " + cfg.serialPort);
+                        "Port not found: " + serialPort);
                 return;
             }
-            connection = new JeeLinkSerialConnection(serialPortIdentifier, cfg.baudRate, this);
+            JeeLinkConnection connection = new JeeLinkSerialConnection(serialPortIdentifier, cfg.baudRate, this);
             connection.openConnection();
-        } else if (cfg.ipAddress != null && cfg.port != null) {
-            connection = new JeeLinkTcpConnection(cfg.ipAddress + ":" + cfg.port, scheduler, this);
+            this.connection = connection;
+        } else if (!cfg.ipAddress.isBlank()) {
+            JeeLinkConnection connection = new JeeLinkTcpConnection(cfg.ipAddress + ":" + cfg.port, scheduler, this);
             connection.openConnection();
+            this.connection = connection;
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "Connection configuration incomplete");
@@ -89,14 +94,16 @@ public class JeeLinkHandler extends BaseBridgeHandler implements BridgeHandler, 
 
     @Override
     public void connectionOpened() {
-        logger.debug("Connection to port {} opened.", connection.getPort());
+        JeeLinkConnection connection = this.connection;
+        logger.debug("Connection to port {} opened.", connection == null ? "'null'" : connection.getPort());
 
         updateStatus(ThingStatus.ONLINE);
-
+        ScheduledFuture<?> connectJob = this.connectJob;
         if (connectJob != null) {
-            logger.debug("Connection to port {} established. Reconnect cancelled.", connection.getPort());
+            logger.debug("Connection to port {} established. Reconnect cancelled.",
+                    connection == null ? "'null'" : connection.getPort());
             connectJob.cancel(true);
-            connectJob = null;
+            this.connectJob = null;
         }
 
         JeeLinkConfig cfg = getConfig().as(JeeLinkConfig.class);
@@ -107,58 +114,73 @@ public class JeeLinkHandler extends BaseBridgeHandler implements BridgeHandler, 
         logger.debug("Init commands scheduled in {} seconds.", cfg.initDelay);
 
         if (cfg.reconnectInterval > 0) {
-            monitorJob = scheduler.scheduleWithFixedDelay(new Runnable() {
-                private long lastMonitorTime;
-
-                @Override
-                public void run() {
-                    if (getThing().getStatus() == ThingStatus.ONLINE && lastReadingTime < lastMonitorTime) {
-                        logger.debug("Monitoring job for port {} detected missing readings. Triggering reconnect...",
-                                connection.getPort());
-
-                        connection.closeConnection();
-                        updateStatus(ThingStatus.OFFLINE);
-
-                        connection.openConnection();
-                    }
-                    lastMonitorTime = System.currentTimeMillis();
-                }
-            }, cfg.reconnectInterval, cfg.reconnectInterval, TimeUnit.SECONDS);
+            monitorJob = scheduler.scheduleWithFixedDelay(this::monitorTask, cfg.reconnectInterval,
+                    cfg.reconnectInterval, TimeUnit.SECONDS);
             logger.debug("Monitoring job started.");
         }
     }
 
+    private void monitorTask() {
+        if (getThing().getStatus() == ThingStatus.ONLINE && lastReadingTime < lastMonitorTime) {
+            JeeLinkConnection connection = this.connection;
+            if (connection == null) {
+                updateStatus(ThingStatus.OFFLINE);
+                return;
+            }
+
+            logger.debug("Monitoring job for port {} detected missing readings. Triggering reconnect...",
+                    connection.getPort());
+
+            connection.closeConnection();
+
+            updateStatus(ThingStatus.OFFLINE);
+
+            connection.openConnection();
+            this.connection = connection;
+        }
+        lastMonitorTime = System.currentTimeMillis();
+    }
+
     @Override
     public void connectionClosed() {
-        logger.debug("Connection to port {} closed.", connection.getPort());
+        logger.debug("Connection to port {} closed.", connection == null ? "'null'" : connection.getPort());
 
         updateStatus(ThingStatus.OFFLINE);
         connectionInitialized.set(false);
-
+        ScheduledFuture<?> initJob = this.initJob;
         if (initJob != null) {
             initJob.cancel(true);
+            this.initJob = null;
         }
+        ScheduledFuture<?> monitorJob = this.monitorJob;
         if (monitorJob != null) {
             monitorJob.cancel(true);
+            this.monitorJob = null;
         }
     }
 
     @Override
-    public void connectionAborted(String cause) {
+    public void connectionAborted(@Nullable String cause) {
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, cause);
-
+        ScheduledFuture<?> monitorJob = this.monitorJob;
         if (monitorJob != null) {
             monitorJob.cancel(true);
+            this.monitorJob = null;
         }
+        ScheduledFuture<?> initJob = this.initJob;
         if (initJob != null) {
             initJob.cancel(true);
+            this.initJob = null;
         }
         connectionInitialized.set(false);
 
         connectJob = scheduler.schedule(() -> {
-            connection.openConnection();
+            if (connection != null) {
+                connection.openConnection();
+            }
         }, 10, TimeUnit.SECONDS);
-        logger.debug("Connection to port {} aborted ({}). Reconnect scheduled.", connection.getPort(), cause);
+        logger.debug("Connection to port {} aborted ({}). Reconnect scheduled.",
+                connection == null ? "'null'" : connection.getPort(), cause);
     }
 
     public void addReadingHandler(ReadingHandler<? extends Reading> h) {
@@ -263,7 +285,8 @@ public class JeeLinkHandler extends BaseBridgeHandler implements BridgeHandler, 
             JeeLinkConfig cfg = getConfig().as(JeeLinkConfig.class);
 
             String initCommands = cfg.initCommands;
-            if (initCommands != null && !initCommands.trim().isEmpty()) {
+            JeeLinkConnection connection = this.connection;
+            if (initCommands != null && !initCommands.trim().isEmpty() && connection != null) {
                 logger.debug("Sending init commands for port {}: {}", connection.getPort(), initCommands);
                 connection.sendCommands(initCommands);
             }
@@ -272,6 +295,7 @@ public class JeeLinkHandler extends BaseBridgeHandler implements BridgeHandler, 
 
     @Override
     public void dispose() {
+        ScheduledFuture<?> connectJob = this.connectJob;
         if (connectJob != null) {
             connectJob.cancel(true);
             connectJob = null;
@@ -284,7 +308,7 @@ public class JeeLinkHandler extends BaseBridgeHandler implements BridgeHandler, 
         super.dispose();
     }
 
-    public JeeLinkConnection getConnection() {
+    public @Nullable JeeLinkConnection getConnection() {
         return connection;
     }
 }

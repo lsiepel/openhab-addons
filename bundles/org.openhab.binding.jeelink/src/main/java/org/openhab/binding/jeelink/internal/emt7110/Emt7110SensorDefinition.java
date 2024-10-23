@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.jeelink.internal.emt7110;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.jeelink.internal.JeeLinkBindingConstants;
 import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
 import org.openhab.binding.jeelink.internal.JeeLinkSensorHandler;
@@ -23,6 +24,7 @@ import org.openhab.core.thing.Thing;
  *
  * @author Timo Schober - Initial contribution
  */
+@NonNullByDefault
 public class Emt7110SensorDefinition extends SensorDefinition<Emt7110Reading> {
 
     public Emt7110SensorDefinition() {

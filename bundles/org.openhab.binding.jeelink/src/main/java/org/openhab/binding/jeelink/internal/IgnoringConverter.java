@@ -12,15 +12,19 @@
  */
 package org.openhab.binding.jeelink.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Converter that simply ignores input.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class IgnoringConverter implements JeeLinkReadingConverter<Reading> {
 
     @Override
-    public Reading createReading(String inputLine) {
+    public @Nullable Reading createReading(@Nullable String inputLine) {
         return null;
     }
 }

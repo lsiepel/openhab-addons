@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.jeelink.internal.lacrosse;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.Reading;
 
 /**
@@ -19,12 +21,13 @@ import org.openhab.binding.jeelink.internal.Reading;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class LaCrosseTemperatureReading implements Reading {
     private String sensorId;
     private int sensorType;
     private int channel;
-    private Float temp;
-    private Integer humidity;
+    private @Nullable Float temp;
+    private @Nullable Integer humidity;
     private boolean batteryNew;
     private boolean batteryLow;
 
@@ -33,8 +36,8 @@ public class LaCrosseTemperatureReading implements Reading {
         this(String.valueOf(sensorId), sensorType, channel, temp, humidity, batteryNew, batteryLow);
     }
 
-    public LaCrosseTemperatureReading(String sensorId, int sensorType, int channel, Float temp, Integer humidity,
-            boolean batteryNew, boolean batteryLow) {
+    public LaCrosseTemperatureReading(String sensorId, int sensorType, int channel, @Nullable Float temp,
+            @Nullable Integer humidity, boolean batteryNew, boolean batteryLow) {
         this.sensorId = sensorId;
         this.sensorType = sensorType;
         this.channel = channel;
@@ -53,11 +56,11 @@ public class LaCrosseTemperatureReading implements Reading {
         return sensorType;
     }
 
-    public Float getTemperature() {
+    public @Nullable Float getTemperature() {
         return temp;
     }
 
-    public Integer getHumidity() {
+    public @Nullable Integer getHumidity() {
         return humidity;
     }
 

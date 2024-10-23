@@ -15,6 +15,8 @@ package org.openhab.binding.jeelink.internal.ec3k;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
 
 /**
@@ -22,6 +24,7 @@ import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Ec3kReadingConverter implements JeeLinkReadingConverter<Ec3kReading> {
     private static final Pattern LINE_P = Pattern.compile("""
             OK\\s+22\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\
@@ -30,7 +33,7 @@ public class Ec3kReadingConverter implements JeeLinkReadingConverter<Ec3kReading
             """);
 
     @Override
-    public Ec3kReading createReading(String inputLine) {
+    public @Nullable Ec3kReading createReading(String inputLine) {
         if (inputLine != null) {
             Matcher matcher = LINE_P.matcher(inputLine);
             if (matcher.matches()) {

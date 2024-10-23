@@ -15,6 +15,8 @@ package org.openhab.binding.jeelink.internal.pca301;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Pca301ReadingConverter implements JeeLinkReadingConverter<Pca301Reading> {
     private static final Pattern READING_P = Pattern.compile(
             "OK\\s+24\\s+([0-9]+)\\s+4\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)");
@@ -31,7 +34,7 @@ public class Pca301ReadingConverter implements JeeLinkReadingConverter<Pca301Rea
     private final Logger logger = LoggerFactory.getLogger(Pca301ReadingConverter.class);
 
     @Override
-    public Pca301Reading createReading(String inputLine) {
+    public @Nullable Pca301Reading createReading(@Nullable String inputLine) {
         // parse lines only if we have registered listeners
         if (inputLine != null) {
             Matcher matcher = READING_P.matcher(inputLine);

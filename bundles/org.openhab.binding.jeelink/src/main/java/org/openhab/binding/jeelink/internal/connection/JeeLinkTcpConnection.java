@@ -21,6 +21,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,14 +31,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class JeeLinkTcpConnection extends AbstractJeeLinkConnection {
     private static final Pattern IP_PORT_PATTERN = Pattern.compile("([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+):([0-9]+)");
 
     private final Logger logger = LoggerFactory.getLogger(JeeLinkTcpConnection.class);
 
     private ScheduledExecutorService scheduler;
-    private Reader reader;
-    private Socket socket;
+    private @Nullable Reader reader;
+    private @Nullable Socket socket;
 
     public JeeLinkTcpConnection(String port, ScheduledExecutorService scheduler, ConnectionListener l) {
         super(port, l);
@@ -45,10 +48,11 @@ public class JeeLinkTcpConnection extends AbstractJeeLinkConnection {
 
     @Override
     public synchronized void closeConnection() {
+        Reader reader = this.reader;
         if (reader != null) {
             logger.debug("Closing TCP connection to port {}...", port);
             reader.close();
-            reader = null;
+            this.reader = null;
             closeSocketSilently();
             socket = null;
             notifyClosed();
@@ -73,11 +77,12 @@ public class JeeLinkTcpConnection extends AbstractJeeLinkConnection {
         logger.debug("Opening TCP connection to host {} port {}...", hostName, portNumber);
         try {
             logger.debug("Creating TCP socket to {}...", port);
-            socket = new Socket(hostName, portNumber);
+            Socket socket = new Socket(hostName, portNumber);
             socket.setKeepAlive(true);
             logger.debug("TCP socket created.");
-
-            reader = new Reader(socket);
+            this.socket = socket;
+            Reader reader = new Reader(socket);
+            this.reader = reader;
             scheduler.execute(reader);
 
             notifyOpen();
@@ -92,14 +97,17 @@ public class JeeLinkTcpConnection extends AbstractJeeLinkConnection {
 
     private void closeSocketSilently() {
         try {
-            socket.close();
+            Socket socket = this.socket;
+            if (socket != null) {
+                socket.close();
+            }
         } catch (IOException e) {
             logger.debug("Failed to close socket.", e);
         }
     }
 
     @Override
-    public OutputStream getInitStream() throws IOException {
+    public @Nullable OutputStream getInitStream() throws IOException {
         return socket == null ? null : socket.getOutputStream();
     }
 

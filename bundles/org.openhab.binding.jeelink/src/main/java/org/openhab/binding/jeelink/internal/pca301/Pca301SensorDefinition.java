@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.jeelink.internal.pca301;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.jeelink.internal.JeeLinkBindingConstants;
 import org.openhab.binding.jeelink.internal.JeeLinkReadingConverter;
 import org.openhab.binding.jeelink.internal.JeeLinkSensorHandler;
@@ -23,6 +24,7 @@ import org.openhab.core.thing.Thing;
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public class Pca301SensorDefinition extends SensorDefinition<Pca301Reading> {
 
     public Pca301SensorDefinition() {

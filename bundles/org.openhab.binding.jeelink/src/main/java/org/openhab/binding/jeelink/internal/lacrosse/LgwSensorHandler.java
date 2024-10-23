@@ -20,6 +20,7 @@ import java.math.RoundingMode;
 import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.jeelink.internal.JeeLinkSensorHandler;
 import org.openhab.binding.jeelink.internal.ReadingPublisher;
 import org.openhab.core.library.types.QuantityType;
@@ -62,17 +63,18 @@ public class LgwSensorHandler extends JeeLinkSensorHandler<LgwReading> {
     public ReadingPublisher<LgwReading> createPublisher() {
         return new ReadingPublisher<>() {
             @Override
-            public void publish(LgwReading reading) {
+            public void publish(@Nullable LgwReading reading) {
                 if (reading != null && getThing().getStatus() == ThingStatus.ONLINE) {
                     logger.debug("updating states for thing {} ({}): {}", getThing().getLabel(),
                             getThing().getUID().getId(), reading);
 
-                    if (reading.hasTemperature()) {
-                        BigDecimal temp = new BigDecimal(reading.getTemperature()).setScale(1, RoundingMode.HALF_UP);
+                    Float temperature = reading.getTemperature();
+                    if (temperature != null) {
+                        BigDecimal temp = new BigDecimal(temperature).setScale(1, RoundingMode.HALF_UP);
                         updateState(TEMPERATURE_CHANNEL, new QuantityType<>(temp, SIUnits.CELSIUS));
                     }
-
-                    if (reading.hasHumidity()) {
+                    Integer humidity = reading.getHumidity();
+                    if (humidity != null) {
                         if (!hasHumidityChannel) {
                             ThingBuilder thingBuilder = editThing();
                             thingBuilder.withChannel(ChannelBuilder
@@ -86,10 +88,10 @@ public class LgwSensorHandler extends JeeLinkSensorHandler<LgwReading> {
                             hasHumidityChannel = true;
                         }
 
-                        updateState(HUMIDITY_CHANNEL, new QuantityType<>(reading.getHumidity(), Units.PERCENT));
+                        updateState(HUMIDITY_CHANNEL, new QuantityType<>(humidity, Units.PERCENT));
                     }
-
-                    if (reading.hasPressure()) {
+                    Integer pressure = reading.getPressure();
+                    if (pressure != null) {
                         if (!hasPressureChannel) {
                             ThingBuilder thingBuilder = editThing();
                             thingBuilder.withChannel(ChannelBuilder
@@ -103,7 +105,7 @@ public class LgwSensorHandler extends JeeLinkSensorHandler<LgwReading> {
                             hasPressureChannel = true;
                         }
 
-                        updateState(PRESSURE_CHANNEL, new QuantityType<>(reading.getPressure(), HECTO(SIUnits.PASCAL)));
+                        updateState(PRESSURE_CHANNEL, new QuantityType<>(pressure, HECTO(SIUnits.PASCAL)));
                     }
                 }
             }

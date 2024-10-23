@@ -12,13 +12,17 @@
  */
 package org.openhab.binding.jeelink.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Interface for classes that publish readings.
  *
  * @author Volker Bier - Initial contribution
  */
+@NonNullByDefault
 public interface ReadingPublisher<R extends Reading> {
-    void publish(R reading);
+    void publish(@Nullable R reading);
 
     void dispose();
 }
