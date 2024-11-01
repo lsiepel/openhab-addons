@@ -58,21 +58,37 @@ public class MeterHandler extends AbstractSunSpecHandler {
         MeterModelBlock block = parser.parse(registers);
 
         // AC General group
-        updateTotalValues(block);
-
-        updatePhaseValues(block, block.phaseA, GROUP_AC_PHASE_A);
+        try {
+            updateTotalValues(block);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Unable to update total values, possible wrong address configured: {}", e.getMessage());
+        }
+        try {
+            updatePhaseValues(block, block.phaseA, GROUP_AC_PHASE_A);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Unable to update phase A values, possible wrong address configured: {}", e.getMessage());
+        }
 
         // Split phase, wye/delta phase
         if (block.sunspecDID >= METER_SPLIT_PHASE && (thing.getThingTypeUID().equals(THING_TYPE_METER_SPLIT_PHASE)
                 || thing.getThingTypeUID().equals(THING_TYPE_METER_WYE_PHASE)
                 || thing.getThingTypeUID().equals(THING_TYPE_METER_DELTA_PHASE))) {
-            updatePhaseValues(block, block.phaseB, GROUP_AC_PHASE_B);
+            try {
+                updatePhaseValues(block, block.phaseB, GROUP_AC_PHASE_B);
+            } catch (IllegalArgumentException e) {
+                logger.warn("Unable to update phase B values, possible wrong address configured: {}", e.getMessage());
+            }
         }
 
         // Three phase (wye/delta) only
         if (block.sunspecDID >= INVERTER_THREE_PHASE && (thing.getThingTypeUID().equals(THING_TYPE_METER_WYE_PHASE)
                 || thing.getThingTypeUID().equals(THING_TYPE_METER_DELTA_PHASE))) {
-            updatePhaseValues(block, block.phaseC, GROUP_AC_PHASE_C);
+
+            try {
+                updatePhaseValues(block, block.phaseC, GROUP_AC_PHASE_C);
+            } catch (IllegalArgumentException e) {
+                logger.warn("Unable to update phase C values, possible wrong address configured: {}", e.getMessage());
+            }
         }
 
         resetCommunicationError();
