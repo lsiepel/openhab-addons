@@ -106,8 +106,6 @@ public class NetworkHandler extends BaseThingHandler
                 if (lastSeen != null) {
                     updateState(CHANNEL_LASTSEEN, new DateTimeType(
                             ZonedDateTime.ofInstant(lastSeen, TimeZone.getDefault().toZoneId()).withFixedOffsetZone()));
-                } else {
-                    updateState(CHANNEL_LASTSEEN, UnDefType.UNDEF);
                 }
                 break;
             default:
