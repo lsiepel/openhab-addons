@@ -118,6 +118,8 @@ public class NetworkHandler extends BaseThingHandler
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (command instanceof RefreshType) {
             refreshValue(channelUID);
+        } else if (command instanceof DateTimeType dateTimeType && channelUID.getId().equals(CHANNEL_LASTSEEN)) {
+            this.presenceDetection.setLastSeen(dateTimeType.getInstant());
         } else {
             logger.debug("Command {} is not supported for channel: {}", command, channelUID.getId());
         }

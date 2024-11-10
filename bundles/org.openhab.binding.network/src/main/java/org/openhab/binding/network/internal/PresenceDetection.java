@@ -263,6 +263,10 @@ public class PresenceDetection implements IPRequestReceivedCallback {
         return lastSeen;
     }
 
+    public void setLastSeen(Instant instant) {
+        lastSeen = instant;
+    }
+
     /**
      * Gets the presence detection value synchronously as a {@link PresenceDetectionValue}.
      * <p>
