@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="zwavejs"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="gateway">
+
+		<label>Z-Wave JS Gateway</label>
+		<description>The Z-Wave JS server that acts as a bridge to the Z-Wave network</description>
+
+		<config-description>
+			<parameter name="hostname" type="text" required="true">
+				<context>network-address</context>
+				<label>Hostname</label>
+				<description>Hostname or IP address of the device</description>
+			</parameter>
+			<parameter name="port" type="integer" required="true">
+				<label>Port</label>
+				<description>Port the remote Z-Wave JS server listens on</description>
+				<default>3000</default>
+			</parameter>
+		</config-description>
+
+	</thing-type>
+
+</thing:thing-descriptions>
