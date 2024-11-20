@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.onkyo.internal.eiscp;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Represents all possible eISCP commands.
  *
@@ -20,6 +22,7 @@ package org.openhab.binding.onkyo.internal.eiscp;
  * @author Paul Frank - update for openHAB 2
  * @author Marcel Verpaalen - fix issues with some Zone 2 commands
  */
+@NonNullByDefault
 public enum EiscpCommand {
 
     // Main zone

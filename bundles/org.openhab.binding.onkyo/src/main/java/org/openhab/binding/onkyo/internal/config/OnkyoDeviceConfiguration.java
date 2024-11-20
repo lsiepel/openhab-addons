@@ -12,31 +12,34 @@
  */
 package org.openhab.binding.onkyo.internal.config;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Configuration class for Onkyo device.
  *
  * @author Pauli Anttila - Initial contribution
  */
+@NonNullByDefault
 public class OnkyoDeviceConfiguration {
 
-    public String ipAddress;
-    public int port;
-    public String udn;
-    public int refreshInterval;
-    public int volumeLimit;
+    public String ipAddress = "";
+    public int port = 60128;
+    public String udn = "";
+    public int refreshInterval = 0;
+    public int volumeLimit = 100;
     public double volumeScale = 1.0d;
 
     @Override
     public String toString() {
-        String str = "";
+        StringBuilder builder = new StringBuilder();
 
-        str += "ipAddress = " + ipAddress;
-        str += ", port = " + port;
-        str += ", udn = " + udn;
-        str += ", refreshInterval = " + refreshInterval;
-        str += ", volumeLimit = " + volumeLimit;
-        str += ", volumeScale = " + volumeScale;
+        builder.append("ipAddress = {}" + ipAddress);
+        builder.append(", port = " + port);
+        builder.append(", udn = " + udn);
+        builder.append(", refreshInterval = " + refreshInterval);
+        builder.append(", volumeLimit = " + volumeLimit);
+        builder.append(", volumeScale = " + volumeScale);
 
-        return str;
+        return builder.toString();
     }
 }

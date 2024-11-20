@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.onkyo.internal.eiscp;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Exception for eISCP errors.
  *
  * @author Pauli Anttila - Initial contribution
  */
+@NonNullByDefault
 public class EiscpException extends Exception {
 
     private static final long serialVersionUID = -7970958467980752003L;

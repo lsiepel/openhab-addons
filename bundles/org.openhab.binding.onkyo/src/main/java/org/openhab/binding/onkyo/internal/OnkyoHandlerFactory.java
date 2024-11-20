@@ -19,6 +19,8 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.onkyo.internal.handler.OnkyoAudioSink;
 import org.openhab.binding.onkyo.internal.handler.OnkyoHandler;
 import org.openhab.core.audio.AudioHTTPServer;
@@ -33,6 +35,7 @@ import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -45,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Paul Frank - Initial contribution
  * @author Stewart Cossey - added dynamic state descriptor provider functions
  */
+@NonNullByDefault
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.onkyo")
 public class OnkyoHandlerFactory extends BaseThingHandlerFactory {
 
@@ -58,7 +62,18 @@ public class OnkyoHandlerFactory extends BaseThingHandlerFactory {
     private OnkyoStateDescriptionProvider stateDescriptionProvider;
 
     // url (scheme+server+port) to use for playing notification sounds
-    private String callbackUrl;
+    private @Nullable String callbackUrl;
+
+    @Activate
+    public OnkyoHandlerFactory(@Reference final UpnpIOService upnpIOService,
+            @Reference final AudioHTTPServer audioHTTPServer,
+            @Reference final NetworkAddressService networkAddressService,
+            @Reference final OnkyoStateDescriptionProvider provider) {
+        this.upnpIOService = upnpIOService;
+        this.audioHTTPServer = audioHTTPServer;
+        this.networkAddressService = networkAddressService;
+        this.stateDescriptionProvider = provider;
+    }
 
     @Override
     protected void activate(ComponentContext componentContext) {
@@ -73,7 +88,7 @@ public class OnkyoHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Override
-    protected ThingHandler createHandler(Thing thing) {
+    protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
@@ -90,13 +105,14 @@ public class OnkyoHandlerFactory extends BaseThingHandlerFactory {
         return null;
     }
 
-    private String createCallbackUrl() {
+    private @Nullable String createCallbackUrl() {
+        String callbackUrl = this.callbackUrl;
         if (callbackUrl != null) {
             return callbackUrl;
         } else {
             final String ipAddress = networkAddressService.getPrimaryIpv4HostAddress();
             if (ipAddress == null) {
-                logger.warn("No network interface could be found.");
+                logger.warn("No primary IPv4 host address could be found.");
                 return null;
             }
 
@@ -118,41 +134,5 @@ public class OnkyoHandlerFactory extends BaseThingHandlerFactory {
         if (reg != null) {
             reg.unregister();
         }
-    }
-
-    @Reference
-    protected void setUpnpIOService(UpnpIOService upnpIOService) {
-        this.upnpIOService = upnpIOService;
-    }
-
-    protected void unsetUpnpIOService(UpnpIOService upnpIOService) {
-        this.upnpIOService = null;
-    }
-
-    @Reference
-    protected void setAudioHTTPServer(AudioHTTPServer audioHTTPServer) {
-        this.audioHTTPServer = audioHTTPServer;
-    }
-
-    protected void unsetAudioHTTPServer(AudioHTTPServer audioHTTPServer) {
-        this.audioHTTPServer = null;
-    }
-
-    @Reference
-    protected void setNetworkAddressService(NetworkAddressService networkAddressService) {
-        this.networkAddressService = networkAddressService;
-    }
-
-    protected void unsetNetworkAddressService(NetworkAddressService networkAddressService) {
-        this.networkAddressService = null;
-    }
-
-    @Reference
-    protected void setDynamicStateDescriptionProvider(OnkyoStateDescriptionProvider provider) {
-        this.stateDescriptionProvider = provider;
-    }
-
-    protected void unsetDynamicStateDescriptionProvider(OnkyoStateDescriptionProvider provider) {
-        this.stateDescriptionProvider = null;
     }
 }

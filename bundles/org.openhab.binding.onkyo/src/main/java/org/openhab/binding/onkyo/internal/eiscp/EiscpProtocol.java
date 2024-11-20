@@ -16,6 +16,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.util.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Pauli Anttila - Initial contribution
  */
+@NonNullByDefault
 public class EiscpProtocol {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EiscpProtocol.class);
@@ -231,14 +234,14 @@ public class EiscpProtocol {
             try {
                 String command = new String(Arrays.copyOfRange(data, 2, 5));
                 String value = new String(Arrays.copyOfRange(data, 5, data.length - endBytes));
-                return new EiscpMessage.MessageBuilder().command(command).value(value).build();
+                return new EiscpMessage.MessageBuilder().create(command, value).build();
             } catch (Exception e) {
                 throw new EiscpException("Fatal error occurred when parsing eISCP message, cause=" + e.getCause());
             }
         }
     }
 
-    public static String toPrintable(final String rawData) {
+    public static String toPrintable(@Nullable final String rawData) {
         final StringBuilder sb = new StringBuilder();
 
         if (rawData == null) {

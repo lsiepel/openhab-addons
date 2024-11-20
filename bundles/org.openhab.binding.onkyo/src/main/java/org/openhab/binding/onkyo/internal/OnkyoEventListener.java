@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.onkyo.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.onkyo.internal.eiscp.EiscpMessage;
 
 /**
@@ -19,6 +20,7 @@ import org.openhab.binding.onkyo.internal.eiscp.EiscpMessage;
  *
  * @author Pauli Anttila - Initial contribution
  */
+@NonNullByDefault
 public interface OnkyoEventListener {
 
     /**

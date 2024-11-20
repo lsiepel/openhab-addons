@@ -19,7 +19,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.util.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author Pauli Anttila - Initial contribution
  * @author Stewart Cossey - fixed bug in getAlbumArt function
  */
+@NonNullByDefault
 public class OnkyoAlbumArt {
 
     private final Logger logger = LoggerFactory.getLogger(OnkyoAlbumArt.class);
@@ -53,7 +55,7 @@ public class OnkyoAlbumArt {
     private StringBuilder albumArtStringBuilder = new StringBuilder();
     private ImageType imageType = ImageType.UNKNOWN;
     private State state = State.NOTSTARTED;
-    private String coverArtUrl;
+    private @Nullable String coverArtUrl;
 
     public boolean isAlbumCoverTransferStarted() {
         return state == State.STARTED;
@@ -142,7 +144,7 @@ public class OnkyoAlbumArt {
     }
 
     public byte[] getAlbumArt() throws IllegalArgumentException {
-        byte[] data = null;
+        byte[] data = new byte[0];
 
         if (state == State.READY) {
             switch (imageType) {
@@ -153,7 +155,7 @@ public class OnkyoAlbumArt {
                 case URL:
                     data = downloadAlbumArt(coverArtUrl);
                     // Workaround firmware bug providing incorrect headers causing them to be seen as body instead.
-                    if (data != null) {
+                    if (data.length > 0) {
                         int bodyLength = data.length;
                         int i = new String(data).indexOf("image/");
                         if (i > 0) {
@@ -177,7 +179,10 @@ public class OnkyoAlbumArt {
         throw new IllegalArgumentException("Illegal Album Art");
     }
 
-    private byte[] downloadAlbumArt(String albumArtUrl) {
+    private byte[] downloadAlbumArt(@Nullable String albumArtUrl) {
+        if (albumArtUrl == null) {
+            return new byte[0];
+        }
         try {
             URL url = new URL(albumArtUrl);
             URLConnection connection = url.openConnection();
@@ -190,7 +195,7 @@ public class OnkyoAlbumArt {
             logger.warn("Album Art download failed from url '{}', reason {}", albumArtUrl, e.getMessage());
         }
 
-        return null;
+        return new byte[0];
     }
 
     private ImageType getImageType(char imgType) {
@@ -215,7 +220,7 @@ public class OnkyoAlbumArt {
         return it;
     }
 
-    public @NonNull String getAlbumArtMimeType() {
+    public String getAlbumArtMimeType() {
         String mimeType = "";
         switch (imageType) {
             case BMP:

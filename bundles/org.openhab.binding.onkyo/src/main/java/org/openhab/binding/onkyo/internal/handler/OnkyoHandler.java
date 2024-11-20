@@ -26,6 +26,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.onkyo.internal.OnkyoAlbumArt;
 import org.openhab.binding.onkyo.internal.OnkyoConnection;
 import org.openhab.binding.onkyo.internal.OnkyoEventListener;
@@ -75,14 +77,15 @@ import org.xml.sax.SAXException;
  * @author Pauli Anttila - lot of refactoring
  * @author Stewart Cossey - add dynamic state description provider
  */
+@NonNullByDefault
 public class OnkyoHandler extends OnkyoUpnpHandler implements OnkyoEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(OnkyoHandler.class);
 
-    private OnkyoDeviceConfiguration configuration;
+    private OnkyoDeviceConfiguration configuration = new OnkyoDeviceConfiguration();
 
-    private OnkyoConnection connection;
-    private ScheduledFuture<?> resourceUpdaterFuture;
+    private @Nullable OnkyoConnection connection;
+    private @Nullable ScheduledFuture<?> resourceUpdaterFuture;
     @SuppressWarnings("unused")
     private int currentInput = -1;
     private State volumeLevelZone1 = UnDefType.UNDEF;
@@ -109,9 +112,13 @@ public class OnkyoHandler extends OnkyoUpnpHandler implements OnkyoEventListener
     public void initialize() {
         logger.debug("Initializing handler for Onkyo Receiver");
         configuration = getConfigAs(OnkyoDeviceConfiguration.class);
-        logger.info("Using configuration: {}", configuration.toString());
 
-        connection = new OnkyoConnection(configuration.ipAddress, configuration.port);
+        if (configuration.ipAddress.isBlank()) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "invalid ipAddress");
+            return;
+        }
+
+        OnkyoConnection connection = this.connection = new OnkyoConnection(configuration.ipAddress, configuration.port);
         connection.addEventListener(this);
 
         scheduler.execute(() -> {
@@ -143,12 +150,17 @@ public class OnkyoHandler extends OnkyoUpnpHandler implements OnkyoEventListener
     @Override
     public void dispose() {
         super.dispose();
+        ScheduledFuture<?> resourceUpdaterFuture = this.resourceUpdaterFuture;
         if (resourceUpdaterFuture != null) {
             resourceUpdaterFuture.cancel(true);
+            this.resourceUpdaterFuture = null;
         }
+
+        OnkyoConnection connection = this.connection;
         if (connection != null) {
             connection.removeEventListener(this);
             connection.closeConnection();
+            this.connection = null;
         }
     }
 
@@ -385,6 +397,11 @@ public class OnkyoHandler extends OnkyoUpnpHandler implements OnkyoEventListener
 
     @Override
     public void statusUpdateReceived(String ip, EiscpMessage data) {
+        OnkyoConnection connection = this.connection;
+        if (connection == null) {
+            logger.debug("connection is null, status update ignored");
+            return;
+        }
         logger.debug("Received status update from Onkyo Receiver @{}: data={}", connection.getConnectionName(), data);
 
         updateStatus(ThingStatus.ONLINE);
@@ -640,7 +657,7 @@ public class OnkyoHandler extends OnkyoUpnpHandler implements OnkyoEventListener
         if (onkyoAlbumArt.isAlbumCoverReady()) {
             try {
                 byte[] imgData = onkyoAlbumArt.getAlbumArt();
-                if (imgData != null && imgData.length > 0) {
+                if (imgData.length > 0) {
                     String mimeType = onkyoAlbumArt.getAlbumArtMimeType();
                     if (mimeType.isEmpty()) {
                         mimeType = guessMimeTypeFromData(imgData);
@@ -776,6 +793,7 @@ public class OnkyoHandler extends OnkyoUpnpHandler implements OnkyoEventListener
     }
 
     public void sendRawCommand(String command, String value) {
+        OnkyoConnection connection = this.connection;
         if (connection != null) {
             connection.send(command, value);
         } else {
@@ -784,6 +802,7 @@ public class OnkyoHandler extends OnkyoUpnpHandler implements OnkyoEventListener
     }
 
     private void sendCommand(EiscpCommand deviceCommand) {
+        OnkyoConnection connection = this.connection;
         if (connection != null) {
             connection.send(deviceCommand.getCommand(), deviceCommand.getValue());
         } else {
@@ -792,6 +811,7 @@ public class OnkyoHandler extends OnkyoUpnpHandler implements OnkyoEventListener
     }
 
     private void sendCommand(EiscpCommand deviceCommand, Command command) {
+        OnkyoConnection connection = this.connection;
         if (connection != null) {
             final String cmd = deviceCommand.getCommand();
             String valTemplate = deviceCommand.getValue();
@@ -827,7 +847,7 @@ public class OnkyoHandler extends OnkyoUpnpHandler implements OnkyoEventListener
      */
     private void checkStatus() {
         sendCommand(EiscpCommand.POWER_QUERY);
-
+        OnkyoConnection connection = this.connection;
         if (connection != null && connection.isConnected()) {
             sendCommand(EiscpCommand.VOLUME_QUERY);
             sendCommand(EiscpCommand.SOURCE_QUERY);
@@ -955,5 +975,13 @@ public class OnkyoHandler extends OnkyoUpnpHandler implements OnkyoEventListener
     @Override
     public Collection<Class<? extends ThingHandlerService>> getServices() {
         return List.of(OnkyoThingActions.class);
+    }
+
+    @Override
+    public void onServiceSubscribed(@NonNullByDefault({}) String service, boolean succeeded) {
+    }
+
+    @Override
+    public void onStatusChanged(boolean status) {
     }
 }

@@ -15,6 +15,8 @@ package org.openhab.binding.onkyo.internal.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.onkyo.internal.OnkyoBindingConstants;
 import org.openhab.core.io.transport.upnp.UpnpIOParticipant;
 import org.openhab.core.io.transport.upnp.UpnpIOService;
@@ -31,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author Paul Frank - Initial contribution
  * @author Laurent Garnier - Separated into OnkyoUpnpHandler and OnkyoAudioSink
  */
+@NonNullByDefault
 public abstract class OnkyoUpnpHandler extends BaseThingHandler implements UpnpIOParticipant {
 
     private final Logger logger = LoggerFactory.getLogger(OnkyoUpnpHandler.class);
@@ -71,9 +74,10 @@ public abstract class OnkyoUpnpHandler extends BaseThingHandler implements UpnpI
         inputs.put("InstanceID", "0");
 
         Map<String, String> result = service.invokeAction(this, "AVTransport", "Stop", inputs);
-
-        for (String variable : result.keySet()) {
-            this.onValueReceived(variable, result.get(variable), "AVTransport");
+        if (result != null) {
+            for (String variable : result.keySet()) {
+                this.onValueReceived(variable, result.get(variable), "AVTransport");
+            }
         }
     }
 
@@ -99,7 +103,7 @@ public abstract class OnkyoUpnpHandler extends BaseThingHandler implements UpnpI
         }
     }
 
-    private void setCurrentURI(String uri, String uriMetaData) {
+    private void setCurrentURI(@Nullable String uri, @Nullable String uriMetaData) {
         if (uri != null && uriMetaData != null) {
             Map<String, String> inputs = new HashMap<>();
 
@@ -112,9 +116,10 @@ public abstract class OnkyoUpnpHandler extends BaseThingHandler implements UpnpI
             }
 
             Map<String, String> result = service.invokeAction(this, "AVTransport", "SetAVTransportURI", inputs);
-
-            for (String variable : result.keySet()) {
-                this.onValueReceived(variable, result.get(variable), "AVTransport");
+            if (result != null) {
+                for (String variable : result.keySet()) {
+                    this.onValueReceived(variable, result.get(variable), "AVTransport");
+                }
             }
         }
     }
@@ -125,15 +130,8 @@ public abstract class OnkyoUpnpHandler extends BaseThingHandler implements UpnpI
     }
 
     @Override
-    public void onValueReceived(String variable, String value, String service) {
+    public void onValueReceived(@NonNullByDefault({}) String variable, @NonNullByDefault({}) String value,
+            @NonNullByDefault({}) String service) {
         logger.debug("received variable {} with value {} from service {}", variable, value, service);
-    }
-
-    @Override
-    public void onServiceSubscribed(String service, boolean succeeded) {
-    }
-
-    @Override
-    public void onStatusChanged(boolean status) {
     }
 }

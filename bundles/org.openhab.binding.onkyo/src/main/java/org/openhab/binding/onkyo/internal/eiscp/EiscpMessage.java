@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.onkyo.internal.eiscp;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Class to handle Onkyo eISCP messages.
  *
  * @author Pauli Anttila - Initial contribution
  */
+@NonNullByDefault
 public class EiscpMessage {
     private String command = "";
     private String value = "";
@@ -54,15 +57,11 @@ public class EiscpMessage {
     }
 
     public static class MessageBuilder {
-        private String command;
-        private String value;
+        private String command = "";
+        private String value = "";
 
-        public MessageBuilder command(String command) {
+        public MessageBuilder create(String command, String value) {
             this.command = command;
-            return this;
-        }
-
-        public MessageBuilder value(String value) {
             this.value = value;
             return this;
         }

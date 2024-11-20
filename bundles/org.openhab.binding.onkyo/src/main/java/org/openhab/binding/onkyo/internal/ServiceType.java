@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.onkyo.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * List of Onkyo Net service types
  *
  * @author Marcel Verpaalen - Initial contribution
  */
+@NonNullByDefault
 public enum ServiceType {
 
     MUSIC_SERVER(0x00),

@@ -39,13 +39,17 @@ public class OnkyoThingActions implements ThingActions {
 
     private @Nullable OnkyoHandler handler;
 
-    @SuppressWarnings("null")
     @RuleAction(label = "send a raw command", description = "Send a raw command to the receiver.")
     public void sendRawCommand(@ActionInput(name = "command") @Nullable String command,
             @ActionInput(name = "command") @Nullable String value) {
         logger.debug("sendRawCommand called with raw command: {} value: {}", command, value);
+        OnkyoHandler handler = this.handler;
         if (handler == null) {
             logger.warn("Onkyo Action service ThingHandler is null!");
+            return;
+        }
+        if (command == null || value == null) {
+            logger.warn("sendRawCommand ignored, command and/or value is null");
             return;
         }
         handler.sendRawCommand(command, value);
