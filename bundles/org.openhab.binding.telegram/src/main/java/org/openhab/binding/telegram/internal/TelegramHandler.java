@@ -186,8 +186,12 @@ public class TelegramHandler extends BaseThingHandler {
         updateStatus(ThingStatus.UNKNOWN);
         delayThingOnlineStatus();
         TelegramBot localBot = bot = new TelegramBot.Builder(botToken).okHttpClient(botLibClient).build();
-        localBot.setUpdatesListener(this::handleUpdates, this::handleExceptions,
-                getGetUpdatesRequest(config.getLongPollingTime()));
+        if (config.getLongPollingTime() > 0) {
+            localBot.setUpdatesListener(this::handleUpdates, this::handleExceptions,
+                    getGetUpdatesRequest(config.getLongPollingTime()));
+        } else {
+            updateStatus(ThingStatus.ONLINE);
+        }
     }
 
     private void createReceiverChatIdsAndAuthorizedSenderChatIds(List<String> chatIds) {
