@@ -4,7 +4,7 @@
 	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
-	<thing-type id="gateway">
+	<bridge-type id="gateway">
 
 		<label>Z-Wave JS Gateway</label>
 		<description>The Z-Wave JS server that acts as a bridge to the Z-Wave network</description>
@@ -22,6 +22,6 @@
 			</parameter>
 		</config-description>
 
-	</thing-type>
+	</bridge-type>
 
 </thing:thing-descriptions>

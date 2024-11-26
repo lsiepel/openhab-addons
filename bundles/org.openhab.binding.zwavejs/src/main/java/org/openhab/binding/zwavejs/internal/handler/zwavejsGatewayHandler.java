@@ -25,7 +25,7 @@ import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
-import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.thing.binding.BaseBridgeHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author L. Siepel - Initial contribution
  */
 @NonNullByDefault
-public class zwavejsGatewayHandler extends BaseThingHandler {
+public class zwavejsGatewayHandler extends BaseBridgeHandler implements ZwaveEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(zwavejsGatewayHandler.class);
 
@@ -80,7 +80,7 @@ public class zwavejsGatewayHandler extends BaseThingHandler {
         scheduler.execute(() -> {
             try {
                 client.start("ws://" + config.hostname + ":" + config.port);
-
+                client.addEventListener(this);
                 updateStatus(ThingStatus.ONLINE);
             } catch (CommunicationException e) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
@@ -88,5 +88,13 @@ public class zwavejsGatewayHandler extends BaseThingHandler {
                 updateStatus(ThingStatus.OFFLINE);
             }
         });
+    }
+
+    @Override
+    public void onEvent(String message) {
+        //TODO structure meggages.
+        //TODO update gateway properties
+
+        //onWebSocketText('{"type":"version","homeId":3474855839,"driverVersion":"14.3.3","serverVersion":"1.40.0","minSchemaVersion":0,"maxSchemaVersion":40}')
     }
 }

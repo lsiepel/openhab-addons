@@ -105,7 +105,5 @@ public class zwavejsHandler extends BaseThingHandler implements ZwaveEventListen
 
     @Override
     public void onEvent(String message) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'onEvent'");
     }
 }
