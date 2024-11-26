@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author L. Siepel - Initial contribution
  */
 @NonNullByDefault
-public class zwavejsHandler extends BaseThingHandler {
+public class zwavejsHandler extends BaseThingHandler implements ZwaveEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(zwavejsHandler.class);
 
@@ -101,5 +101,11 @@ public class zwavejsHandler extends BaseThingHandler {
         // Add a description to give user information to understand why thing does not work as expected. E.g.
         // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
         // "Can not access device as username and/or password are invalid");
+    }
+
+    @Override
+    public void onEvent(String message) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'onEvent'");
     }
 }

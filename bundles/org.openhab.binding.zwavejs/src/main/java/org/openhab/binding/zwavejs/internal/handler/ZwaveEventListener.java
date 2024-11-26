@@ -10,12 +10,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.api.dto;
+
+package org.openhab.binding.zwavejs.internal.handler;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * @author L. Siepel - Initial contribution
  */
-public class Command {
-    String messageId;
-    String command;
+@NonNullByDefault
+public interface ZwaveEventListener {
+    void onEvent(String message);
 }
