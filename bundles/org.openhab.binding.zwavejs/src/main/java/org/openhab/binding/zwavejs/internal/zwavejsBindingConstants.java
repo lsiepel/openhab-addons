@@ -26,8 +26,17 @@ public class zwavejsBindingConstants {
 
     private static final String BINDING_ID = "zwavejs";
 
+    public static final String DISCOVERY_LABEL_PATTERN = "ZWave JS (%s)";
+
     // List of all Thing Type UIDs
     public static final ThingTypeUID THING_TYPE_GATEWAY = new ThingTypeUID(BINDING_ID, "gateway");
+
+    // List of all Thing Configuration Parameters
+    public static final String CONFIG_HOSTNAME = "hostname";
+    public static final String CONFIG_PORT = "port";
+
+    // List of all Thing Properties
+    public static final String PROPERTY_HOME_ID = "homeId";
 
     // List of all Channel ids
     public static final String CHANNEL_1 = "channel1";

@@ -92,9 +92,9 @@ public class zwavejsGatewayHandler extends BaseBridgeHandler implements ZwaveEve
 
     @Override
     public void onEvent(String message) {
-        //TODO structure meggages.
-        //TODO update gateway properties
+        // TODO structure meggages.
+        // TODO update gateway properties
 
-        //onWebSocketText('{"type":"version","homeId":3474855839,"driverVersion":"14.3.3","serverVersion":"1.40.0","minSchemaVersion":0,"maxSchemaVersion":40}')
+        // onWebSocketText('{"type":"version","homeId":3474855839,"driverVersion":"14.3.3","serverVersion":"1.40.0","minSchemaVersion":0,"maxSchemaVersion":40}')
     }
 }
