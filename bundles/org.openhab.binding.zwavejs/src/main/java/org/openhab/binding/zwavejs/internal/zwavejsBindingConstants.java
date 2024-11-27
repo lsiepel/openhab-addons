@@ -26,7 +26,7 @@ public class zwavejsBindingConstants {
 
     private static final String BINDING_ID = "zwavejs";
 
-    public static final String DISCOVERY_LABEL_PATTERN = "ZWave JS (%s)";
+    public static final String DISCOVERY_LABEL_PATTERN = "Z-Wave JS Gateway (%s)";
 
     // List of all Thing Type UIDs
     public static final ThingTypeUID THING_TYPE_GATEWAY = new ThingTypeUID(BINDING_ID, "gateway");
