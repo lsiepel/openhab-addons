@@ -16,6 +16,7 @@ package org.openhab.binding.zwavejs.internal.api;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Future;
@@ -28,9 +29,19 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
+import org.openhab.binding.zwavejs.internal.api.dto.BaseMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Commands.BaseCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.Commands.InitializeCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.Commands.ListeningCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.EventMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.ResultMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.VersionMessage;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * @author L. Siepel - Initial contribution
@@ -43,9 +54,18 @@ public class ZWaveJSClient implements WebSocketListener {
     private @Nullable volatile Session session;
     private Set<ZwaveEventListener> listeners = new CopyOnWriteArraySet<>();
     private @Nullable Future<?> sessionFuture;
+    private Gson gson;
 
     public ZWaveJSClient(WebSocketClient wsClient) {
         this.wsClient = wsClient;
+
+        RuntimeTypeAdapterFactory<BaseMessage> typeAdapterFactory = RuntimeTypeAdapterFactory.of(BaseMessage.class,
+                "type");
+        typeAdapterFactory.registerSubtype(VersionMessage.class, "version") //
+                .registerSubtype(ResultMessage.class, "result") //
+                .registerSubtype(EventMessage.class, "event"); //
+
+        gson = new GsonBuilder().registerTypeAdapterFactory(typeAdapterFactory).create();
     }
 
     public void start(String URI) throws CommunicationException, InterruptedException {
@@ -127,12 +147,32 @@ public class ZWaveJSClient implements WebSocketListener {
     public void onWebSocketText(@NonNullByDefault({}) String message) {
         logger.info("onWebSocketText('{}')", message);
         // TODO use some kind of id as part of the listeners to only send event to listeners that need the event
+
+        BaseMessage baseEvent = Objects.requireNonNull(gson.fromJson(message, BaseMessage.class));
+
         try {
             for (ZwaveEventListener listener : listeners) {
-                listener.onEvent(message);
+                listener.onEvent(baseEvent);
             }
         } catch (Exception e) {
             logger.warn("Error invoking event listener", e);
+        }
+
+        if (baseEvent instanceof VersionMessage event) {
+            // the binding is starting up, perform schema version handshake
+            // also start listening to events
+            sendCommand(new InitializeCommand());
+            sendCommand(new ListeningCommand());
+        }
+    }
+
+    public void sendCommand(BaseCommand command) {
+        String commandAsJson = gson.toJson(command);
+        logger.info("sendCommand('{}')", commandAsJson);
+        try {
+            session.getRemote().sendString(commandAsJson);
+        } catch (IOException e) {
+            logger.warn("IOException while sending a command: {}", commandAsJson);
         }
     }
 }

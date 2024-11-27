@@ -15,12 +15,11 @@ package org.openhab.binding.zwavejs.internal.api.dto;
 /**
  * @author L. Siepel - Initial contribution
  */
-public class Initialize extends Command {
-    String driverVersion;
-    String serverVersion;
-    int homeId;
+public class ResultMessage extends BaseMessage {
 
-    Initialize() {
-        command = "initialize";
+    public boolean success;
+    public Result result;
+
+    public class Result {
     }
 }

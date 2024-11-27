@@ -15,5 +15,8 @@ package org.openhab.binding.zwavejs.internal.api.dto;
 /**
  * @author L. Siepel - Initial contribution
  */
-public record Version(String type, String driverVersion, String serverVersion, int homeId) {
+
+public abstract class BaseMessage {
+    public String messageId;
+    public String type;
 }

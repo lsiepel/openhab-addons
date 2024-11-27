@@ -14,11 +14,17 @@ package org.openhab.binding.zwavejs.internal.handler;
 
 import static org.openhab.binding.zwavejs.internal.zwavejsBindingConstants.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.naming.CommunicationException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.ZWaveJSClient;
+import org.openhab.binding.zwavejs.internal.api.dto.BaseMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.VersionMessage;
+import org.openhab.binding.zwavejs.internal.zwavejsBindingConstants;
 import org.openhab.binding.zwavejs.internal.zwavejsConfiguration;
 import org.openhab.core.io.net.http.WebSocketFactory;
 import org.openhab.core.thing.Bridge;
@@ -91,10 +97,18 @@ public class zwavejsGatewayHandler extends BaseBridgeHandler implements ZwaveEve
     }
 
     @Override
-    public void onEvent(String message) {
+    public void onEvent(BaseMessage message) {
         // TODO structure meggages.
         // TODO update gateway properties
 
-        // onWebSocketText('{"type":"version","homeId":3474855839,"driverVersion":"14.3.3","serverVersion":"1.40.0","minSchemaVersion":0,"maxSchemaVersion":40}')
+        if (message instanceof VersionMessage event) {
+            Map<String, String> properties = new HashMap<>();
+            properties.put(zwavejsBindingConstants.PROPERTY_DRIVER_VERSION, event.driverVersion);
+            properties.put(zwavejsBindingConstants.PROPERTY_SERVER_VERSION, event.serverVersion);
+            properties.put(zwavejsBindingConstants.PROPERTY_SCHEMA_MIN, String.valueOf(event.minSchemaVersion));
+            properties.put(zwavejsBindingConstants.PROPERTY_SCHEMA_MAX, String.valueOf(event.maxSchemaVersion));
+            properties.put(zwavejsBindingConstants.PROPERTY_HOME_ID, String.valueOf(event.homeId));
+            this.getThing().setProperties(properties);
+        }
     }
 }

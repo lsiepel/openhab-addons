@@ -10,13 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.api.dto;
+package org.openhab.binding.zwavejs.internal.api.dto.Commands;
 
 /**
  * @author L. Siepel - Initial contribution
  */
-public class Listening extends Command {
-    Listening() {
+public class ListeningCommand extends BaseCommand {
+    public ListeningCommand() {
         command = "start_listening";
     }
 }

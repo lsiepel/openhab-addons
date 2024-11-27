@@ -37,6 +37,10 @@ public class zwavejsBindingConstants {
 
     // List of all Thing Properties
     public static final String PROPERTY_HOME_ID = "homeId";
+    public static final String PROPERTY_DRIVER_VERSION = "driverVersion";
+    public static final String PROPERTY_SERVER_VERSION = "serverVersion";
+    public static final String PROPERTY_SCHEMA_MIN = "minSchemaVersion";
+    public static final String PROPERTY_SCHEMA_MAX = "maxSchemaVersion";
 
     // List of all Channel ids
     public static final String CHANNEL_1 = "channel1";
