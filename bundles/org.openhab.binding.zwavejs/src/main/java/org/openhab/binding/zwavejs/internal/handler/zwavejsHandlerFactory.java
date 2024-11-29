@@ -40,7 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(configurationPid = "binding.zwavejs", service = ThingHandlerFactory.class)
 public class ZwaveJSHandlerFactory extends BaseThingHandlerFactory {
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_GATEWAY);
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_GATEWAY, THING_TYPE_NODE);
 
     private WebSocketFactory webSocketFactory;
     private TimeZoneProvider timeZoneProvider;
@@ -63,6 +63,8 @@ public class ZwaveJSHandlerFactory extends BaseThingHandlerFactory {
 
         if (THING_TYPE_GATEWAY.equals(thingTypeUID)) {
             return new ZwaveJSBridgeHandler((Bridge) thing, webSocketFactory);
+        } else if (THING_TYPE_NODE.equals(thingTypeUID)) {
+            return new ZwaveJSNodeHandler(thing);
         }
 
         return null;

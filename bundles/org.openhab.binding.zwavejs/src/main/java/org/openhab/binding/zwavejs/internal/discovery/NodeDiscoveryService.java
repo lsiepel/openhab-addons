@@ -33,6 +33,8 @@ import org.openhab.core.i18n.LocaleProvider;
 import org.openhab.core.i18n.TranslationProvider;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.ThingUID;
+import org.openhab.core.thing.type.ThingTypeBuilder;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
@@ -41,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The {@link NodeDiscoveryService} tracks for Z-Wave nodes which are connected
- * to a Z-Wave .JS webservice.
+ * to a Z-Wave JS webservice.
  *
  * @author Leo Siepel - Initial contribution
  */
@@ -57,8 +59,13 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
 
     private @Nullable ThingUID bridgeUID;
 
+    /**
+     * Creates an NodeDiscoveryService with enabled autostart.
+     */
+    @Activate
     public NodeDiscoveryService() {
         super(ZwaveJSBridgeHandler.class, SUPPORTED_THING_TYPES, SEARCH_TIME);
+        logger.info("Initilizing1 Z-Wave discovery");
     }
 
     @Reference(unbind = "-")
@@ -73,8 +80,10 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
 
     @Override
     public void initialize() {
+        logger.info("Initilizing Z-Wave discovery");
         bridgeUID = thingHandler.getThing().getUID();
         thingHandler.registerDiscoveryListener(this);
+        logger.info("Initialized Z-Wave discovery");
         super.initialize();
     }
 
@@ -92,6 +101,7 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
 
     @Override
     public void startScan() {
+        logger.info("Scanning Z-Wave discovery");
         thingHandler.getFullState();
     }
 
@@ -101,7 +111,8 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
         removeOlderResults(getTimestampOfLastScan(), thingHandler.getThing().getUID());
     }
 
-    public void adNodeDiscovery(Node node) {
+    public void addNodeDiscovery(Node node) {
+        logger.info("Z-Wave addNodeDiscovery id: '{}'", node.nodeId);
         ThingUID thingUID = getThingUID(node.nodeId);
         ThingTypeUID thingTypeUID = THING_TYPE_NODE;
 
@@ -119,6 +130,8 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
             properties.put(PROPERTY_NODE_PRODUCT_ID, node.productId);
             properties.put(PROPERTY_NODE_PRODUCT_TYPE, node.productType);
 
+            //ThingType type = ThingTypeBuilder.instance(thingTypeUID, label).withLabel(label).withDescription(label);
+
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
                     .withProperties(properties).withBridge(bridgeUID).withRepresentationProperty(CONFIG_NODE_ID)
                     .withLabel(label).build();
@@ -130,6 +143,7 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
     }
 
     public void removeNodeDiscovery(int nodeId) {
+        logger.info("Z-Wave removeNodeDiscovery id: '{}'", nodeId);
         ThingUID thingUID = getThingUID(nodeId);
 
         if (thingUID != null) {

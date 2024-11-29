@@ -30,8 +30,6 @@ import org.openhab.core.thing.ThingUID;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The {@link zwavejs} is responsible for discovering new and removed Zwave JS servers. It uses the
@@ -46,7 +44,6 @@ public class BridgeMDNSDiscoveryParticipant implements MDNSDiscoveryParticipant 
     private static final String SERVICE_TYPE = "_zwave-js-server._tcp.local.";
     private static final String MDNS_PROPERTY_HOME_ID = "homeId";
 
-    private final Logger logger = LoggerFactory.getLogger(BridgeMDNSDiscoveryParticipant.class);
     protected final ThingRegistry thingRegistry;
 
     @Activate

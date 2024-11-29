@@ -36,7 +36,7 @@ public class ZwaveJSBindingConstants {
     // List of all Thing Configuration Parameters
     public static final String CONFIG_HOSTNAME = "hostname";
     public static final String CONFIG_PORT = "port";
-    public static final String CONFIG_NODE_ID = "nodeId";
+    public static final String CONFIG_NODE_ID = "id";
 
     // List of all Thing Properties
     public static final String PROPERTY_HOME_ID = "homeId";
