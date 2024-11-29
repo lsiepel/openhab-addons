@@ -12,15 +12,16 @@
  */
 package org.openhab.binding.zwavejs.internal.handler;
 
-import static org.openhab.binding.zwavejs.internal.zwavejsBindingConstants.*;
+import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.zwavejs.internal.api.dto.Messages.BaseMessage;
-import org.openhab.binding.zwavejs.internal.zwavejsConfiguration;
+import org.openhab.binding.zwavejs.internal.api.dto.Node;
+import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
@@ -28,19 +29,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link zwavejsHandler} is responsible for handling commands, which are
+ * The {@link ZwaveJSNodeHandler} is responsible for handling commands, which are
  * sent to one of the channels.
  *
  * @author L. Siepel - Initial contribution
  */
 @NonNullByDefault
-public class zwavejsHandler extends BaseThingHandler implements ZwaveEventListener {
+public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener {
 
-    private final Logger logger = LoggerFactory.getLogger(zwavejsHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(ZwaveJSNodeHandler.class);
 
-    private @Nullable zwavejsConfiguration config;
+    private @Nullable ZwaveJSNodeConfiguration config;
 
-    public zwavejsHandler(Thing thing) {
+    public ZwaveJSNodeHandler(Thing thing) {
         super(thing);
     }
 
@@ -62,7 +63,7 @@ public class zwavejsHandler extends BaseThingHandler implements ZwaveEventListen
 
     @Override
     public void initialize() {
-        config = getConfigAs(zwavejsConfiguration.class);
+        config = getConfigAs(ZwaveJSNodeConfiguration.class);
 
         // TODO: Initialize the handler.
         // The framework requires you to return from this method quickly, i.e. any network access must be done in
@@ -105,6 +106,23 @@ public class zwavejsHandler extends BaseThingHandler implements ZwaveEventListen
     }
 
     @Override
-    public void onEvent(BaseMessage message) {
+    public void onNodeRemoved() {
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.node-removed");
+    }
+
+    @Override
+    public void onNodeAdded(Node node) {
+        onNodeStateChanged(node);
+    }
+
+    @Override
+    public boolean onNodeStateChanged(Node node) {
+        logger.info("Z-Wave node id: {} state update", node.nodeId);
+        return true;
+    }
+
+    @Override
+    public Integer getId() {
+        return this.config.id;
     }
 }

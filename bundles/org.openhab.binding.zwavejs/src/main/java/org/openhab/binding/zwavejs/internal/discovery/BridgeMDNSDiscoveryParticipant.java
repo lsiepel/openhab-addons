@@ -12,9 +12,8 @@
  */
 package org.openhab.binding.zwavejs.internal.discovery;
 
-import static org.openhab.binding.zwavejs.internal.zwavejsBindingConstants.*;
+import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.*;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -72,7 +71,7 @@ public class BridgeMDNSDiscoveryParticipant implements MDNSDiscoveryParticipant 
         if (Objects.nonNull(uid)) {
             String host = service.getHostAddresses()[0];
             String homeId = service.getPropertyString(MDNS_PROPERTY_HOME_ID);
-            String label = String.format(DISCOVERY_LABEL_PATTERN, host);
+            String label = String.format(DISCOVERY_GATEWAY_LABEL_PATTERN, host);
 
             DiscoveryResultBuilder builder = DiscoveryResultBuilder.create(uid) //
                     .withLabel(label) //

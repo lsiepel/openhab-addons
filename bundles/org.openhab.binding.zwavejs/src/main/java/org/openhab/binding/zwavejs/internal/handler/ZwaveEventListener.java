@@ -15,11 +15,49 @@ package org.openhab.binding.zwavejs.internal.handler;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.zwavejs.internal.api.dto.Messages.BaseMessage;
+import org.openhab.binding.zwavejs.internal.discovery.NodeDiscoveryService;
 
 /**
  * @author L. Siepel - Initial contribution
  */
 @NonNullByDefault
 public interface ZwaveEventListener {
+
+    /**
+     * Register {@link NodeDiscoveryService} to bridge handler
+     *
+     * @param listener the discovery service
+     * @return {@code true} if the new discovery service is accepted
+     */
+    boolean registerDiscoveryListener(NodeDiscoveryService listener);
+
+    /**
+     * Unregister {@link NodeDiscoveryService} from bridge handler
+     *
+     * @return {@code true} if the discovery service was removed
+     */
+    boolean unregisterDiscoveryListener();
+
+    /**
+     * Register a node listener.
+     *
+     * @param nodeListener the node listener
+     * @return {@code true} if the collection of listeners has changed as a result of this call
+     */
+    boolean registerNodeListener(NodeListener nodeListener);
+
+    /**
+     * Unregister a node listener.
+     *
+     * @param nodeListener the node listener
+     * @return {@code true} if the collection of listeners has changed as a result of this call
+     */
+    boolean unregisterNodeListener(NodeListener nodeListener);
+
+    /**
+     * Inform listener about new event
+     *
+     * @param message the event message
+     */
     void onEvent(BaseMessage message);
 }

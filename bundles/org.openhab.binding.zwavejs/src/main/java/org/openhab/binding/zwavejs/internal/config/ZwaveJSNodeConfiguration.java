@@ -10,22 +10,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal;
+package org.openhab.binding.zwavejs.internal.config;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * The {@link zwavejsConfiguration} class contains fields mapping thing configuration parameters.
+ * The {@link ZwaveJSNodeConfiguration} class contains fields mapping thing configuration parameters.
  *
  * @author L. Siepel - Initial contribution
  */
 @NonNullByDefault
-public class zwavejsConfiguration {
+public class ZwaveJSNodeConfiguration {
 
-    public String hostname = "";
-    public int port = 3000;
+    public int id = 0;
 
     public boolean isValid() {
-        return port > 0 && !hostname.isBlank();
+        return id > 0;
     }
 }

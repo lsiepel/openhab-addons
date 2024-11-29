@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.zwavejs.internal.handler;
 
-import static org.openhab.binding.zwavejs.internal.zwavejsBindingConstants.*;
+import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.*;
 
 import java.util.Set;
 
@@ -31,14 +31,14 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * The {@link zwavejsHandlerFactory} is responsible for creating things and thing
+ * The {@link ZwaveJSHandlerFactory} is responsible for creating things and thing
  * handlers.
  *
  * @author L. Siepel - Initial contribution
  */
 @NonNullByDefault
 @Component(configurationPid = "binding.zwavejs", service = ThingHandlerFactory.class)
-public class zwavejsHandlerFactory extends BaseThingHandlerFactory {
+public class ZwaveJSHandlerFactory extends BaseThingHandlerFactory {
 
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_GATEWAY);
 
@@ -46,7 +46,7 @@ public class zwavejsHandlerFactory extends BaseThingHandlerFactory {
     private TimeZoneProvider timeZoneProvider;
 
     @Activate
-    public zwavejsHandlerFactory(final @Reference WebSocketFactory webSocketFactory,
+    public ZwaveJSHandlerFactory(final @Reference WebSocketFactory webSocketFactory,
             final @Reference TimeZoneProvider timeZoneProvider) {
         this.webSocketFactory = webSocketFactory;
         this.timeZoneProvider = timeZoneProvider;
@@ -62,7 +62,7 @@ public class zwavejsHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (THING_TYPE_GATEWAY.equals(thingTypeUID)) {
-            return new zwavejsGatewayHandler((Bridge) thing, webSocketFactory);
+            return new ZwaveJSBridgeHandler((Bridge) thing, webSocketFactory);
         }
 
         return null;

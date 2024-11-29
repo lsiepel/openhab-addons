@@ -16,24 +16,27 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.core.thing.ThingTypeUID;
 
 /**
- * The {@link zwavejsBindingConstants} class defines common constants, which are
+ * The {@link ZwaveJSBindingConstants} class defines common constants, which are
  * used across the whole binding.
  *
  * @author L. Siepel - Initial contribution
  */
 @NonNullByDefault
-public class zwavejsBindingConstants {
+public class ZwaveJSBindingConstants {
 
     private static final String BINDING_ID = "zwavejs";
 
-    public static final String DISCOVERY_LABEL_PATTERN = "Z-Wave JS Gateway (%s)";
+    public static final String DISCOVERY_GATEWAY_LABEL_PATTERN = "Z-Wave JS Gateway (%s)";
+    public static final String DISCOVERY_NODE_LABEL_PATTERN = "Z-Wave Node %s (%s)";
 
     // List of all Thing Type UIDs
     public static final ThingTypeUID THING_TYPE_GATEWAY = new ThingTypeUID(BINDING_ID, "gateway");
+    public static final ThingTypeUID THING_TYPE_NODE = new ThingTypeUID(BINDING_ID, "node");
 
     // List of all Thing Configuration Parameters
     public static final String CONFIG_HOSTNAME = "hostname";
     public static final String CONFIG_PORT = "port";
+    public static final String CONFIG_NODE_ID = "nodeId";
 
     // List of all Thing Properties
     public static final String PROPERTY_HOME_ID = "homeId";
@@ -41,6 +44,13 @@ public class zwavejsBindingConstants {
     public static final String PROPERTY_SERVER_VERSION = "serverVersion";
     public static final String PROPERTY_SCHEMA_MIN = "minSchemaVersion";
     public static final String PROPERTY_SCHEMA_MAX = "maxSchemaVersion";
+
+    public static final String PROPERTY_NODE_MANUFACTURER = "manufacturer";
+    public static final String PROPERTY_NODE_PRODUCT_ID = "productId";
+    public static final String PROPERTY_NODE_PRODUCT_TYPE = "productType";
+    public static final String PROPERTY_NODE_IS_SECURE = "isSecure";
+    public static final String PROPERTY_NODE_IS_LISTENING = "isListening";
+    public static final String PROPERTY_NODE_IS_ROUTING = "isRouting";
 
     // List of all Channel ids
     public static final String CHANNEL_1 = "channel1";

@@ -146,7 +146,7 @@ public class ZWaveJSClient implements WebSocketListener {
 
     @Override
     public void onWebSocketText(@NonNullByDefault({}) String message) {
-        logger.info("onWebSocketText('{}')", message);
+        // logger.info("onWebSocketText('{}')", message);
         // TODO use some kind of id as part of the listeners to only send event to listeners that need the event
 
         BaseMessage baseEvent = Objects.requireNonNull(gson.fromJson(message, BaseMessage.class));

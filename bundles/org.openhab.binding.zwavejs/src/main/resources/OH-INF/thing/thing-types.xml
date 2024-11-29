@@ -24,4 +24,30 @@
 
 	</bridge-type>
 
+	<thing-type id="node" listed="false">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="gateway"/>
+		</supported-bridge-type-refs>
+
+		<label>Unknown Node</label>
+		<description>This node has not been fully discovered by the binding.</description>
+
+		<properties>
+			<property name="manufacturer"></property>
+			<property name="productId"></property>
+			<property name="productType"></property>
+			<property name="isSecure"></property>
+			<property name="isListening"></property>
+			<property name="isRouting"></property>
+		</properties>
+
+		<config-description>
+			<parameter name="id" type="integer" min="1" max="255" readOnly="true" required="true">
+				<label>ID</label>
+			</parameter>
+		</config-description>
+
+
+	</thing-type>
+
 </thing:thing-descriptions>
