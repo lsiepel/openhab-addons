@@ -10,13 +10,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.api.dto;
+package org.openhab.binding.zwavejs.internal.api.dto.Messages;
+
+import org.openhab.binding.zwavejs.internal.api.dto.Result;
 
 /**
  * @author L. Siepel - Initial contribution
  */
+public class ResultMessage extends BaseMessage {
 
-public abstract class BaseMessage {
-    public String messageId;
-    public String type;
+    public boolean success;
+    public Result result;
 }

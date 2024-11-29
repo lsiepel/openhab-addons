@@ -16,7 +16,7 @@ import static org.openhab.binding.zwavejs.internal.zwavejsBindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.zwavejs.internal.api.dto.BaseMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Messages.BaseMessage;
 import org.openhab.binding.zwavejs.internal.zwavejsConfiguration;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;

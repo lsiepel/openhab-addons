@@ -29,13 +29,14 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
-import org.openhab.binding.zwavejs.internal.api.dto.BaseMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.Commands.BaseCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.Commands.InitializeCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.Commands.ListeningCommand;
-import org.openhab.binding.zwavejs.internal.api.dto.EventMessage;
-import org.openhab.binding.zwavejs.internal.api.dto.ResultMessage;
-import org.openhab.binding.zwavejs.internal.api.dto.VersionMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Messages.BaseMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Messages.EventMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Messages.ResultMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Messages.VersionMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,6 +150,7 @@ public class ZWaveJSClient implements WebSocketListener {
         // TODO use some kind of id as part of the listeners to only send event to listeners that need the event
 
         BaseMessage baseEvent = Objects.requireNonNull(gson.fromJson(message, BaseMessage.class));
+        logger.info("onWebSocketText with, id: {}, type: {}", baseEvent.messageId, baseEvent.type);
 
         try {
             for (ZwaveEventListener listener : listeners) {
@@ -163,6 +165,14 @@ public class ZWaveJSClient implements WebSocketListener {
             // also start listening to events
             sendCommand(new InitializeCommand());
             sendCommand(new ListeningCommand());
+        }
+        if (baseEvent instanceof ResultMessage event) {
+            if (event.result.state != null) {
+                for (Node node : event.result.state.nodes) {
+                    // TODO need to route this to a discovery result
+                    logger.info("Found node, index: {} label: {}", node.index, node.label);
+                }
+            }
         }
     }
 

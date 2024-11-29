@@ -15,19 +15,9 @@ package org.openhab.binding.zwavejs.internal.api.dto;
 /**
  * @author L. Siepel - Initial contribution
  */
-public class EventMessage extends BaseMessage {
-    public Event event;
-
-    public class Event {
-        public Source source;
-        public String event;
-
-        // [key: string]: unknown;
-
-        enum Source {
-            driver,
-            controller,
-            node
-        }
-    }
+public class CommandClass {
+    public int id;
+    public String name;
+    public int version;
+    public boolean isSecure;
 }

@@ -1,0 +1,43 @@
+/**
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package org.openhab.binding.zwavejs.internal.api.dto;
+
+import java.util.ArrayList;
+
+import com.google.gson.annotations.SerializedName;
+
+/**
+ * @author L. Siepel - Initial contribution
+ */
+public class Metadata {
+    public Object comments;
+    public String type;
+    public boolean readable;
+    public boolean writeable;
+    public String label;
+    public ArrayList<String> valueChangeOptions;
+    public boolean stateful;
+    public boolean secret;
+    public CcSpecific ccSpecific;
+    public String unit;
+    public States states;
+    @SerializedName("default")
+    public int myDefault;
+    public int min;
+    public int max;
+    public int valueSize;
+    public int format;
+    public boolean allowManualEntry;
+    public boolean isFromConfig;
+    public String description;
+}

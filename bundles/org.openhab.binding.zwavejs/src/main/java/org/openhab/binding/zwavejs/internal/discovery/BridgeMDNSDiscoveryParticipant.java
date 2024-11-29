@@ -69,10 +69,6 @@ public class BridgeMDNSDiscoveryParticipant implements MDNSDiscoveryParticipant 
     public @Nullable DiscoveryResult createResult(ServiceInfo service) {
         ThingUID uid = getThingUID(service);
 
-        for (String name : Collections.list(service.getPropertyNames())) {
-            logger.info("{} -> {}", name, service.getPropertyString(name));
-        }
-
         if (Objects.nonNull(uid)) {
             String host = service.getHostAddresses()[0];
             String homeId = service.getPropertyString(MDNS_PROPERTY_HOME_ID);

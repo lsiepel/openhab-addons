@@ -15,11 +15,7 @@ package org.openhab.binding.zwavejs.internal.api.dto;
 /**
  * @author L. Siepel - Initial contribution
  */
-public class ResultMessage extends BaseMessage {
-
-    public boolean success;
-    public Result result;
-
-    public class Result {
-    }
+public class Basic {
+    public int key;
+    public String label;
 }

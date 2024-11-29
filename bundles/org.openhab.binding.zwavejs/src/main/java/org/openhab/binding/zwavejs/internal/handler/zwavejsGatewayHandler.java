@@ -22,8 +22,10 @@ import javax.naming.CommunicationException;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.ZWaveJSClient;
-import org.openhab.binding.zwavejs.internal.api.dto.BaseMessage;
-import org.openhab.binding.zwavejs.internal.api.dto.VersionMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Messages.BaseMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Messages.ResultMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Messages.VersionMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.zwavejsBindingConstants;
 import org.openhab.binding.zwavejs.internal.zwavejsConfiguration;
 import org.openhab.core.io.net.http.WebSocketFactory;
@@ -109,6 +111,18 @@ public class zwavejsGatewayHandler extends BaseBridgeHandler implements ZwaveEve
             properties.put(zwavejsBindingConstants.PROPERTY_SCHEMA_MAX, String.valueOf(event.maxSchemaVersion));
             properties.put(zwavejsBindingConstants.PROPERTY_HOME_ID, String.valueOf(event.homeId));
             this.getThing().setProperties(properties);
+        }
+        if (message instanceof ResultMessage result) {
+            if (result.result.state == null) {
+                return;
+            }
+            logger.info("Bridge received event with, id: {}, type: {}, holding {} nodes", result.success, result.type,
+                    result.result.state.nodes.size());
+
+            for (Node node : result.result.state.nodes) {
+                // TODO need to route this to a discovery result
+                logger.info("Found nod, index: {} label: {}", node.index, node.label);
+            }
         }
     }
 }

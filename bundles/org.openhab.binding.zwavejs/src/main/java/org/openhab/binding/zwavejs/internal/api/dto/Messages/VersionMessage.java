@@ -10,16 +10,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-
-package org.openhab.binding.zwavejs.internal.handler;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.zwavejs.internal.api.dto.Messages.BaseMessage;
+package org.openhab.binding.zwavejs.internal.api.dto.Messages;
 
 /**
  * @author L. Siepel - Initial contribution
  */
-@NonNullByDefault
-public interface ZwaveEventListener {
-    void onEvent(BaseMessage message);
+public class VersionMessage extends BaseMessage {
+    public String driverVersion;
+    public String serverVersion;
+    public int homeId;
+    public int minSchemaVersion;
+    public int maxSchemaVersion;
 }

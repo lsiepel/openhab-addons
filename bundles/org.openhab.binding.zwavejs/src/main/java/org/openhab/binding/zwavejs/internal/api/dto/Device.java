@@ -15,10 +15,7 @@ package org.openhab.binding.zwavejs.internal.api.dto;
 /**
  * @author L. Siepel - Initial contribution
  */
-public class VersionMessage extends BaseMessage {
-    public String driverVersion;
-    public String serverVersion;
-    public int homeId;
-    public int minSchemaVersion;
-    public int maxSchemaVersion;
+public class Device {
+    public int productType;
+    public int productId;
 }
