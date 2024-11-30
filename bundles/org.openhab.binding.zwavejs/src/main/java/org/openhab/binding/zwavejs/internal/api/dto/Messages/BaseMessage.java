@@ -17,6 +17,6 @@ package org.openhab.binding.zwavejs.internal.api.dto.Messages;
  */
 
 public abstract class BaseMessage {
-    public String messageId;
+    // public String messageId;
     public String type;
 }

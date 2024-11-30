@@ -149,10 +149,10 @@ public class ZWaveJSClient implements WebSocketListener {
         // TODO use some kind of id as part of the listeners to only send event to listeners that need the event
 
         BaseMessage baseEvent = Objects.requireNonNull(gson.fromJson(message, BaseMessage.class));
-        if (baseEvent == null) {
+        if (baseEvent.type == null) {
             logger.info("onWebSocketText('{}')", message);
         }
-        logger.info("onWebSocketText with, id: {}, type: {}", baseEvent.messageId, baseEvent.type);
+        logger.info("onWebSocketText received message type: {}", baseEvent.type);
 
         try {
             for (ZwaveEventListener listener : listeners) {

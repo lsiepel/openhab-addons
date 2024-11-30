@@ -33,7 +33,6 @@ import org.openhab.core.i18n.LocaleProvider;
 import org.openhab.core.i18n.TranslationProvider;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.ThingUID;
-import org.openhab.core.thing.type.ThingTypeBuilder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -130,7 +129,7 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
             properties.put(PROPERTY_NODE_PRODUCT_ID, node.productId);
             properties.put(PROPERTY_NODE_PRODUCT_TYPE, node.productType);
 
-            //ThingType type = ThingTypeBuilder.instance(thingTypeUID, label).withLabel(label).withDescription(label);
+            // ThingType type = ThingTypeBuilder.instance(thingTypeUID, label).withLabel(label).withDescription(label);
 
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
                     .withProperties(properties).withBridge(bridgeUID).withRepresentationProperty(CONFIG_NODE_ID)

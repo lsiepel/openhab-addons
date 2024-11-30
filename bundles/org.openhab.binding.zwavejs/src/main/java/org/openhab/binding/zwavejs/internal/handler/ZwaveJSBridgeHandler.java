@@ -122,7 +122,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             if (result.result.state == null) {
                 return;
             }
-            logger.info("Bridge received event with, id: {}, type: {}, holding {} nodes", result.messageId, result.type,
+            logger.info("Bridge received event with, type: {}, holding {} nodes", result.type,
                     result.result.state.nodes.size());
 
             Map<Integer, Node> lastNodeStatesCopy = new HashMap<>(lastNodeStates);

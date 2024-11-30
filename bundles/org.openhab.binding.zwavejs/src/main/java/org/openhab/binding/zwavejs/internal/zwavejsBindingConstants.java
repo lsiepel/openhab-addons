@@ -24,7 +24,7 @@ import org.openhab.core.thing.ThingTypeUID;
 @NonNullByDefault
 public class ZwaveJSBindingConstants {
 
-    private static final String BINDING_ID = "zwavejs";
+    public static final String BINDING_ID = "zwavejs";
 
     public static final String DISCOVERY_GATEWAY_LABEL_PATTERN = "Z-Wave JS Gateway (%s)";
     public static final String DISCOVERY_NODE_LABEL_PATTERN = "Z-Wave Node %s (%s)";
