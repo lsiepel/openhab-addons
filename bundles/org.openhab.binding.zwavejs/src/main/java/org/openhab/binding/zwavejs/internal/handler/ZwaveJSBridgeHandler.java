@@ -26,11 +26,11 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.ZWaveJSClient;
-import org.openhab.binding.zwavejs.internal.api.dto.Commands.ListeningCommand;
-import org.openhab.binding.zwavejs.internal.api.dto.Messages.BaseMessage;
-import org.openhab.binding.zwavejs.internal.api.dto.Messages.ResultMessage;
-import org.openhab.binding.zwavejs.internal.api.dto.Messages.VersionMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.ListeningCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.messages.VersionMessage;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSBridgeConfiguration;
 import org.openhab.binding.zwavejs.internal.discovery.NodeDiscoveryService;
 import org.openhab.core.io.net.http.WebSocketFactory;
@@ -98,7 +98,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             try {
                 client.start("ws://" + config.hostname + ":" + config.port);
                 client.addEventListener(this);
-                updateStatus(ThingStatus.ONLINE);
+                // the thing is set to online when the response/events are received
             } catch (CommunicationException e) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
             } catch (InterruptedException e) {
@@ -109,6 +109,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
 
     @Override
     public void onEvent(BaseMessage message) {
+        updateStatus(ThingStatus.ONLINE);
         if (message instanceof VersionMessage event) {
             Map<String, String> properties = new HashMap<>();
             properties.put(ZwaveJSBindingConstants.PROPERTY_DRIVER_VERSION, event.driverVersion);
@@ -119,7 +120,8 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             this.getThing().setProperties(properties);
         }
         if (message instanceof ResultMessage result) {
-            if (result.result.state == null) {
+
+            if (result.result == null || result.result.state == null) {
                 return;
             }
             logger.info("Bridge received event with, type: {}, holding {} nodes", result.type,
@@ -128,7 +130,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             Map<Integer, Node> lastNodeStatesCopy = new HashMap<>(lastNodeStates);
             final NodeDiscoveryService discovery = discoveryService;
             for (Node node : result.result.state.nodes) {
-                logger.info("Found node, id: {} label: {}", node.nodeId, node.label);
+                logger.info("Found node id: {} label: {}", node.nodeId, node.label);
 
                 final int nodeId = node.nodeId;
                 final NodeListener nodeListener = nodeListeners.get(nodeId);
@@ -173,14 +175,22 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
     public void getFullState() {
         if (getThing().getStatus().equals(ThingStatus.ONLINE)) {
             client.sendCommand(new ListeningCommand());
+        } else {
+            logger.info("Not online 1");
         }
+    }
+
+    public @Nullable Node requestNodeDetails(int nodeId) {
+        Node node = lastNodeStates.get(nodeId);
+        logger.info("Details for nodeId {} requested, provided: {}", nodeId, node != null);
+        return node;
     }
 
     @Override
     public boolean registerNodeListener(NodeListener nodeListener) {
         final Integer id = nodeListener.getId();
         if (!nodeListeners.containsKey(id)) {
-            logger.debug("Registering Z-Wave node listener");
+            logger.info("Registering Z-Wave node listener");
             nodeListeners.put(id, nodeListener);
             final Node node = lastNodeStates.get(id);
             if (node != null) {
@@ -194,7 +204,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
 
     @Override
     public boolean unregisterNodeListener(NodeListener nodeListener) {
-        logger.debug("Unregistering Z-Wave node listener");
+        logger.info("Unregistering Z-Wave node listener");
         return nodeListeners.remove(nodeListener.getId()) != null;
     }
 
@@ -223,5 +233,11 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
     @Override
     public Collection<Class<? extends ThingHandlerService>> getServices() {
         return Set.of(NodeDiscoveryService.class);
+    }
+
+    @Override
+    public void dispose() {
+        client.stop();
+        super.dispose();
     }
 }

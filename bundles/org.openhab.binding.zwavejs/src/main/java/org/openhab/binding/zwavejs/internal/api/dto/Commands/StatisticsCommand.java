@@ -15,8 +15,9 @@ package org.openhab.binding.zwavejs.internal.api.dto.commands;
 /**
  * @author L. Siepel - Initial contribution
  */
-public class ListeningCommand extends BaseCommand {
-    public ListeningCommand() {
-        command = "start_listening";
+public class StatisticsCommand extends BaseCommand {
+
+    public StatisticsCommand(boolean enable) {
+        command = enable ? "driver.enable_statistics" : "driver.disable_statistics";
     }
 }

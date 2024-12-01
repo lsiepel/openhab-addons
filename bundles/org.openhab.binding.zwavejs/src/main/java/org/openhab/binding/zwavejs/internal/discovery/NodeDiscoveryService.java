@@ -64,7 +64,6 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
     @Activate
     public NodeDiscoveryService() {
         super(ZwaveJSBridgeHandler.class, SUPPORTED_THING_TYPES, SEARCH_TIME);
-        logger.info("Initilizing1 Z-Wave discovery");
     }
 
     @Reference(unbind = "-")
@@ -79,10 +78,8 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
 
     @Override
     public void initialize() {
-        logger.info("Initilizing Z-Wave discovery");
         bridgeUID = thingHandler.getThing().getUID();
         thingHandler.registerDiscoveryListener(this);
-        logger.info("Initialized Z-Wave discovery");
         super.initialize();
     }
 
@@ -100,7 +97,6 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
 
     @Override
     public void startScan() {
-        logger.info("Scanning Z-Wave discovery");
         thingHandler.getFullState();
     }
 
@@ -115,7 +111,7 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
         ThingUID thingUID = getThingUID(node.nodeId);
         ThingTypeUID thingTypeUID = THING_TYPE_NODE;
 
-        if (thingUID != null && thingTypeUID != null) {
+        if (thingUID != null) {
             String label = String.format(DISCOVERY_NODE_LABEL_PATTERN, node.nodeId, node.deviceConfig.label);
 
             Map<String, Object> properties = new HashMap<>();
@@ -128,8 +124,6 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
             properties.put(PROPERTY_NODE_MANUFACTURER, node.deviceConfig.manufacturer);
             properties.put(PROPERTY_NODE_PRODUCT_ID, node.productId);
             properties.put(PROPERTY_NODE_PRODUCT_TYPE, node.productType);
-
-            // ThingType type = ThingTypeBuilder.instance(thingTypeUID, label).withLabel(label).withDescription(label);
 
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
                     .withProperties(properties).withBridge(bridgeUID).withRepresentationProperty(CONFIG_NODE_ID)

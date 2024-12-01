@@ -28,7 +28,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Metadata;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
-import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
 import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.thing.type.ChannelTypeBuilder;
 import org.openhab.core.thing.type.ChannelTypeProvider;
@@ -51,11 +50,11 @@ import tech.units.indriya.format.SimpleUnitFormat;
 @Component(service = { ZwaveJSChannelTypeProvider.class, ChannelTypeProvider.class })
 public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(ZwaveJSBridgeHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(ZwaveJSChannelTypeProvider.class);
 
     private final Map<ChannelTypeUID, ChannelType> channelTypeCache = new ConcurrentHashMap<>();
 
-    private ChannelTypeUID generateChannelTypeId(Metadata data) {
+    public ChannelTypeUID generateChannelTypeId(Metadata data) {
         StringBuilder parts = new StringBuilder();
 
         parts.append(data.type);
@@ -106,8 +105,12 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
             case "boolean":
                 // switch (or contact ?)
                 return "Switch";
+            default:
+                logger.error(
+                        "Could not determine item type based on metadata.type: {}, fallback to 'String' please file a bug report",
+                        data.type);
+                return "String";
         }
-        return null;
     }
 
     private String normalizeUnit(@Nullable String unit) {
@@ -115,8 +118,7 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
             return "";
         }
         String[] splitted = unit.split(" ");
-        unit = splitted[splitted.length - 1];
-        return unit //
+        return splitted[splitted.length - 1] //
                 .replace("minutes", "m") //
                 .replace("seconds", "s");
     }
@@ -138,9 +140,11 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         fragment.withReadOnly(!data.writeable);
         fragment.withMinimum(BigDecimal.valueOf(data.min));
         fragment.withMaximum(BigDecimal.valueOf(data.max));
-        fragment.withOptions(null); // TODO from states but need to find out how to properly deserialize it into a
-                                    // key/value pair
-        fragment.withStep(BigDecimal.valueOf(1)); // TODO there does not seem to be a property that can be used for this
+        // fragment.withOptions(null);
+        // TODO from states but need to find out how to properly deserialize it into a
+        // key/value pair
+        fragment.withStep(BigDecimal.valueOf(1));
+        // TODO there does not seem to be a property that can be used for this
         return fragment.build();
     }
 
@@ -154,44 +158,3 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         return channelTypeCache.get(channelTypeUID);
     }
 }
-
-private String generateChannelId(Value value) {
-
-    String id = value.commandClassName.toLowerCase().replaceAll(" ", "-");
-
-    if (value.metadata.unit != null) {
-        return id + "-" + value.metadata.unit.toLowerCase();
-    }
-    return id;
-/* 
-if (value.propertyKeyName != null) {
-return value.propertyKeyName.toLowerCase().replaceAll("_[a-z]+_", "-");
-}
-if (value.metadata.label != null) {
-return value.metadata.label.toLowerCase().replaceAll("[\\[[a-z]+\\]]", "").trim().replaceAll(" ", "-");
-}
-return value.commandClassName.toLowerCase().replaceAll(" ", "-");
-*/
-}
-
-public void createChannel(Thing thing, Value value) {
-    String channelId = generateChannelId(value);
-    ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
-
-    if (thing.getChannel(channelUID) != null) {
-        // channel already exists
-        logger.trace("Thing {}, channel {} already exists", thing.getLabel(), channelId);
-        return;
-    }
-
-    ChannelTypeUID channelTypeUID = new ChannelTypeUID(()
-    Channel channel = ChannelBuilder.create(channelUID).withLabel(label).withDescription(description)
-            .withAcceptedItemType(itemType).withType(channelTypeUID).build();
-
-    logger.debug("UPnP device {}, created channel {}", thing.getLabel(), channelId);
-
-    updatedChannels.add(channel);
-    updatedChannelUIDs.add(channelUID);
-    updateChannels = true;
-}
-

@@ -25,23 +25,26 @@ import javax.naming.CommunicationException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
-import org.openhab.binding.zwavejs.internal.api.dto.Commands.BaseCommand;
-import org.openhab.binding.zwavejs.internal.api.dto.Commands.InitializeCommand;
-import org.openhab.binding.zwavejs.internal.api.dto.Commands.ListeningCommand;
-import org.openhab.binding.zwavejs.internal.api.dto.Messages.BaseMessage;
-import org.openhab.binding.zwavejs.internal.api.dto.Messages.EventMessage;
-import org.openhab.binding.zwavejs.internal.api.dto.Messages.ResultMessage;
-import org.openhab.binding.zwavejs.internal.api.dto.Messages.VersionMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.BaseCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.InitializeCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.ListeningCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.StatisticsCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.messages.VersionMessage;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 
 /**
  * @author L. Siepel - Initial contribution
@@ -60,7 +63,7 @@ public class ZWaveJSClient implements WebSocketListener {
         this.wsClient = wsClient;
 
         RuntimeTypeAdapterFactory<BaseMessage> typeAdapterFactory = RuntimeTypeAdapterFactory.of(BaseMessage.class,
-                "type");
+                "type", true);
         typeAdapterFactory.registerSubtype(VersionMessage.class, "version") //
                 .registerSubtype(ResultMessage.class, "result") //
                 .registerSubtype(EventMessage.class, "event"); //
@@ -77,7 +80,7 @@ public class ZWaveJSClient implements WebSocketListener {
         }
     }
 
-    private void stop() {
+    public void stop() {
         logger.debug("Disconnecting from Z-Wave JS Webservice");
         Session localSession = this.session;
         if (localSession != null) {
@@ -149,10 +152,21 @@ public class ZWaveJSClient implements WebSocketListener {
         // TODO use some kind of id as part of the listeners to only send event to listeners that need the event
 
         BaseMessage baseEvent = Objects.requireNonNull(gson.fromJson(message, BaseMessage.class));
+
         if (baseEvent.type == null) {
             logger.info("onWebSocketText('{}')", message);
+        } else if (baseEvent instanceof ResultMessage resultMessage) {
+            if (resultMessage.success) {
+                logger.info("onWebSocketText received message type: {}, success: {}", baseEvent.type,
+                        resultMessage.success);
+                logger.info("DATA >> {}", message);
+            } else {
+                logger.info("onWebSocketText received message type: {}, success: {}, error_code: {}, message: {}",
+                        baseEvent.type, resultMessage.success, resultMessage.errorCode, resultMessage.message);
+            }
+        } else {
+            logger.info("onWebSocketText received message type: {}", baseEvent.type);
         }
-        logger.info("onWebSocketText received message type: {}", baseEvent.type);
 
         try {
             for (ZwaveEventListener listener : listeners) {
@@ -166,6 +180,7 @@ public class ZWaveJSClient implements WebSocketListener {
             // the binding is starting up, perform schema version handshake
             // also start listening to events
             sendCommand(new InitializeCommand());
+            sendCommand(new StatisticsCommand(false));
             sendCommand(new ListeningCommand());
         }
     }
@@ -173,12 +188,13 @@ public class ZWaveJSClient implements WebSocketListener {
     public void sendCommand(BaseCommand command) {
         String commandAsJson = gson.toJson(command);
         logger.info("sendCommand('{}')", commandAsJson);
+        Session session = this.session;
         try {
-            if (session.getRemote() == null) {
+            if (session == null || !(session.getRemote() instanceof RemoteEndpoint endpoint)) {
                 logger.warn("Failed while sending command: {}", commandAsJson);
                 return;
             }
-            session.getRemote().sendString(commandAsJson);
+            endpoint.sendString(commandAsJson);
         } catch (IOException e) {
             logger.warn("IOException while sending command: {}", commandAsJson);
         }

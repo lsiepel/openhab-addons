@@ -10,13 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.api.dto.Messages;
+package org.openhab.binding.zwavejs.internal.api.dto.messages;
 
 /**
  * @author L. Siepel - Initial contribution
  */
 
-public abstract class BaseMessage {
-    // public String messageId;
+public class BaseMessage {
+    public String messageId;
     public String type;
 }

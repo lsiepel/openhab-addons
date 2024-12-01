@@ -15,8 +15,11 @@ package org.openhab.binding.zwavejs.internal.api.dto.commands;
 /**
  * @author L. Siepel - Initial contribution
  */
-public class ListeningCommand extends BaseCommand {
-    public ListeningCommand() {
-        command = "start_listening";
+public class RefreshNodeCommand extends BaseCommand {
+    public int nodeId;
+
+    public RefreshNodeCommand(int nodeId) {
+        command = "node.refresh_info";
+        this.nodeId = nodeId;
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.openhab.binding.zwavejs.internal.api;
+package com.google.gson.typeadapters;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;

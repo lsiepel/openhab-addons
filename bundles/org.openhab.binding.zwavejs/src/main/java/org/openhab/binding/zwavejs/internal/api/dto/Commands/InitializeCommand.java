@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.api.dto.Commands;
+package org.openhab.binding.zwavejs.internal.api.dto.commands;
 
 import org.osgi.framework.FrameworkUtil;
 
