@@ -142,7 +142,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
     @Override
     public void onNodeRemoved() {
-        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.node-removed");
+        // (ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.node-removed");
     }
 
     @Override
@@ -162,6 +162,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
     }
 
     private boolean buildChannels(Node node) {
+        logger.info("building channels for {}, containing {} values", node.nodeId, node.values);
         for (Value value : node.values) {
             createChannel(getThing(), value);
         }

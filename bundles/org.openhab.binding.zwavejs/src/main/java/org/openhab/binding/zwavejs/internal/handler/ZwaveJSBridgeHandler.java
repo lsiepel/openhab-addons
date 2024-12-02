@@ -27,6 +27,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.ZWaveJSClient;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
+import org.openhab.binding.zwavejs.internal.api.dto.State;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.ListeningCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
@@ -109,7 +110,6 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
 
     @Override
     public void onEvent(BaseMessage message) {
-        updateStatus(ThingStatus.ONLINE);
         if (message instanceof VersionMessage event) {
             Map<String, String> properties = new HashMap<>();
             properties.put(ZwaveJSBindingConstants.PROPERTY_DRIVER_VERSION, event.driverVersion);
@@ -120,52 +120,55 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             this.getThing().setProperties(properties);
         }
         if (message instanceof ResultMessage result) {
-
             if (result.result == null || result.result.state == null) {
                 return;
             }
-            logger.info("Bridge received event with, type: {}, holding {} nodes", result.type,
-                    result.result.state.nodes.size());
+            procesStateUpdate(result.result.state);
+            updateStatus(ThingStatus.ONLINE);
+        }
+    }
 
-            Map<Integer, Node> lastNodeStatesCopy = new HashMap<>(lastNodeStates);
-            final NodeDiscoveryService discovery = discoveryService;
-            for (Node node : result.result.state.nodes) {
-                logger.info("Found node id: {} label: {}", node.nodeId, node.label);
+    private void procesStateUpdate(State state) {
+        logger.info("Processing state update with {} nodes", state.nodes.size());
 
-                final int nodeId = node.nodeId;
-                final NodeListener nodeListener = nodeListeners.get(nodeId);
-                if (nodeListener == null) {
-                    logger.info("Z-Wave node '{}' added", nodeId);
+        Map<Integer, Node> lastNodeStatesCopy = new HashMap<>(lastNodeStates);
+        final NodeDiscoveryService discovery = discoveryService;
+        for (Node node : state.nodes) {
+            logger.info("Processing node id: {} label: {}", node.nodeId, node.label);
 
-                    if (discovery != null && !lastNodeStatesCopy.containsKey(nodeId)) {
-                        discovery.addNodeDiscovery(node);
-                    }
+            final int nodeId = node.nodeId;
+            final NodeListener nodeListener = nodeListeners.get(nodeId);
+            if (nodeListener == null) {
+                logger.info("Z-Wave node '{}' has no listener, pass to discovery", nodeId);
 
-                    lastNodeStates.put(nodeId, node);
-                } else {
-                    logger.info("Z-Wave node '{}' updated", nodeId);
-                    if (nodeListener.onNodeStateChanged(node)) {
-                        lastNodeStates.put(nodeId, node);
-                    }
+                if (discovery != null && !lastNodeStatesCopy.containsKey(nodeId)) {
+                    discovery.addNodeDiscovery(node);
                 }
-                lastNodeStatesCopy.remove(nodeId);
+
+                lastNodeStates.put(nodeId, node);
+            } else {
+                logger.info("Z-Wave node '{}' state updated", nodeId);
+                if (nodeListener.onNodeStateChanged(node)) {
+                    lastNodeStates.put(nodeId, node);
+                }
+            }
+            lastNodeStatesCopy.remove(nodeId);
+        }
+
+        // Check for removed nodes
+        lastNodeStatesCopy.forEach((nodeId, node) -> {
+            logger.trace("Z-Wave node '{}' revmoed, state is missing update", nodeId);
+            lastNodeStates.remove(nodeId);
+
+            final NodeListener nodeListener = nodeListeners.get(nodeId);
+            if (nodeListener != null) {
+                nodeListener.onNodeRemoved();
             }
 
-            // Check for removed nodes
-            lastNodeStatesCopy.forEach((nodeId, node) -> {
-                logger.trace("Z-Wave node '{}' removed", nodeId);
-                lastNodeStates.remove(nodeId);
-
-                final NodeListener nodeListener = nodeListeners.get(nodeId);
-                if (nodeListener != null) {
-                    nodeListener.onNodeRemoved();
-                }
-
-                if (discovery != null) {
-                    discovery.removeNodeDiscovery(nodeId);
-                }
-            });
-        }
+            if (discovery != null) {
+                discovery.removeNodeDiscovery(nodeId);
+            }
+        });
     }
 
     /**

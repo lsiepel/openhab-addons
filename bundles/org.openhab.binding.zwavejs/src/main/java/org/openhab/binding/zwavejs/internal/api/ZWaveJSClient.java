@@ -33,7 +33,6 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.BaseCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.InitializeCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.ListeningCommand;
-import org.openhab.binding.zwavejs.internal.api.dto.commands.StatisticsCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
@@ -180,7 +179,7 @@ public class ZWaveJSClient implements WebSocketListener {
             // the binding is starting up, perform schema version handshake
             // also start listening to events
             sendCommand(new InitializeCommand());
-            sendCommand(new StatisticsCommand(false));
+            // sendCommand(new StatisticsCommand(false));
             sendCommand(new ListeningCommand());
         }
     }
