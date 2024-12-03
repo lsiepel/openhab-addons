@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.naming.CommunicationException;
 
@@ -59,6 +60,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
     private final Map<Integer, NodeListener> nodeListeners = new ConcurrentHashMap<>();
     private final Map<Integer, Node> lastNodeStates = new ConcurrentHashMap<>();
 
+    protected ScheduledExecutorService executorService = scheduler;
     private @Nullable NodeDiscoveryService discoveryService;
     private @Nullable ZwaveJSBridgeConfiguration config;
     private ZWaveJSClient client;

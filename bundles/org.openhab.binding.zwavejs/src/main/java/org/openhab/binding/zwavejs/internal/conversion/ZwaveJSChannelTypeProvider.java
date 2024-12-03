@@ -32,12 +32,14 @@ import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.thing.type.ChannelTypeBuilder;
 import org.openhab.core.thing.type.ChannelTypeProvider;
 import org.openhab.core.thing.type.ChannelTypeUID;
+import org.openhab.core.thing.type.StateChannelTypeBuilder;
 import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tech.units.indriya.format.SimpleQuantityFormat;
 import tech.units.indriya.format.SimpleUnitFormat;
 
 /**
@@ -83,10 +85,17 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
             return channelType;
         }
 
-        channelType = ChannelTypeBuilder
-                .state(channelTypeUID, value.metadata.label, itemTypeFromMetadata(value.metadata))
-                .withDescription(value.commandClassName).withUnitHint(normalizeUnit(value.metadata.unit))
-                .withStateDescriptionFragment(statePatternFromMetadata(value.metadata)).build();
+        String itemType = itemTypeFromMetadata(value.metadata);
+
+        StateChannelTypeBuilder builder = ChannelTypeBuilder.state(channelTypeUID, value.metadata.label, itemType)
+                .withDescription(value.commandClassName)
+                .withStateDescriptionFragment(statePatternFromMetadata(value.metadata));
+
+        if (itemType.contains(":")) {
+            builder.withUnitHint(normalizeUnit(value.metadata.unit));
+        }
+
+        channelType = builder.build();
         // TODO add category and tags
         channelTypeCache.put(channelTypeUID, channelType);
         return channelType;
@@ -98,7 +107,7 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         switch (data.type) {
             case "number":
                 if (data.unit != null) {
-                    Unit<?> unit = SimpleUnitFormat.getInstance().parse(normalizeUnit(data.unit));
+                    Unit<?> unit = SimpleUnitFormat.getInstance().parse("1 "+ normalizeUnit(data.unit));
                     return String.format("Number:{}", unit.getDimension().toString());
                 }
                 return "Number";
