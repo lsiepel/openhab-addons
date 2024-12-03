@@ -39,7 +39,6 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tech.units.indriya.format.SimpleQuantityFormat;
 import tech.units.indriya.format.SimpleUnitFormat;
 
 /**
@@ -107,7 +106,7 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         switch (data.type) {
             case "number":
                 if (data.unit != null) {
-                    Unit<?> unit = SimpleUnitFormat.getInstance().parse("1 "+ normalizeUnit(data.unit));
+                    Unit<?> unit = SimpleUnitFormat.getInstance().parse("1 " + normalizeUnit(data.unit));
                     return String.format("Number:{}", unit.getDimension().toString());
                 }
                 return "Number";
