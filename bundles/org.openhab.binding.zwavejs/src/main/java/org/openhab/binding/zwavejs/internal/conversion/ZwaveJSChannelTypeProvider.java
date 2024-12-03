@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Metadata;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
+import org.openhab.core.library.unit.Units;
 import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.thing.type.ChannelTypeBuilder;
 import org.openhab.core.thing.type.ChannelTypeProvider;
@@ -38,8 +39,6 @@ import org.openhab.core.types.StateDescriptionFragmentBuilder;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import tech.units.indriya.format.SimpleUnitFormat;
 
 /**
  * {@link CharacteristicChannelTypeProvider} that provides channel types for dynamically discovered characteristics.
@@ -57,11 +56,13 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
 
     public ChannelTypeUID generateChannelTypeId(Metadata data) {
         StringBuilder parts = new StringBuilder();
-
+        String itemType = itemTypeFromMetadata(data);
         parts.append(data.type);
-        parts.append(itemTypeFromMetadata(data));
+        parts.append(itemType);
         parts.append(normalizeUnit(data.unit));
-        parts.append(statePatternFromMetadata(data).hashCode());
+        if (!"String".equals(itemType)) {
+            parts.append(statePatternOfItemType(data).hashCode());
+        }
 
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
@@ -87,8 +88,10 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         String itemType = itemTypeFromMetadata(value.metadata);
 
         StateChannelTypeBuilder builder = ChannelTypeBuilder.state(channelTypeUID, value.metadata.label, itemType)
-                .withDescription(value.commandClassName)
-                .withStateDescriptionFragment(statePatternFromMetadata(value.metadata));
+                .withDescription(value.commandClassName);
+        if (!"String".equals(itemType)) {
+            builder.withStateDescriptionFragment(statePatternOfItemType(value.metadata));
+        }
 
         if (itemType.contains(":")) {
             builder.withUnitHint(normalizeUnit(value.metadata.unit));
@@ -102,17 +105,24 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
 
     private String itemTypeFromMetadata(Metadata data) {
         // TODO Not sure if this is the best way to parse a unit as string that returns a Unit or Dimension.
-
         switch (data.type) {
             case "number":
                 if (data.unit != null) {
-                    Unit<?> unit = SimpleUnitFormat.getInstance().parse("1 " + normalizeUnit(data.unit));
+                    Unit<?> unit = Units.getInstance().getUnit(normalizeUnit(data.unit));
+                    if (unit == null) {
+                        logger.info("Could not parse '{}' as a unit, fallback to 'Number' itemType",
+                                normalizeUnit(data.unit));
+                        return "Number";
+                    }
                     return String.format("Number:{}", unit.getDimension().toString());
                 }
                 return "Number";
             case "boolean":
                 // switch (or contact ?)
                 return "Switch";
+            case "string":
+            case "string[]":
+                return "String";
             default:
                 logger.error(
                         "Could not determine item type based on metadata.type: {}, fallback to 'String' please file a bug report",
@@ -127,15 +137,20 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         }
         String[] splitted = unit.split(" ");
         return splitted[splitted.length - 1] //
-                .replace("minutes", "m") //
+                .replace("minutes", "min") //
                 .replace("seconds", "s");
     }
 
-    private StateDescriptionFragment statePatternFromMetadata(Metadata data) {
+    private StateDescriptionFragment statePatternOfItemType(Metadata data) {
         String pattern = "";
-        switch (data.type) {
+        String itemTypeSplitted[] = itemTypeFromMetadata(data).split(":");
+        switch (itemTypeSplitted[0]) {
             case "number":
-                pattern = String.format("%0.f %unit%"); // TODO how to determine the decimals
+                if (itemTypeSplitted.length > 1) {
+                    pattern = "%0.f %unit%"; // TODO how to determine the decimals
+                } else {
+                    pattern = "%0.d";
+                }
                 break;
             case "boolean":
             default:

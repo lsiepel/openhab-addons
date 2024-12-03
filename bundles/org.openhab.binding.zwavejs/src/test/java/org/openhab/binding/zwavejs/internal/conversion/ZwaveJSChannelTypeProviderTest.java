@@ -43,13 +43,13 @@ public class ZwaveJSChannelTypeProviderTest {
     @Test
     public void testGenerateChannelType() throws IOException {
         ResultMessage resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
-
         Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
 
         for (Value value : node.values) {
             provider.generateChannelType(value);
         }
 
-        assertNotNull(provider.getChannelType(new ChannelTypeUID(BINDING_ID, "123"), null));
+        assertNotNull(
+                provider.getChannelType(new ChannelTypeUID(BINDING_ID, "8a3427ae75beba316bcfae5b807ea0b4"), null));
     }
 }
