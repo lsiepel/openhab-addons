@@ -89,7 +89,7 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
 
         StateChannelTypeBuilder builder = ChannelTypeBuilder.state(channelTypeUID, value.metadata.label, itemType)
                 .withDescription(value.commandClassName);
-        if (!"String".equals(itemType)) {
+        if (!"String".equals(itemType) || !"Switch".equals(itemType)) {
             builder.withStateDescriptionFragment(statePatternOfItemType(value.metadata));
         }
 

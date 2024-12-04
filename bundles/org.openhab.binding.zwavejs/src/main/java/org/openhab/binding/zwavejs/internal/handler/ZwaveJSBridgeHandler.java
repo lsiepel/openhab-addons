@@ -141,6 +141,10 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             final int nodeId = node.nodeId;
             final NodeListener nodeListener = nodeListeners.get(nodeId);
             if (nodeListener == null) {
+                if (node.status != 4) {
+                    logger.info("Z-Wave node '{}' has no listener, ignoring due to state: {}", nodeId, node.status);
+                    return;
+                }
                 logger.info("Z-Wave node '{}' has no listener, pass to discovery", nodeId);
 
                 if (discovery != null && !lastNodeStatesCopy.containsKey(nodeId)) {

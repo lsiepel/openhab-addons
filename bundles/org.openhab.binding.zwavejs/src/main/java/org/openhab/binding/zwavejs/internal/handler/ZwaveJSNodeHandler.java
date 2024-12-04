@@ -98,12 +98,22 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         if (bridge != null && bridge.getHandler() instanceof ZwaveJSBridgeHandler handler) {
             if (handler.registerNodeListener(this)) {
                 Node nodeDetails = handler.requestNodeDetails(config.id);
-                if (nodeDetails != null && buildChannels(nodeDetails)) {
-                    updateStatus(ThingStatus.ONLINE);
-                } else {
+                if (nodeDetails == null) {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                             "Could not obtain node details");
+                    return;
                 }
+                if (nodeDetails.status != 4) {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                            String.format("The Z-Wave JS state of this node is: {}", nodeDetails.status));
+                    return;
+                }
+                if (!buildChannels(nodeDetails)) {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                            "Initialization failed, could not build channels");
+                    return;
+                }
+                updateStatus(ThingStatus.ONLINE);
             } else {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED,
                         "Could not register node listener");
@@ -144,7 +154,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
     }
 
     private boolean buildChannels(Node node) {
-        logger.info("building channels for {}, containing {} values", node.nodeId, node.values);
+        logger.info("building channels for {}, containing {} values", node.nodeId, node.values.size());
         for (Value value : node.values) {
             createChannel(getThing(), value);
         }
@@ -171,9 +181,12 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
     }
 
     public void createChannel(Thing thing, Value value) {
-        logger.info("Thing createChannel {}, {}", thing.getLabel(), value.commandClassName);
+        if ("Configuration".equals(value.commandClassName)) {
+            logger.debug("Thing '{}' createChannel, Configuration commandClass ignored", thing.getLabel());
+            return;
+        }
         String channelId = generateChannelId(value);
-        logger.info("Thing createChannel {}, {}, channelId: {}", thing.getLabel(), value.commandClassName, channelId);
+        logger.info("Thing '{}' createChannel, {}, channelId: {}", thing.getLabel(), value.commandClassName, channelId);
         ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
 
         if (thing.getChannel(channelUID) != null) {
@@ -183,7 +196,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         }
 
         ChannelType channelType = channelTypeProvider.generateChannelType(value);
-        ChannelBuilder.create(channelUID).withType(channelType.getUID()).build();
+        updateThing(editThing().withChannel(ChannelBuilder.create(channelUID).withType(channelType.getUID()).build())
+                .build());
     }
 
     @Override
