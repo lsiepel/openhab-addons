@@ -31,6 +31,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.State;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.ListeningCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
+import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.VersionMessage;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSBridgeConfiguration;
@@ -120,13 +121,14 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             properties.put(ZwaveJSBindingConstants.PROPERTY_SCHEMA_MAX, String.valueOf(event.maxSchemaVersion));
             properties.put(ZwaveJSBindingConstants.PROPERTY_HOME_ID, String.valueOf(event.homeId));
             this.getThing().setProperties(properties);
-        }
-        if (message instanceof ResultMessage result) {
+        } else if (message instanceof ResultMessage result) {
             if (result.result == null || result.result.state == null) {
                 return;
             }
             procesStateUpdate(result.result.state);
             updateStatus(ThingStatus.ONLINE);
+        } else if (message instanceof EventMessage result) {
+
         }
     }
 

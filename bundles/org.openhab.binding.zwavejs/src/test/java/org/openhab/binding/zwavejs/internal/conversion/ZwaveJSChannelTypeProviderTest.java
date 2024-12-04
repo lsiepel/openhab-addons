@@ -25,6 +25,7 @@ import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
+import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.thing.type.ChannelTypeUID;
 
 /**
@@ -48,9 +49,10 @@ public class ZwaveJSChannelTypeProviderTest {
         for (Value value : node.values) {
             provider.generateChannelType(value);
         }
+        ChannelType type = provider.getChannelType(new ChannelTypeUID(BINDING_ID, "01d92c4e676264dd7cffd7175e194505"),
+                null);
 
-        assertNotNull(
-                provider.getChannelType(new ChannelTypeUID(BINDING_ID, "8a3427ae75beba316bcfae5b807ea0b4"), null));
+        assertNotNull(type);
     }
 
     @Test
@@ -63,6 +65,6 @@ public class ZwaveJSChannelTypeProviderTest {
         }
 
         assertNotNull(
-                provider.getChannelType(new ChannelTypeUID(BINDING_ID, "8a3427ae75beba316bcfae5b807ea0b4"), null));
+                provider.getChannelType(new ChannelTypeUID(BINDING_ID, "01d92c4e676264dd7cffd7175e194505"), null));
     }
 }

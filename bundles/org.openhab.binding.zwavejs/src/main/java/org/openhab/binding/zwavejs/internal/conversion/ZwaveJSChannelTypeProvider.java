@@ -60,6 +60,7 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         parts.append(data.type);
         parts.append(itemType);
         parts.append(normalizeUnit(data.unit));
+        parts.append(data.writeable);
         if (!"String".equals(itemType)) {
             parts.append(statePatternOfItemType(data).hashCode());
         }
@@ -103,7 +104,7 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         return channelType;
     }
 
-    private String itemTypeFromMetadata(Metadata data) {
+    public String itemTypeFromMetadata(Metadata data) {
         // TODO Not sure if this is the best way to parse a unit as string that returns a Unit or Dimension.
         switch (data.type) {
             case "number":
@@ -131,7 +132,7 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         }
     }
 
-    private String normalizeUnit(@Nullable String unit) {
+    public String normalizeUnit(@Nullable String unit) {
         if (unit == null) {
             return "";
         }
@@ -145,14 +146,14 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         String pattern = "";
         String itemTypeSplitted[] = itemTypeFromMetadata(data).split(":");
         switch (itemTypeSplitted[0]) {
-            case "number":
+            case "Number":
                 if (itemTypeSplitted.length > 1) {
                     pattern = "%0.f %unit%"; // TODO how to determine the decimals
                 } else {
                     pattern = "%0.d";
                 }
                 break;
-            case "boolean":
+            case "Switch":
             default:
                 pattern = "";
                 break;

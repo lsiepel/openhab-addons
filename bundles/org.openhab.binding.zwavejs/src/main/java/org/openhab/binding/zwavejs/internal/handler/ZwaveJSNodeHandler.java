@@ -16,12 +16,17 @@ import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.*;
 
 import java.util.concurrent.ScheduledExecutorService;
 
+import javax.measure.Unit;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSChannelTypeProvider;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
@@ -33,8 +38,12 @@ import org.openhab.core.thing.binding.builder.ChannelBuilder;
 import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
+import org.openhab.core.types.State;
+import org.openhab.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import tech.units.indriya.unit.Units;
 
 /**
  * The {@link ZwaveJSNodeHandler} is responsible for handling commands, which are
@@ -145,7 +154,46 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
     @Override
     public boolean onNodeStateChanged(Node node) {
         logger.info("Z-Wave node id: {} state update", node.nodeId);
+
+        for (Value value : node.values) {
+            String channelId = generateChannelId(value);
+            if (isLinked(channelId)) {
+                State state = getStateFromValue(value);
+                if (state != null) {
+                    updateState(channelId, state);
+                }
+            }
+        }
+
         return true;
+    }
+
+    private @Nullable State getStateFromValue(Value value) {
+        if ("Configuration".equals(value.commandClassName)) {
+            logger.debug("Thing '{}' getStateFromValue, Configuration commandClass ignored", thing.getLabel());
+            return null;
+        }
+        if (value.value == null) {
+            return UnDefType.NULL;
+        }
+        State state = UnDefType.UNDEF;
+        String itemTypeSplitted[] = channelTypeProvider.itemTypeFromMetadata(value.metadata).split(":");
+        switch (itemTypeSplitted[0]) {
+            case "Number":
+                if (itemTypeSplitted.length > 1) {
+                    Unit<?> unit = Units.getInstance().getUnit(channelTypeProvider.normalizeUnit(value.metadata.unit));
+                    state = new QuantityType<>((Number) value.value, unit);
+                } else {
+                    state = new DecimalType((Number) value.value);
+                }
+                break;
+            case "Switch":
+                state = OnOffType.from((boolean) value.value);
+            default:
+                state = UnDefType.UNDEF;
+                break;
+        }
+        return state;
     }
 
     @Override
