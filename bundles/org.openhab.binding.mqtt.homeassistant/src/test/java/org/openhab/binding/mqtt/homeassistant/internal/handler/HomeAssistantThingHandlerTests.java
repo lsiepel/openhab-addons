@@ -60,12 +60,11 @@ public class HomeAssistantThingHandlerTests extends AbstractHomeAssistantTests {
     private static final int ATTRIBUTE_RECEIVE_TIMEOUT = 2000;
 
     private static final List<String> CONFIG_TOPICS = Arrays.asList("climate/0x847127fffe11dd6a_climate_zigbee2mqtt",
-            "switch/0x847127fffe11dd6a_auto_lock_zigbee2mqtt",
-
-            "sensor/0x1111111111111111_test_sensor_zigbee2mqtt", "camera/0x1111111111111111_test_camera_zigbee2mqtt",
-
-            "cover/0x2222222222222222_test_cover_zigbee2mqtt", "fan/0x2222222222222222_test_fan_zigbee2mqtt",
-            "light/0x2222222222222222_test_light_zigbee2mqtt", "lock/0x2222222222222222_test_lock_zigbee2mqtt");
+            "switch/0x847127fffe11dd6a_auto_lock_zigbee2mqtt", "sensor/0x1111111111111111_test_sensor_zigbee2mqtt",
+            "camera/0x1111111111111111_test_camera_zigbee2mqtt", "cover/0x2222222222222222_test_cover_zigbee2mqtt",
+            "fan/0x2222222222222222_test_fan_zigbee2mqtt", "light/0x2222222222222222_test_light_zigbee2mqtt",
+            "lock/0x2222222222222222_test_lock_zigbee2mqtt", "binary_sensor/abc/activeEnergyReports",
+            "number/abc/activeEnergyReports", "sensor/abc/activeEnergyReports");
 
     private static final List<String> MQTT_TOPICS = CONFIG_TOPICS.stream()
             .map(AbstractHomeAssistantTests::configTopicToMqtt).collect(Collectors.toList());
@@ -130,8 +129,8 @@ public class HomeAssistantThingHandlerTests extends AbstractHomeAssistantTests {
         verify(thingHandler, times(1)).componentDiscovered(eq(new HaID(configTopic)), any(Switch.class));
 
         thingHandler.delayedProcessing.forceProcessNow();
-        assertThat(nonSpyThingHandler.getThing().getChannels().size(), is(8));
-        verify(stateDescriptionProvider, atLeast(8)).setDescription(any(), any(StateDescription.class));
+        assertThat(nonSpyThingHandler.getThing().getChannels().size(), is(9));
+        verify(stateDescriptionProvider, atLeast(9)).setDescription(any(), any(StateDescription.class));
         verify(channelTypeProvider, times(3)).putChannelGroupType(any());
     }
 
@@ -253,7 +252,7 @@ public class HomeAssistantThingHandlerTests extends AbstractHomeAssistantTests {
                 "homeassistant/switch/0x847127fffe11dd6a_auto_lock_zigbee2mqtt/config",
                 getResourceAsByteArray("component/configTS0601AutoLock.json"));
         thingHandler.delayedProcessing.forceProcessNow();
-        assertThat(nonSpyThingHandler.getThing().getChannels().size(), is(8));
+        assertThat(nonSpyThingHandler.getThing().getChannels().size(), is(9));
         verify(stateDescriptionProvider, atLeast(7)).setDescription(any(), any(StateDescription.class));
 
         // When dispose
@@ -281,13 +280,13 @@ public class HomeAssistantThingHandlerTests extends AbstractHomeAssistantTests {
                 "homeassistant/switch/0x847127fffe11dd6a_auto_lock_zigbee2mqtt/config",
                 getResourceAsByteArray("component/configTS0601AutoLock.json"));
         thingHandler.delayedProcessing.forceProcessNow();
-        assertThat(nonSpyThingHandler.getThing().getChannels().size(), is(8));
+        assertThat(nonSpyThingHandler.getThing().getChannels().size(), is(9));
 
         // When dispose
         nonSpyThingHandler.handleRemoval();
 
-        // Expect channel descriptions removed, 7 for climate and 1 for switch
-        verify(stateDescriptionProvider, times(8)).remove(any());
+        // Expect channel descriptions removed, 7 for climate and 2 for switch
+        verify(stateDescriptionProvider, times(9)).remove(any());
         // Expect channel group types removed, 1 for each component
         verify(channelTypeProvider, times(2)).removeChannelGroupType(any());
     }
@@ -353,5 +352,172 @@ public class HomeAssistantThingHandlerTests extends AbstractHomeAssistantTests {
         assertThat(thingHandler.getComponents().size(), is(1));
         assertThat(thingHandler.getComponents().keySet().iterator().next(), is("switch"));
         assertThat(thingHandler.getComponents().values().iterator().next().getClass(), is(Switch.class));
+    }
+
+    @Test
+    public void testDuplicateChannelId() {
+        thingHandler.initialize();
+
+        verify(callbackMock).statusUpdated(eq(haThing), any());
+        // Expect a call to the bridge status changed, the start, the propertiesChanged method
+        verify(thingHandler).bridgeStatusChanged(any());
+        verify(thingHandler, timeout(SUBSCRIBE_TIMEOUT)).start(any());
+
+        MQTT_TOPICS.forEach(t -> {
+            verify(bridgeConnection, timeout(SUBSCRIBE_TIMEOUT)).subscribe(eq(t), any());
+        });
+
+        verify(thingHandler, never()).componentDiscovered(any(), any());
+        assertThat(haThing.getChannels().size(), is(0));
+
+        thingHandler.discoverComponents.processMessage("homeassistant/number/abc/activeEnergyReports/config", """
+                {
+                  "name":"ActiveEnergyReports",
+                  "object_id":"mud_room_cans_switch_(garage)_activeEnergyReports",
+                  "state_topic":"zigbee2mqtt/Mud Room Cans Switch (Garage)",
+                  "unique_id":"0x04cd15fffedb7f81_activeEnergyReports_zigbee2mqtt",
+                  "value_template":"{{ value_json.activeEnergyReports }}"
+                }
+                """.getBytes(StandardCharsets.UTF_8));
+        thingHandler.discoverComponents.processMessage("homeassistant/sensor/abc/activeEnergyReports/config", """
+                {
+                  "command_topic":"zigbee2mqtt/Mud Room Cans Switch (Garage)/set/activeEnergyReports",
+                  "max":32767,
+                  "min":0,
+                  "name":"ActiveEnergyReports",
+                  "object_id":"mud_room_cans_switch_(garage)_activeEnergyReports",
+                  "state_topic":"zigbee2mqtt/Mud Room Cans Switch (Garage)",
+                  "unique_id":"0x04cd15fffedb7f81_activeEnergyReports_zigbee2mqtt",
+                  "value_template":"{{ value_json.activeEnergyReports }}"
+                }
+                """.getBytes(StandardCharsets.UTF_8));
+        thingHandler.delayedProcessing.forceProcessNow();
+        waitForAssert(() -> {
+            assertThat("2 channels created", nonSpyThingHandler.getThing().getChannels().size() == 2);
+        });
+
+        Channel numberChannel = nonSpyThingHandler.getThing()
+                .getChannel("0x04cd15fffedb7f81_5FactiveEnergyReports_5Fzigbee2mqtt_number#number");
+        assertThat("Number channel is created", numberChannel, notNullValue());
+
+        Channel sensorChannel = nonSpyThingHandler.getThing()
+                .getChannel("0x04cd15fffedb7f81_5FactiveEnergyReports_5Fzigbee2mqtt_sensor#sensor");
+        assertThat("Sensor channel is created", sensorChannel, notNullValue());
+    }
+
+    @Test
+    public void testDuplicateChannelIdNewStyleChannels() {
+        haThing.setProperty("newStyleChannels", "true");
+        thingHandler = new HomeAssistantThingHandler(haThing, channelTypeProvider, stateDescriptionProvider,
+                channelTypeRegistry, new Jinjava(), SUBSCRIBE_TIMEOUT, ATTRIBUTE_RECEIVE_TIMEOUT);
+        thingHandler.setConnection(bridgeConnection);
+        thingHandler.setCallback(callbackMock);
+        nonSpyThingHandler = thingHandler;
+        thingHandler = spy(thingHandler);
+
+        thingHandler.initialize();
+
+        verify(callbackMock).statusUpdated(eq(haThing), any());
+        // Expect a call to the bridge status changed, the start, the propertiesChanged method
+        verify(thingHandler).bridgeStatusChanged(any());
+        verify(thingHandler, timeout(SUBSCRIBE_TIMEOUT)).start(any());
+
+        MQTT_TOPICS.forEach(t -> {
+            verify(bridgeConnection, timeout(SUBSCRIBE_TIMEOUT)).subscribe(eq(t), any());
+        });
+
+        verify(thingHandler, never()).componentDiscovered(any(), any());
+        assertThat(haThing.getChannels().size(), is(0));
+
+        thingHandler.discoverComponents.processMessage("homeassistant/number/abc/activeEnergyReports/config", """
+                {
+                  "name":"ActiveEnergyReports",
+                  "object_id":"mud_room_cans_switch_(garage)_activeEnergyReports",
+                  "state_topic":"zigbee2mqtt/Mud Room Cans Switch (Garage)",
+                  "unique_id":"0x04cd15fffedb7f81_activeEnergyReports_zigbee2mqtt",
+                  "value_template":"{{ value_json.activeEnergyReports }}"
+                }
+                """.getBytes(StandardCharsets.UTF_8));
+        thingHandler.discoverComponents.processMessage("homeassistant/sensor/abc/activeEnergyReports/config", """
+                {
+                  "command_topic":"zigbee2mqtt/Mud Room Cans Switch (Garage)/set/activeEnergyReports",
+                  "max":32767,
+                  "min":0,
+                  "name":"ActiveEnergyReports",
+                  "object_id":"mud_room_cans_switch_(garage)_activeEnergyReports",
+                  "state_topic":"zigbee2mqtt/Mud Room Cans Switch (Garage)",
+                  "unique_id":"0x04cd15fffedb7f81_activeEnergyReports_zigbee2mqtt",
+                  "value_template":"{{ value_json.activeEnergyReports }}"
+                }
+                """.getBytes(StandardCharsets.UTF_8));
+        thingHandler.delayedProcessing.forceProcessNow();
+        waitForAssert(() -> {
+            assertThat("2 channels created", nonSpyThingHandler.getThing().getChannels().size() == 2);
+        });
+
+        Channel numberChannel = nonSpyThingHandler.getThing().getChannel("activeEnergyReports_number");
+        assertThat("Number channel is created", numberChannel, notNullValue());
+
+        Channel sensorChannel = nonSpyThingHandler.getThing().getChannel("activeEnergyReports_sensor");
+        assertThat("Sensor channel is created", sensorChannel, notNullValue());
+    }
+
+    @Test
+    public void testDuplicateChannelIdNewStyleChannelsComplex() {
+        haThing.setProperty("newStyleChannels", "true");
+        thingHandler = new HomeAssistantThingHandler(haThing, channelTypeProvider, stateDescriptionProvider,
+                channelTypeRegistry, new Jinjava(), SUBSCRIBE_TIMEOUT, ATTRIBUTE_RECEIVE_TIMEOUT);
+        thingHandler.setConnection(bridgeConnection);
+        thingHandler.setCallback(callbackMock);
+        nonSpyThingHandler = thingHandler;
+        thingHandler = spy(thingHandler);
+
+        thingHandler.initialize();
+
+        verify(callbackMock).statusUpdated(eq(haThing), any());
+        // Expect a call to the bridge status changed, the start, the propertiesChanged method
+        verify(thingHandler).bridgeStatusChanged(any());
+        verify(thingHandler, timeout(SUBSCRIBE_TIMEOUT)).start(any());
+
+        MQTT_TOPICS.forEach(t -> {
+            verify(bridgeConnection, timeout(SUBSCRIBE_TIMEOUT)).subscribe(eq(t), any());
+        });
+
+        verify(thingHandler, never()).componentDiscovered(any(), any());
+        assertThat(haThing.getChannels().size(), is(0));
+
+        thingHandler.discoverComponents.processMessage("homeassistant/number/abc/activeEnergyReports/config", """
+                {
+                  "name":"ActiveEnergyReports",
+                  "object_id":"mud_room_cans_switch_(garage)_activeEnergyReports",
+                  "state_topic":"zigbee2mqtt/Mud Room Cans Switch (Garage)",
+                  "unique_id":"0x04cd15fffedb7f81_activeEnergyReports_zigbee2mqtt",
+                  "value_template":"{{ value_json.activeEnergyReports }}",
+                  "json_attributes_topic":"somewhere"
+                }
+                """.getBytes(StandardCharsets.UTF_8));
+        thingHandler.discoverComponents.processMessage("homeassistant/sensor/abc/activeEnergyReports/config", """
+                {
+                  "command_topic":"zigbee2mqtt/Mud Room Cans Switch (Garage)/set/activeEnergyReports",
+                  "max":32767,
+                  "min":0,
+                  "name":"ActiveEnergyReports",
+                  "object_id":"mud_room_cans_switch_(garage)_activeEnergyReports",
+                  "state_topic":"zigbee2mqtt/Mud Room Cans Switch (Garage)",
+                  "unique_id":"0x04cd15fffedb7f81_activeEnergyReports_zigbee2mqtt",
+                  "value_template":"{{ value_json.activeEnergyReports }}",
+                  "json_attributes_topic":"somewhere"
+                }
+                """.getBytes(StandardCharsets.UTF_8));
+        thingHandler.delayedProcessing.forceProcessNow();
+        waitForAssert(() -> {
+            assertThat("4 channels created", nonSpyThingHandler.getThing().getChannels().size() == 4);
+        });
+
+        Channel numberChannel = nonSpyThingHandler.getThing().getChannel("activeEnergyReports_number#number");
+        assertThat("Number channel is created", numberChannel, notNullValue());
+
+        Channel sensorChannel = nonSpyThingHandler.getThing().getChannel("activeEnergyReports_sensor#sensor");
+        assertThat("Sensor channel is created", sensorChannel, notNullValue());
     }
 }

@@ -171,11 +171,15 @@
 			<channel id="experience" typeId="experience">
 				<description>The average experience of the connected clients</description>
 			</channel>
+			<channel id="led" typeId="system.power">
+				<label>LED</label>
+				<description>Switches the LED on or off</description>
+			</channel>
 		</channels>
 
 		<properties>
 			<property name="vendor">Ubiquiti Networks</property>
-			<property name="thingTypeVersion">1</property>
+			<property name="thingTypeVersion">2</property>
 		</properties>
 
 		<config-description-ref uri="thing-type:unifi:accessPoint"/>
@@ -358,7 +362,7 @@
 	</channel-type>
 
 	<channel-type id="rssi">
-		<item-type>Number:Power</item-type>
+		<item-type unitHint="dBm">Number:Power</item-type>
 		<label>Received Signal Strength Indicator</label>
 		<description>Received Signal Strength Indicator (RSSI) of the wireless client</description>
 		<category>QualityOfService</category>
