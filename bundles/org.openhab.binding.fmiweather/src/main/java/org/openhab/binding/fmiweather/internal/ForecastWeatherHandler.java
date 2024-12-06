@@ -30,13 +30,15 @@ import javax.measure.Unit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jetty.client.HttpClient;
 import org.openhab.binding.fmiweather.internal.client.Data;
+import org.openhab.binding.fmiweather.internal.client.FMIRequest;
 import org.openhab.binding.fmiweather.internal.client.FMIResponse;
 import org.openhab.binding.fmiweather.internal.client.ForecastRequest;
 import org.openhab.binding.fmiweather.internal.client.LatLon;
 import org.openhab.binding.fmiweather.internal.client.Location;
-import org.openhab.binding.fmiweather.internal.client.Request;
 import org.openhab.binding.fmiweather.internal.client.exception.FMIUnexpectedResponseException;
+import org.openhab.binding.fmiweather.internal.config.ForecastConfiguration;
 import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
@@ -82,36 +84,33 @@ public class ForecastWeatherHandler extends AbstractWeatherHandler {
     }
 
     private @NonNullByDefault({}) LatLon location;
+    private String query = "";
 
-    public ForecastWeatherHandler(Thing thing) {
-        super(thing);
+    public ForecastWeatherHandler(final Thing thing, final HttpClient httpClient) {
+        super(thing, httpClient);
         // Override poll interval to slower value
         pollIntervalSeconds = (int) TimeUnit.MINUTES.toSeconds(QUERY_RESOLUTION_MINUTES);
     }
 
     @Override
     public void initialize() {
-        try {
-            Object location = getConfig().get(BindingConstants.LOCATION);
-            if (location == null) {
-                logger.debug("Location not set for thing {} -- aborting initialization.", getThing().getUID());
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                        String.format("location parameter not set"));
-                return;
-            }
-            String latlon = location.toString();
-            String[] split = latlon.split(",");
-            if (split.length != 2) {
-                throw new NumberFormatException(String.format(
-                        "Expecting location parameter to have latitude and longitude separated by comma (LATITUDE,LONGITUDE). Found %d values instead.",
-                        split.length));
-            }
-            this.location = new LatLon(new BigDecimal(split[0].trim()), new BigDecimal(split[1].trim()));
-            super.initialize();
-        } catch (NumberFormatException e) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, String.format(
-                    "location parameter should be in format LATITUDE,LONGITUDE. Error details: %s", e.getMessage()));
+        ForecastConfiguration config = getConfigAs(ForecastConfiguration.class);
+        String location = config.location;
+        if (location.isBlank()) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "location parameter not set");
+            return;
         }
+        String[] split = location.split(",");
+        if (split.length != 2) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, String.format(
+                    "location parameter should have latitude and longitude separated by comma (LATITUDE,LONGITUDE). Found %d values instead",
+                    split.length));
+            return;
+        }
+        this.location = new LatLon(new BigDecimal(split[0].trim()), new BigDecimal(split[1].trim()));
+        query = config.query;
+
+        super.initialize();
     }
 
     @Override
@@ -121,9 +120,9 @@ public class ForecastWeatherHandler extends AbstractWeatherHandler {
     }
 
     @Override
-    protected Request getRequest() {
+    protected FMIRequest getRequest() {
         long now = Instant.now().getEpochSecond();
-        return new ForecastRequest(location, floorToEvenMinutes(now, QUERY_RESOLUTION_MINUTES),
+        return new ForecastRequest(location, query, floorToEvenMinutes(now, QUERY_RESOLUTION_MINUTES),
                 ceilToEvenMinutes(now + TimeUnit.HOURS.toSeconds(FORECAST_HORIZON_HOURS), QUERY_RESOLUTION_MINUTES),
                 QUERY_RESOLUTION_MINUTES);
     }
@@ -234,7 +233,6 @@ public class ForecastWeatherHandler extends AbstractWeatherHandler {
         return (int) (TimeUnit.HOURS.toMinutes(hours) / QUERY_RESOLUTION_MINUTES);
     }
 
-    @SuppressWarnings({ "unused", "null" })
     private static @Nullable String getDataField(ChannelUID channelUID) {
         Entry<String, @Nullable Unit<?>> entry = CHANNEL_TO_FORECAST_FIELD_NAME_AND_UNIT
                 .get(channelUID.getIdWithoutGroup());
@@ -244,7 +242,6 @@ public class ForecastWeatherHandler extends AbstractWeatherHandler {
         return entry.getKey();
     }
 
-    @SuppressWarnings({ "unused", "null" })
     private static @Nullable Unit<?> getUnit(ChannelUID channelUID) {
         Entry<String, @Nullable Unit<?>> entry = CHANNEL_TO_FORECAST_FIELD_NAME_AND_UNIT
                 .get(channelUID.getIdWithoutGroup());
