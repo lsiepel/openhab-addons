@@ -65,6 +65,8 @@ public class ComponentFactory {
                 return new Cover(componentConfiguration, newStyleChannels);
             case "device_automation":
                 return new DeviceTrigger(componentConfiguration, newStyleChannels);
+            case "device_tracker":
+                return new DeviceTracker(componentConfiguration, newStyleChannels);
             case "event":
                 return new Event(componentConfiguration, newStyleChannels);
             case "fan":
@@ -83,6 +85,10 @@ public class ComponentFactory {
                 return new Sensor(componentConfiguration, newStyleChannels);
             case "switch":
                 return new Switch(componentConfiguration, newStyleChannels);
+            case "tag":
+                return new Tag(componentConfiguration, newStyleChannels);
+            case "text":
+                return new Text(componentConfiguration, newStyleChannels);
             case "update":
                 return new Update(componentConfiguration, newStyleChannels);
             case "vacuum":

@@ -115,11 +115,6 @@ public class Vacuum extends AbstractComponent<Vacuum.ChannelConfiguration> {
 
         @SerializedName("state_topic")
         protected @Nullable String stateTopic;
-
-        @SerializedName("json_attributes_template")
-        protected @Nullable String jsonAttributesTemplate;
-        @SerializedName("json_attributes_topic")
-        protected @Nullable String jsonAttributesTopic;
     }
 
     /**
@@ -178,15 +173,20 @@ public class Vacuum extends AbstractComponent<Vacuum.ChannelConfiguration> {
             if (supportedFeatures.contains(FEATURE_BATTERY)) {
                 buildOptionalChannel(newStyleChannels ? BATTERY_LEVEL_CH_ID : BATTERY_LEVEL_CH_ID_DEPRECATED,
                         ComponentChannelType.DIMMER,
-                        new PercentageValue(BigDecimal.ZERO, BigDecimal.valueOf(100), BigDecimal.ONE, null, null),
+                        new PercentageValue(BigDecimal.ZERO, BigDecimal.valueOf(100), BigDecimal.ONE, null, null, null),
                         updateListener, null, null, "{{ value_json.battery_level }}", channelConfiguration.stateTopic);
             }
         }
 
-        buildOptionalChannel(newStyleChannels ? JSON_ATTRIBUTES_CH_ID : JSON_ATTRIBUTES_CH_ID_DEPRECATED,
-                ComponentChannelType.STRING, new TextValue(), updateListener, null, null,
-                channelConfiguration.jsonAttributesTemplate, channelConfiguration.jsonAttributesTopic);
         finalizeChannels();
+    }
+
+    // Overridden to use deprecated channel ID
+    @Override
+    protected void addJsonAttributesChannel() {
+        buildOptionalChannel(newStyleChannels ? JSON_ATTRIBUTES_CH_ID : JSON_ATTRIBUTES_CH_ID_DEPRECATED,
+                ComponentChannelType.STRING, new TextValue(), componentConfiguration.getUpdateListener(), null, null,
+                channelConfiguration.getJsonAttributesTemplate(), channelConfiguration.getJsonAttributesTopic());
     }
 
     @Nullable
