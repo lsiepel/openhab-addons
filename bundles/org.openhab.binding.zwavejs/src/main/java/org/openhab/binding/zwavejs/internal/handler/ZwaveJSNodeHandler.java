@@ -16,17 +16,13 @@ import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.*;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.measure.Unit;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
+import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
 import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSChannelTypeProvider;
-import org.openhab.core.library.types.DecimalType;
-import org.openhab.core.library.types.OnOffType;
-import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
@@ -38,12 +34,8 @@ import org.openhab.core.thing.binding.builder.ChannelBuilder;
 import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
-import org.openhab.core.types.State;
-import org.openhab.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import tech.units.indriya.unit.Units;
 
 /**
  * The {@link ZwaveJSNodeHandler} is responsible for handling commands, which are
@@ -92,7 +84,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         updateStatus(ThingStatus.UNKNOWN);
 
         // Example for background initialization:
-        scheduler.execute(() -> {
+        executorService.execute(() -> {
             internalInitialize();
         });
     }
@@ -156,44 +148,13 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         logger.info("Z-Wave node id: {} state update", node.nodeId);
 
         for (Value value : node.values) {
-            String channelId = generateChannelId(value);
-            if (isLinked(channelId)) {
-                State state = getStateFromValue(value);
-                if (state != null) {
-                    updateState(channelId, state);
-                }
+            ChannelDetails details = new ChannelDetails(getId(), value);
+            if (isLinked(details.channelId) && details.state != null) {
+                updateState(details.channelId, details.state);
             }
         }
 
         return true;
-    }
-
-    private @Nullable State getStateFromValue(Value value) {
-        if ("Configuration".equals(value.commandClassName)) {
-            logger.debug("Thing '{}' getStateFromValue, Configuration commandClass ignored", thing.getLabel());
-            return null;
-        }
-        if (value.value == null) {
-            return UnDefType.NULL;
-        }
-        State state = UnDefType.UNDEF;
-        String itemTypeSplitted[] = channelTypeProvider.itemTypeFromMetadata(value.metadata).split(":");
-        switch (itemTypeSplitted[0]) {
-            case "Number":
-                if (itemTypeSplitted.length > 1) {
-                    Unit<?> unit = Units.getInstance().getUnit(channelTypeProvider.normalizeUnit(value.metadata.unit));
-                    state = new QuantityType<>((Number) value.value, unit);
-                } else {
-                    state = new DecimalType((Number) value.value);
-                }
-                break;
-            case "Switch":
-                state = OnOffType.from((boolean) value.value);
-            default:
-                state = UnDefType.UNDEF;
-                break;
-        }
-        return state;
     }
 
     @Override
@@ -204,37 +165,22 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
     private boolean buildChannels(Node node) {
         logger.info("building channels for {}, containing {} values", node.nodeId, node.values.size());
         for (Value value : node.values) {
-            createChannel(getThing(), value);
+            ChannelDetails details = new ChannelDetails(this.getId(), value);
+            if (!details.channelId.startsWith("configuration")) {
+                createChannel(getThing(), details);
+            }
         }
 
         return true;
     }
 
-    private String generateChannelId(Value value) {
-        String id = value.commandClassName.toLowerCase().replaceAll(" ", "-");
-
-        if (value.metadata.unit != null) {
-            return id + "-" + value.metadata.unit.toLowerCase();
-        }
-        return id;
-        /*
-         * if (value.propertyKeyName != null) {
-         * return value.propertyKeyName.toLowerCase().replaceAll("_[a-z]+_", "-");
-         * }
-         * if (value.metadata.label != null) {
-         * return value.metadata.label.toLowerCase().replaceAll("[\\[[a-z]+\\]]", "").trim().replaceAll(" ", "-");
-         * }
-         * return value.commandClassName.toLowerCase().replaceAll(" ", "-");
-         */
-    }
-
-    public void createChannel(Thing thing, Value value) {
-        if ("Configuration".equals(value.commandClassName)) {
-            logger.debug("Thing '{}' createChannel, Configuration commandClass ignored", thing.getLabel());
-            return;
-        }
-        String channelId = generateChannelId(value);
-        logger.info("Thing '{}' createChannel, {}, channelId: {}", thing.getLabel(), value.commandClassName, channelId);
+    public void createChannel(Thing thing, ChannelDetails details) {
+        // if ("Configuration".equals(value.commandClassName)) {
+        // logger.debug("Thing '{}' createChannel, Configuration commandClass ignored", thing.getLabel());
+        // return;
+        // }
+        String channelId = details.channelId;
+        logger.info("Thing '{}' createChannel with Id: {}", thing.getLabel(), channelId);
         ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
 
         if (thing.getChannel(channelUID) != null) {
@@ -243,7 +189,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
             return;
         }
 
-        ChannelType channelType = channelTypeProvider.generateChannelType(value);
+        ChannelType channelType = channelTypeProvider.generateChannelType(details);
         updateThing(editThing().withChannel(ChannelBuilder.create(channelUID).withType(channelType.getUID()).build())
                 .build());
     }

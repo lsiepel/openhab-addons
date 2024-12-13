@@ -13,18 +13,34 @@
 package org.openhab.binding.zwavejs.internal.handler.mock;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
+import org.openhab.binding.zwavejs.internal.DataUtil;
+import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
+import org.openhab.binding.zwavejs.internal.api.dto.Node;
+import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSChannelTypeProvider;
+import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSNodeHandler;
+import org.openhab.core.config.core.Configuration;
+import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingUID;
+import org.openhab.core.thing.binding.ThingHandlerCallback;
 
 /**
  * The {@link ZwaveJSNodeHandlerMock} is responsible for mocking {@link ZwaveJSNodeHandler}
@@ -34,6 +50,36 @@ import org.openhab.core.thing.Thing;
 @NonNullByDefault
 public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
 
+    public static final Configuration CONFIG = createConfig(true);
+    public static final Configuration BAD_CONFIG = createConfig(false);
+
+    public static Configuration createConfig(boolean returnValid) {
+        final Configuration config = new Configuration();
+        if (returnValid) {
+            config.put("id", "3");
+        }
+        return config;
+    }
+
+    public static Thing mockThing(boolean withConfiguration) {
+        final Thing thing = mock(Thing.class);
+        when(thing.getUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-thing"));
+        when(thing.getBridgeUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-bridge"));
+        when(thing.getConfiguration()).thenReturn(withConfiguration ? CONFIG : BAD_CONFIG);
+
+        return thing;
+    }
+
+    public static ZwaveJSNodeHandlerMock createAndInitHandler(final ThingHandlerCallback callback, final Thing thing) {
+        ZwaveJSChannelTypeProvider channelTypeProvider = new ZwaveJSChannelTypeProvider();
+        final ZwaveJSNodeHandlerMock handler = spy(new ZwaveJSNodeHandlerMock(thing, channelTypeProvider));
+
+        handler.setCallback(callback);
+        handler.initialize();
+
+        return handler;
+    }
+
     public ZwaveJSNodeHandlerMock(Thing thing, ZwaveJSChannelTypeProvider channelTypeProvider) {
         super(thing, channelTypeProvider);
 
@@ -42,5 +88,30 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
             ((Runnable) invocation.getArguments()[0]).run();
             return null;
         }).when(executorService).scheduleWithFixedDelay(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
+
+        doAnswer((InvocationOnMock invocation) -> {
+            ((Runnable) invocation.getArguments()[0]).run();
+            return null;
+        }).when(executorService).execute(any(Runnable.class));
+    }
+
+    public @Nullable Bridge getBridge() {
+        final Bridge bridge = ZwaveJSBridgeHandlerMock.mockBridge(false);
+        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
+        final ZwaveJSBridgeHandler handler = ZwaveJSBridgeHandlerMock.createAndInitHandler(callback, bridge);
+
+        ResultMessage resultMessage;
+        try {
+            resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
+        } catch (IOException e) {
+            return null;
+        }
+        Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
+
+        when(handler.requestNodeDetails(anyInt())).thenReturn(node);
+        when(bridge.getStatus()).thenReturn(ThingStatus.ONLINE);
+        when(bridge.getHandler()).thenReturn(handler);
+
+        return bridge;
     }
 }

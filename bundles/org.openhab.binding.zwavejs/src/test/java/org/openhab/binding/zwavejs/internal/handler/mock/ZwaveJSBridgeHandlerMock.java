@@ -15,6 +15,9 @@ package org.openhab.binding.zwavejs.internal.handler.mock;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -22,9 +25,13 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
+import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
+import org.openhab.core.config.core.Configuration;
 import org.openhab.core.io.net.http.WebSocketFactory;
 import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.ThingUID;
+import org.openhab.core.thing.binding.ThingHandlerCallback;
 
 /**
  * The {@link ZwaveJSBridgeHandlerMock} is responsible for mocking {@link ZwaveJSBridgeHandler}
@@ -34,6 +41,36 @@ import org.openhab.core.thing.Bridge;
 @NonNullByDefault
 public class ZwaveJSBridgeHandlerMock extends ZwaveJSBridgeHandler {
 
+    private static final Configuration CONFIG = createConfig(true);
+    private static final Configuration BAD_CONFIG = createConfig(false);
+
+    private static Configuration createConfig(boolean returnValid) {
+        final Configuration config = new Configuration();
+        if (returnValid) {
+            config.put("id", "3");
+        }
+        return config;
+    }
+
+    public static Bridge mockBridge(boolean withConfiguration) {
+        final Bridge bridge = mock(Bridge.class);
+        when(bridge.getUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-bridge"));
+        when(bridge.getConfiguration()).thenReturn(withConfiguration ? CONFIG : BAD_CONFIG);
+
+        return bridge;
+    }
+
+    public static ZwaveJSBridgeHandlerMock createAndInitHandler(final ThingHandlerCallback callback,
+            final Bridge thing) {
+        WebSocketFactory wsFactory = mock(WebSocketFactory.class);
+        final ZwaveJSBridgeHandlerMock handler = spy(new ZwaveJSBridgeHandlerMock(thing, wsFactory));
+
+        handler.setCallback(callback);
+        handler.initialize();
+
+        return handler;
+    }
+
     public ZwaveJSBridgeHandlerMock(Bridge bridge, WebSocketFactory wsFactory) {
         super(bridge, wsFactory);
 
@@ -42,5 +79,10 @@ public class ZwaveJSBridgeHandlerMock extends ZwaveJSBridgeHandler {
             ((Runnable) invocation.getArguments()[0]).run();
             return null;
         }).when(executorService).scheduleWithFixedDelay(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
+
+        // doAnswer((InvocationOnMock invocation) -> {
+        // ((Runnable) invocation.getArguments()[0]).run();
+        // return null;
+        // }).when(executorService).execute(any(Runnable.class));
     }
 }

@@ -33,6 +33,7 @@ import org.openhab.core.thing.type.ChannelTypeUID;
  */
 @NonNullByDefault
 public class ZwaveJSChannelTypeProviderTest {
+
     @Nullable
     ZwaveJSChannelTypeProvider provider;
 
@@ -47,9 +48,10 @@ public class ZwaveJSChannelTypeProviderTest {
         Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
 
         for (Value value : node.values) {
-            provider.generateChannelType(value);
+            provider.generateChannelType(new ChannelDetails(3, value));
         }
-        ChannelType type = provider.getChannelType(new ChannelTypeUID(BINDING_ID, "01d92c4e676264dd7cffd7175e194505"),
+
+        ChannelType type = provider.getChannelType(new ChannelTypeUID(BINDING_ID, "f2952c00054f228258db7aecc8479f9a"),
                 null);
 
         assertNotNull(type);
@@ -61,10 +63,10 @@ public class ZwaveJSChannelTypeProviderTest {
         Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
 
         for (Value value : node.values) {
-            provider.generateChannelType(value);
+            provider.generateChannelType(new ChannelDetails(6, value));
         }
 
         assertNotNull(
-                provider.getChannelType(new ChannelTypeUID(BINDING_ID, "01d92c4e676264dd7cffd7175e194505"), null));
+                provider.getChannelType(new ChannelTypeUID(BINDING_ID, "52566f32c1d47ae39c0a740744c5b755"), null));
     }
 }
