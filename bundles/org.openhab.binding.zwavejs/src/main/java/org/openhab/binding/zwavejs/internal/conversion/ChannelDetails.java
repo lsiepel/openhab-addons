@@ -161,13 +161,33 @@ public class ChannelDetails {
         var fragment = StateDescriptionFragmentBuilder.create();
         fragment.withPattern(pattern);
         fragment.withReadOnly(!data.writeable);
-        fragment.withMinimum(BigDecimal.valueOf(data.min));
-        fragment.withMaximum(BigDecimal.valueOf(data.max));
+        if (data.min != null) {
+            fragment.withMinimum(BigDecimal.valueOf(data.min));
+        }
+        if (data.max != null) {
+            fragment.withMaximum(BigDecimal.valueOf(data.max));
+        }
         // fragment.withOptions(null);
         // TODO from states but need to find out how to properly deserialize it into a
         // key/value pair
         fragment.withStep(BigDecimal.valueOf(1));
         // TODO there does not seem to be a property that can be used for this
         return fragment.build();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ChannelDetails [");
+        sb.append(", nodeId=" + nodeId);
+        sb.append(", channelId=" + channelId);
+        sb.append(", state=" + state);
+        sb.append(", itemType=" + itemType);
+        sb.append(", unit=" + unit);
+        sb.append(", statePattern=" + statePattern);
+        sb.append(", label=" + label);
+        sb.append(", description=" + description);
+        sb.append("]");
+        return sb.toString();
     }
 }

@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -24,7 +25,12 @@ import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
+import org.openhab.core.library.types.QuantityType;
+import org.openhab.core.types.StateDescriptionFragment;
+import org.openhab.core.types.StateDescriptionFragmentBuilder;
 import org.openhab.core.types.UnDefType;
+
+import tech.units.indriya.unit.Units;
 
 /**
  * @author Leo Siepel - Initial contribution
@@ -59,7 +65,7 @@ public class ChannelDetailsTest {
 
     @Test
     public void testGenerateDetailsForNode6FirstChannel() throws IOException {
-        Node node = nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
+        Node node = nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(0));
 
@@ -72,5 +78,40 @@ public class ChannelDetailsTest {
         assertEquals(false, details.readOnly);
         assertNull(details.statePattern);
         assertNull(details.unit);
+    }
+
+    @Test
+    public void parseUnits() {
+
+        /*
+         * DefaultQuantityFactory.getInstance(null).create(null, null)
+         * 
+         * Dimension.class
+         * Unit<?> unit = Units.getInstance().getUnit("W");
+         * unit.getClass;
+         * var dim = Units.WATT.getSystemUnit().getDimension();
+         * var dim2 = Units.WATT.getSystemUnit().getName();
+         * Units.WATT.getSystemUnit().
+         * assertEquals(Units.WATT.getSystemUnit().getDimension(), unit.getSystemUnit().getDimension());
+         * assertEquals(Units.WATT.getSystemUnit().getName() , unit.getSystemUnit().getName());
+         * assertEquals(Units.WATT, unit);
+         */
+    }
+
+    @Test
+    public void testGenerateDetailsForNode6Channel3() throws IOException {
+        Node node = nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
+
+        ChannelDetails details = new ChannelDetails(6, node.values.get(2));
+
+        assertEquals("multilevel-sensor-power-w", details.channelId);
+        assertEquals("Multilevel Sensor", details.description);
+        assertEquals("Number:{}", details.itemType);
+        assertEquals("Power", details.label);
+        assertEquals("Multilevel Sensor", details.description);
+        assertEquals(new QuantityType<>(0,Units.WATT), details.state);
+        assertEquals(false, details.readOnly);
+        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true).withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
+        assertEquals("W", details.unit);
     }
 }

@@ -41,6 +41,7 @@ import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.binding.ThingHandlerCallback;
+import org.openhab.core.thing.binding.builder.ThingBuilder;
 
 /**
  * The {@link ZwaveJSNodeHandlerMock} is responsible for mocking {@link ZwaveJSNodeHandler}
@@ -50,22 +51,19 @@ import org.openhab.core.thing.binding.ThingHandlerCallback;
 @NonNullByDefault
 public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
 
-    public static final Configuration CONFIG = createConfig(true);
-    public static final Configuration BAD_CONFIG = createConfig(false);
-
-    public static Configuration createConfig(boolean returnValid) {
+    public static Configuration createConfig(int id) {
         final Configuration config = new Configuration();
-        if (returnValid) {
-            config.put("id", "3");
+        if (id > 0) {
+            config.put("id", id);
         }
         return config;
     }
 
-    public static Thing mockThing(boolean withConfiguration) {
+    public static Thing mockThing(int id) {
         final Thing thing = mock(Thing.class);
         when(thing.getUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-thing"));
         when(thing.getBridgeUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-bridge"));
-        when(thing.getConfiguration()).thenReturn(withConfiguration ? CONFIG : BAD_CONFIG);
+        when(thing.getConfiguration()).thenReturn(createConfig(id));
 
         return thing;
     }
@@ -93,6 +91,14 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
             ((Runnable) invocation.getArguments()[0]).run();
             return null;
         }).when(executorService).execute(any(Runnable.class));
+    }
+
+    public void updateThing(Thing thing) {
+        super.updateThing(thing);
+    }
+
+    public ThingBuilder editThing() {
+        return super.editThing();
     }
 
     public @Nullable Bridge getBridge() {

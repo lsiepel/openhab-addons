@@ -33,7 +33,7 @@ public class ZwaveJSNodeHandlerTest {
 
     @Test
     public void testInvalidConfiguration() {
-        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(false);
+        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(0);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
         final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing);
 
@@ -47,9 +47,24 @@ public class ZwaveJSNodeHandlerTest {
 
     @Test
     public void testNode3ChannelCreation() {
-        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(true);
+        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(3);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
         final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing);
+
+        try {
+            verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
+        } finally {
+            handler.dispose();
+        }
+    }
+
+    @Test
+    public void testNode6ChannelCreation() {
+        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(6);
+        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing);
+
+        // handler.getThing().getChannels()
 
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));

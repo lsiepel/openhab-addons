@@ -179,8 +179,10 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         // logger.debug("Thing '{}' createChannel, Configuration commandClass ignored", thing.getLabel());
         // return;
         // }
+
         String channelId = details.channelId;
         logger.info("Thing '{}' createChannel with Id: {}", thing.getLabel(), channelId);
+        logger.info(" >> {}", details);
         ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
 
         if (thing.getChannel(channelUID) != null) {

@@ -33,8 +33,8 @@ public class Metadata {
     public States states;
     @SerializedName("default")
     public int myDefault;
-    public int min;
-    public int max;
+    public Integer min;
+    public Integer max;
     public int valueSize;
     public int format;
     public boolean allowManualEntry;
