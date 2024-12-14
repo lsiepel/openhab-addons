@@ -13,15 +13,18 @@
 package org.openhab.binding.zwavejs.internal.conversion;
 
 import java.math.BigDecimal;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.measure.Unit;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.zwavejs.internal.api.dto.Metadata;
+import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
+import org.openhab.core.library.unit.Units;
 import org.openhab.core.types.State;
 import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
@@ -30,14 +33,13 @@ import org.openhab.core.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tech.units.indriya.unit.Units;
-
 /**
  * @author L. Siepel - Initial contribution
  */
 public class ChannelDetails {
 
-    private final Logger logger = LoggerFactory.getLogger(ZwaveJSChannelTypeProvider.class);
+    private final Logger logger = LoggerFactory.getLogger(ChannelDetails.class);
+    private final Map<String, String> unitMap = new ConcurrentHashMap<>();
 
     public int nodeId;
     public String channelId;
@@ -48,39 +50,88 @@ public class ChannelDetails {
     public StateDescriptionFragment statePattern;
     public String label;
     public String description;
+    public boolean ignoreAsChannel;
 
     public ChannelDetails(int nodeId, Value data) {
+        populateMap();
+
         this.nodeId = nodeId;
         this.channelId = generateChannelId(data);
+
+        this.ignoreAsChannel = isIgnored(channelId);
+
         this.readOnly = data.metadata.writeable;
-        this.itemType = itemTypeFromMetadata(data.metadata);
+        this.itemType = itemTypeFromMetadata(data.metadata.type, data.metadata.unit);
         this.unit = normalizeUnit(data.metadata.unit);
-        this.statePattern = statePatternOfItemType(data.metadata);
-        this.state = getStateFromValue(data);
+        this.statePattern = statePatternOfItemType(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
+        this.state = getStateFromValue(data.value);
         this.label = data.metadata.label;
         this.description = data.commandClassName;
     }
 
-    private String generateChannelId(Value value) {
-        String id = value.commandClassName.toLowerCase().replaceAll(" ", "-");
+    private boolean isIgnored(String channelId) {
+        return (channelId.startsWith("configuration") || channelId.startsWith("version")
+                || channelId.startsWith("manufacturer-specific"));
+    }
 
-        if (value.propertyName != null) {
-            String[] splitted = StringUtils.splitByCharacterType(value.propertyName);
+    public ChannelDetails(int nodeId, Event data) {
+        populateMap();
+
+        this.nodeId = nodeId;
+        this.channelId = generateChannelId(data);
+
+        this.ignoreAsChannel = isIgnored(channelId);
+        // this.readOnly = data.metadata.writeable;
+        // this.itemType = itemTypeFromMetadata(data.metadata);
+        // this.unit = normalizeUnit(data.metadata.unit);
+        // this.statePattern = statePatternOfItemType(data.metadata);
+
+        // this.label = data.metadata.label;
+        // this.description = data.commandClassName;
+    }
+
+    public void setState(Event event) {
+        this.state = getStateFromValue(event.args.newValue);
+    }
+
+    private void populateMap() {
+        unitMap.put("W", "Power");
+        unitMap.put("kWh", "Energy");
+        unitMap.put("A", "ElectricCurrent");
+        unitMap.put("min", "Time");
+        unitMap.put("s", "Time");
+        unitMap.put("V", "ElectricPotential");
+    }
+
+    private String generateChannelId(String commandClassName, @Nullable String propertyName, @Nullable String unit) {
+        // todo unit should be stripped from the method
+        String id = commandClassName.toLowerCase().replaceAll(" ", "-");
+
+        if (propertyName != null) {
+            String[] splitted = StringUtils.splitByCharacterType(propertyName);
             id += "-" + splitted[splitted.length - 1].toLowerCase();
         }
 
-        if (value.metadata.unit != null) {
-            return id + "-" + value.metadata.unit.toLowerCase();
+        if (unit != null) {
+            return id + "-" + unit.toLowerCase();
         }
         return id;
     }
 
-    private @Nullable State getStateFromValue(Value value) {
-        if ("Configuration".equals(value.commandClassName)) {
-            logger.debug("Node id: '{}' getStateFromValue, Configuration commandClass ignored", nodeId);
+    public String generateChannelId(Event event) {
+        return generateChannelId(event.args.commandClassName, event.args.propertyName, null);
+    }
+
+    private String generateChannelId(Value value) {
+        return generateChannelId(value.commandClassName, value.propertyName, value.metadata.unit);
+    }
+
+    private @Nullable State getStateFromValue(Object newValue) {
+        if (this.ignoreAsChannel) {
+            logger.debug("Node id: '{}' getStateFromValue, channelId ignored", nodeId);
             return null;
         }
-        if (value.value == null) {
+        if (newValue == null) {
             return UnDefType.NULL;
         }
         State state = UnDefType.UNDEF;
@@ -89,13 +140,14 @@ public class ChannelDetails {
             case "Number":
                 if (itemTypeSplitted.length > 1) {
                     Unit<?> unit = Units.getInstance().getUnit(this.unit);
-                    state = new QuantityType<>((Number) value.value, unit);
+                    state = new QuantityType<>((Number) newValue, unit);
                 } else {
-                    state = new DecimalType((Number) value.value);
+                    state = new DecimalType((Number) newValue);
                 }
                 break;
             case "Switch":
-                state = OnOffType.from((boolean) value.value);
+                state = OnOffType.from((boolean) newValue);
+                break;
             default:
                 state = UnDefType.UNDEF;
                 break;
@@ -103,17 +155,20 @@ public class ChannelDetails {
         return state;
     }
 
-    public String itemTypeFromMetadata(Metadata data) {
+    public String itemTypeFromMetadata(String type, @Nullable String unitSymbol) {
         // TODO Not sure if this is the best way to parse a unit as string that returns a Unit or Dimension.
-        switch (data.type) {
+        switch (type) {
             case "number":
-                if (data.unit != null) {
-                    Unit<?> unit = Units.getInstance().getUnit(data.unit);
-                    if (unit == null) {
-                        logger.info("Could not parse '{}' as a unit, fallback to 'Number' itemType", data.unit);
+                if (unitSymbol != null) {
+                    Unit<?> unit = Units.getInstance().getUnit(unitSymbol);
+                    String symbol = unit != null && unit.getSymbol() != null ? unit.getSymbol() : unitSymbol;
+                    String dimension = unitMap.getOrDefault(symbol, null);
+                    if (dimension == null) {
+                        logger.info("Could not parse '{}' as a unit, fallback to 'Number' itemType", unitSymbol);
                         return "Number";
                     }
-                    return String.format("Number:{}", unit.getDimension().toString());
+
+                    return String.format("Number:%s", dimension);
                 }
                 return "Number";
             case "boolean":
@@ -125,7 +180,7 @@ public class ChannelDetails {
             default:
                 logger.error(
                         "Could not determine item type based on metadata.type: {}, fallback to 'String' please file a bug report",
-                        data.type);
+                        type);
                 return "String";
         }
     }
@@ -141,7 +196,7 @@ public class ChannelDetails {
                 .replace("seconds", "s");
     }
 
-    public StateDescriptionFragment statePatternOfItemType(Metadata data) {
+    public StateDescriptionFragment statePatternOfItemType(boolean writeable, Integer min, Integer max, Integer step) {
         String pattern = "";
         String itemTypeSplitted[] = this.itemType.split(":");
         switch (itemTypeSplitted[0]) {
@@ -160,17 +215,19 @@ public class ChannelDetails {
 
         var fragment = StateDescriptionFragmentBuilder.create();
         fragment.withPattern(pattern);
-        fragment.withReadOnly(!data.writeable);
-        if (data.min != null) {
-            fragment.withMinimum(BigDecimal.valueOf(data.min));
+        fragment.withReadOnly(!writeable);
+        if (min != null) {
+            fragment.withMinimum(BigDecimal.valueOf(min));
         }
-        if (data.max != null) {
-            fragment.withMaximum(BigDecimal.valueOf(data.max));
+        if (max != null) {
+            fragment.withMaximum(BigDecimal.valueOf(max));
         }
         // fragment.withOptions(null);
         // TODO from states but need to find out how to properly deserialize it into a
         // key/value pair
-        fragment.withStep(BigDecimal.valueOf(1));
+        if (step != null) {
+            fragment.withStep(BigDecimal.valueOf(step));
+        }
         // TODO there does not seem to be a property that can be used for this
         return fragment.build();
     }

@@ -10,13 +10,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.api.dto.messages;
+package org.openhab.binding.zwavejs.internal.config;
 
-import org.openhab.binding.zwavejs.internal.api.dto.Event;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
+ * The {@link ZwaveJSNodeConfiguration} class contains fields mapping thing configuration parameters.
+ *
  * @author L. Siepel - Initial contribution
  */
-public class EventMessage extends BaseMessage {
-    public Event event;
+@NonNullByDefault
+public class ZwaveJSChannelConfiguration {
+    public @Nullable String incomingUnit;
+    public @Nullable String itemType;
 }

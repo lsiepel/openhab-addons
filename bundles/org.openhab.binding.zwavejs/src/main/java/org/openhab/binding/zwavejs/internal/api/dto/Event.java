@@ -10,13 +10,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.api.dto.messages;
-
-import org.openhab.binding.zwavejs.internal.api.dto.Event;
+package org.openhab.binding.zwavejs.internal.api.dto;
 
 /**
  * @author L. Siepel - Initial contribution
  */
-public class EventMessage extends BaseMessage {
-    public Event event;
+public class Event {
+    public Source source;
+    public String event;
+    public int nodeId;
+    public Args args;
+
+    enum Source {
+        driver,
+        controller,
+        node,
+        zniffer
+    }
 }

@@ -18,11 +18,14 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
+import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
 import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSChannelTypeProvider;
+import org.openhab.core.config.core.Configuration;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
@@ -89,14 +92,22 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         });
     }
 
-    private void internalInitialize() {
+    private @Nullable ZwaveJSBridgeHandler getBridgeHandler() {
         Bridge bridge = getBridge();
         if (bridge == null || !bridge.getStatus().equals(ThingStatus.ONLINE)) {
             // when bridge is offline, stop and wait for it to become online
             logger.info("Stopped internalInitialize");
-            return;
+            return null;
         }
         if (bridge != null && bridge.getHandler() instanceof ZwaveJSBridgeHandler handler) {
+            return handler;
+        }
+        return null;
+    }
+
+    private void internalInitialize() {
+        ZwaveJSBridgeHandler handler = getBridgeHandler();
+        if (handler != null) {
             if (handler.registerNodeListener(this)) {
                 Node nodeDetails = handler.requestNodeDetails(config.id);
                 if (nodeDetails == null) {
@@ -149,11 +160,34 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
         for (Value value : node.values) {
             ChannelDetails details = new ChannelDetails(getId(), value);
-            if (isLinked(details.channelId) && details.state != null) {
-                updateState(details.channelId, details.state);
+            if (!details.ignoreAsChannel) {
+                if (isLinked(details.channelId) && details.state != null) {
+                    updateState(details.channelId, details.state);
+                }
             }
         }
 
+        return true;
+    }
+
+    @Override
+    public boolean onNodeStateChanged(Event event) {
+        logger.info("Z-Wave node id: {} state update", config.id);
+
+        ChannelDetails details = new ChannelDetails(getId(), event);
+        if (!details.ignoreAsChannel) {
+            logger.info("Z-Wave node id: {} state update not ignored", config.id);
+            if (isLinked(details.channelId)) {
+                logger.info("Z-Wave node id: {} state update linked and state is valid", config.id);
+                ZwaveJSChannelConfiguration channelConfig = thing.getChannel(details.channelId).getConfiguration()
+                        .as(ZwaveJSChannelConfiguration.class);
+                details.unit = channelConfig.incomingUnit;
+                details.itemType = channelConfig.itemType;
+                details.setState(event);
+                logger.info("Z-Wave node id: {} state update {}", config.id, details.state);
+                updateState(details.channelId, details.state);
+            }
+        }
         return true;
     }
 
@@ -166,7 +200,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         logger.info("building channels for {}, containing {} values", node.nodeId, node.values.size());
         for (Value value : node.values) {
             ChannelDetails details = new ChannelDetails(this.getId(), value);
-            if (!details.channelId.startsWith("configuration")) {
+            if (!details.ignoreAsChannel) {
                 createChannel(getThing(), details);
             }
         }
@@ -191,9 +225,13 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
             return;
         }
 
+        Configuration configuration = new Configuration();
+        configuration.put("incomingUnit", details.unit);
+        configuration.put("itemType", details.itemType);
+
         ChannelType channelType = channelTypeProvider.generateChannelType(details);
-        updateThing(editThing().withChannel(ChannelBuilder.create(channelUID).withType(channelType.getUID()).build())
-                .build());
+        updateThing(editThing().withChannel(ChannelBuilder.create(channelUID).withConfiguration(configuration)
+                .withType(channelType.getUID()).build()).build());
     }
 
     @Override

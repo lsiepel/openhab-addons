@@ -128,7 +128,14 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             procesStateUpdate(result.result.state);
             updateStatus(ThingStatus.ONLINE);
         } else if (message instanceof EventMessage result) {
-
+            if ("value updated".equals(result.event.event)) {
+                final NodeListener nodeListener = nodeListeners.get(result.event.nodeId);
+                if (nodeListener != null) {
+                    nodeListener.onNodeStateChanged(result.event);
+                }
+            } else {
+                logger.info("Event: {} ignoed", result.event.event);
+            }
         }
     }
 

@@ -25,12 +25,10 @@ import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
+import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
-import org.openhab.core.types.StateDescriptionFragment;
+import org.openhab.core.library.unit.Units;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
-import org.openhab.core.types.UnDefType;
-
-import tech.units.indriya.unit.Units;
 
 /**
  * @author Leo Siepel - Initial contribution
@@ -57,7 +55,7 @@ public class ChannelDetailsTest {
         assertEquals("Switch", details.itemType);
         assertEquals("Current value", details.label);
         assertEquals("Binary Switch", details.description);
-        assertEquals(UnDefType.UNDEF, details.state);
+        assertEquals(OnOffType.ON, details.state);
         assertEquals(false, details.readOnly);
         assertNull(details.statePattern);
         assertNull(details.unit);
@@ -74,7 +72,7 @@ public class ChannelDetailsTest {
         assertEquals("Switch", details.itemType);
         assertEquals("Current value", details.label);
         assertEquals("Binary Switch", details.description);
-        assertEquals(UnDefType.UNDEF, details.state);
+        assertEquals(OnOffType.ON, details.state);
         assertEquals(false, details.readOnly);
         assertNull(details.statePattern);
         assertNull(details.unit);
@@ -83,6 +81,9 @@ public class ChannelDetailsTest {
     @Test
     public void parseUnits() {
 
+        // String x = new QuantityType<>(1,
+        // Units.WATT).getUnit().getDimension().getBaseDimensions().getClass().getName();
+        // assertEquals("x", x);
         /*
          * DefaultQuantityFactory.getInstance(null).create(null, null)
          * 
@@ -106,12 +107,31 @@ public class ChannelDetailsTest {
 
         assertEquals("multilevel-sensor-power-w", details.channelId);
         assertEquals("Multilevel Sensor", details.description);
-        assertEquals("Number:{}", details.itemType);
+        assertEquals("Number:Power", details.itemType);
         assertEquals("Power", details.label);
         assertEquals("Multilevel Sensor", details.description);
-        assertEquals(new QuantityType<>(0,Units.WATT), details.state);
+        assertEquals(new QuantityType<>(0, Units.WATT), details.state);
         assertEquals(false, details.readOnly);
-        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true).withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
+        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
+                .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
         assertEquals("W", details.unit);
+    }
+
+    @Test
+    public void testGenerateDetailsForNode6Channel4() throws IOException {
+        Node node = nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
+
+        ChannelDetails details = new ChannelDetails(6, node.values.get(3));
+
+        assertEquals("meter-value-kwh", details.channelId);
+        assertEquals("Meter", details.description);
+        assertEquals("Number:Energy", details.itemType);
+        assertEquals("Electric Consumption [kWh]", details.label);
+        assertEquals("Meter", details.description);
+        assertEquals(new QuantityType<>(881.95, Units.KILOWATT_HOUR), details.state);
+        assertEquals(false, details.readOnly);
+        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
+                .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
+        assertEquals("kWh", details.unit);
     }
 }

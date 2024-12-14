@@ -13,6 +13,7 @@
 package org.openhab.binding.zwavejs.internal.handler;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 
 /**
@@ -32,11 +33,18 @@ public interface NodeListener {
     Integer getId();
 
     /**
-     * This method is called whenever the state of the given node has changed.
+     * This method is called whenever the state of the node has changed.
      *
      * @param node The node which received the state update.
      */
     boolean onNodeStateChanged(Node node);
+
+    /**
+     * This method is called whenever the state of the node has changed.
+     *
+     * @param event The event update.
+     */
+    boolean onNodeStateChanged(Event event);
 
     /**
      * This method is called whenever a node is removed.

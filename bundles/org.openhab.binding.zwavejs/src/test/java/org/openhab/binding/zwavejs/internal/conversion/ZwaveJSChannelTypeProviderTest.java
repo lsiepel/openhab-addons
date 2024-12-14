@@ -51,7 +51,7 @@ public class ZwaveJSChannelTypeProviderTest {
             provider.generateChannelType(new ChannelDetails(3, value));
         }
 
-        ChannelType type = provider.getChannelType(new ChannelTypeUID(BINDING_ID, "f2952c00054f228258db7aecc8479f9a"),
+        ChannelType type = provider.getChannelType(new ChannelTypeUID(BINDING_ID, "5ce3cf0364723fc1955c85a9bd79fd95"),
                 null);
 
         assertNotNull(type);

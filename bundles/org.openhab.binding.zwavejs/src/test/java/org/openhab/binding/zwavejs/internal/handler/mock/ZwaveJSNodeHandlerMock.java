@@ -93,6 +93,10 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         }).when(executorService).execute(any(Runnable.class));
     }
 
+    public boolean isLinked(String channelId) {
+        return true;
+    }
+
     public void updateThing(Thing thing) {
         super.updateThing(thing);
     }
