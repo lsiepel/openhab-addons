@@ -164,7 +164,7 @@ public class ChannelDetails {
                     String symbol = unit != null && unit.getSymbol() != null ? unit.getSymbol() : unitSymbol;
                     String dimension = unitMap.getOrDefault(symbol, null);
                     if (dimension == null) {
-                        logger.info("Could not parse '{}' as a unit, fallback to 'Number' itemType", unitSymbol);
+                        logger.warn("Could not parse '{}' as a unit, fallback to 'Number' itemType", unitSymbol);
                         return "Number";
                     }
 

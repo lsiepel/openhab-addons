@@ -107,9 +107,9 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
     }
 
     public void addNodeDiscovery(Node node) {
-        logger.info("Z-Wave addNodeDiscovery id: '{}'", node.nodeId);
         ThingUID thingUID = getThingUID(node.nodeId);
         ThingTypeUID thingTypeUID = THING_TYPE_NODE;
+        logger.debug("Z-Wave addNodeDiscovery id: '{}'", node.nodeId);
 
         if (thingUID != null) {
             String label = String.format(DISCOVERY_NODE_LABEL_PATTERN, node.nodeId, node.deviceConfig.label);
@@ -131,16 +131,16 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
 
             thingDiscovered(discoveryResult);
         } else {
-            logger.debug("Discovered unsupported device, nodeId '{}'", node.nodeId);
+            logger.warn("Discovered unsupported device, nodeId '{}'", node.nodeId);
         }
     }
 
     public void removeNodeDiscovery(int nodeId) {
-        logger.info("Z-Wave removeNodeDiscovery id: '{}'", nodeId);
         ThingUID thingUID = getThingUID(nodeId);
 
         if (thingUID != null) {
             thingRemoved(thingUID);
+            logger.debug("Z-Wave removeNodeDiscovery id: '{}'", nodeId);
         }
     }
 

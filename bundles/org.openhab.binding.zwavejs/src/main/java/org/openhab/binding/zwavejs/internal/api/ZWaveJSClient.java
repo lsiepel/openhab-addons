@@ -148,25 +148,24 @@ public class ZWaveJSClient implements WebSocketListener {
     @Override
     public void onWebSocketText(@NonNullByDefault({}) String message) {
         if (!message.contains("\"event\":\"statistics updated\"")) {
-            logger.info("onWebSocketText('{}')", message);
+            logger.trace("onWebSocketText('{}')", message);
         }
-        // TODO use some kind of id as part of the listeners to only send event to listeners that need the event
 
         BaseMessage baseEvent = Objects.requireNonNull(gson.fromJson(message, BaseMessage.class));
 
         if (baseEvent.type == null) {
-            logger.info("onWebSocketText('{}')", message);
+            logger.warn("event with unknown type received. Message: {}", message);
         } else if (baseEvent instanceof ResultMessage resultMessage) {
             if (resultMessage.success) {
-                logger.info("onWebSocketText received message type: {}, success: {}", baseEvent.type,
+                logger.debug("onWebSocketText received message type: {}, success: {}", baseEvent.type,
                         resultMessage.success);
-                logger.info("DATA >> {}", message);
+                logger.trace("DATA >> {}", message);
             } else {
-                logger.info("onWebSocketText received message type: {}, success: {}, error_code: {}, message: {}",
+                logger.warn("onWebSocketText received message type: {}, success: {}, error_code: {}, message: {}",
                         baseEvent.type, resultMessage.success, resultMessage.errorCode, resultMessage.message);
             }
         } else {
-            logger.info("onWebSocketText received message type: {}", baseEvent.type);
+            logger.debug("onWebSocketText received message type: {}. Ignoring", baseEvent.type);
         }
 
         try {
@@ -188,16 +187,16 @@ public class ZWaveJSClient implements WebSocketListener {
 
     public void sendCommand(BaseCommand command) {
         String commandAsJson = gson.toJson(command);
-        logger.info("sendCommand('{}')", commandAsJson);
         Session session = this.session;
         try {
             if (session == null || !(session.getRemote() instanceof RemoteEndpoint endpoint)) {
-                logger.warn("Failed while sending command: {}", commandAsJson);
+                logger.warn("Failed while sending command: {}. Problem with session or remote endpoint", command.getClass());
                 return;
             }
             endpoint.sendString(commandAsJson);
         } catch (IOException e) {
-            logger.warn("IOException while sending command: {}", commandAsJson);
+            logger.warn("IOException while sending command: {}. Error {}", command.getClass(), e.getMessage());
+            logger.trace("DATA >> {}", commandAsJson);
         }
     }
 }

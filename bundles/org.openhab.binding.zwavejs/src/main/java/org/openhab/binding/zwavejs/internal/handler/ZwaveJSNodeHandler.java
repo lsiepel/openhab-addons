@@ -96,7 +96,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         Bridge bridge = getBridge();
         if (bridge == null || !bridge.getStatus().equals(ThingStatus.ONLINE)) {
             // when bridge is offline, stop and wait for it to become online
-            logger.info("Stopped internalInitialize");
+            logger.debug("Stopped internalInitialize as bridge is offline");
             return null;
         }
         if (bridge != null && bridge.getHandler() instanceof ZwaveJSBridgeHandler handler) {
@@ -137,7 +137,6 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
     @Override
     public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
-        logger.info("bridge state updated to {}", bridgeStatusInfo.getStatus());
         super.bridgeStatusChanged(bridgeStatusInfo);
         if (bridgeStatusInfo.getStatus().equals(ThingStatus.ONLINE)) {
             internalInitialize();
@@ -156,7 +155,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
     @Override
     public boolean onNodeStateChanged(Node node) {
-        logger.info("Z-Wave node id: {} state update", node.nodeId);
+        logger.debug("Z-Wave node id: {} state update", node.nodeId);
 
         for (Value value : node.values) {
             ChannelDetails details = new ChannelDetails(getId(), value);
@@ -172,19 +171,18 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
     @Override
     public boolean onNodeStateChanged(Event event) {
-        logger.info("Z-Wave node id: {} state update", config.id);
+        logger.debug("Z-Wave node id: {} state update", config.id);
 
         ChannelDetails details = new ChannelDetails(getId(), event);
         if (!details.ignoreAsChannel) {
-            logger.info("Z-Wave node id: {} state update not ignored", config.id);
             if (isLinked(details.channelId)) {
-                logger.info("Z-Wave node id: {} state update linked and state is valid", config.id);
                 ZwaveJSChannelConfiguration channelConfig = thing.getChannel(details.channelId).getConfiguration()
                         .as(ZwaveJSChannelConfiguration.class);
+
                 details.unit = channelConfig.incomingUnit;
                 details.itemType = channelConfig.itemType;
                 details.setState(event);
-                logger.info("Z-Wave node id: {} state update {}", config.id, details.state);
+
                 updateState(details.channelId, details.state);
             }
         }
@@ -197,7 +195,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
     }
 
     private boolean buildChannels(Node node) {
-        logger.info("building channels for {}, containing {} values", node.nodeId, node.values.size());
+        logger.debug("Building channels for {}, containing {} values", node.nodeId, node.values.size());
         for (Value value : node.values) {
             ChannelDetails details = new ChannelDetails(this.getId(), value);
             if (!details.ignoreAsChannel) {
@@ -215,13 +213,13 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         // }
 
         String channelId = details.channelId;
-        logger.info("Thing '{}' createChannel with Id: {}", thing.getLabel(), channelId);
-        logger.info(" >> {}", details);
+        logger.debug("Thing '{}' createChannel with Id: {}", thing.getLabel(), channelId);
+        logger.trace(" >> {}", details);
         ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
 
         if (thing.getChannel(channelUID) != null) {
             // channel already exists
-            logger.info("Thing {}, channel {} already exists", thing.getLabel(), channelId);
+            logger.warn("Thing {}, channel {} already exists", thing.getLabel(), channelId);
             return;
         }
 
