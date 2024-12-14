@@ -190,7 +190,8 @@ public class ZWaveJSClient implements WebSocketListener {
         Session session = this.session;
         try {
             if (session == null || !(session.getRemote() instanceof RemoteEndpoint endpoint)) {
-                logger.warn("Failed while sending command: {}. Problem with session or remote endpoint", command.getClass());
+                logger.warn("Failed while sending command: {}. Problem with session or remote endpoint",
+                        command.getClass());
                 return;
             }
             endpoint.sendString(commandAsJson);
