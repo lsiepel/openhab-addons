@@ -10,16 +10,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.api.dto.commands;
+package org.openhab.binding.zwavejs.internal.api.dto;
 
 /**
  * @author L. Siepel - Initial contribution
  */
-public class NodeValueCommand extends BaseCommand {
-    public int nodeId;
-
-    public NodeValueCommand(int nodeId) {
-        command = "node.get_value";
-        this.nodeId = nodeId;
-    }
+public class ValueId {
+    public Object commandClass;
+    public Integer endpoint;
+    public String property;
+    public String propertyKey;
 }

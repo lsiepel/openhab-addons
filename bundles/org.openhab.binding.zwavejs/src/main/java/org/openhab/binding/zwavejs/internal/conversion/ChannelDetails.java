@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.measure.Unit;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author L. Siepel - Initial contribution
  */
+@NonNullByDefault
 public class ChannelDetails {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelDetails.class);
@@ -43,14 +45,18 @@ public class ChannelDetails {
 
     public int nodeId;
     public String channelId;
-    public boolean readOnly;
-    public State state;
-    public String itemType;
-    public String unit;
-    public StateDescriptionFragment statePattern;
-    public String label;
-    public String description;
+    public boolean writable;
+    public @Nullable State state;
+    public String itemType = "String";
+    public @Nullable String unit;
+    public @Nullable StateDescriptionFragment statePattern;
+    public String label = "Unknown Label";
+    public String description = "Unknown Description";
     public boolean ignoreAsChannel;
+    public @Nullable String commandClassName;
+    public int commandClassId;
+    public int endpoint;
+    public @Nullable Object writeProperty;
 
     public ChannelDetails(int nodeId, Value data) {
         populateMap();
@@ -60,13 +66,20 @@ public class ChannelDetails {
 
         this.ignoreAsChannel = isIgnored(channelId);
 
-        this.readOnly = data.metadata.writeable;
+        this.writable = data.metadata.writeable;
         this.itemType = itemTypeFromMetadata(data.metadata.type, data.metadata.unit);
         this.unit = normalizeUnit(data.metadata.unit);
         this.statePattern = statePatternOfItemType(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
         this.state = getStateFromValue(data.value);
         this.label = data.metadata.label;
         this.description = data.commandClassName;
+        this.commandClassName = data.commandClassName;
+        this.commandClassId = data.commandClass;
+        this.endpoint = data.endpoint;
+
+        if (writable) {
+            writeProperty = data.property;
+        }
     }
 
     private boolean isIgnored(String channelId) {
@@ -81,17 +94,11 @@ public class ChannelDetails {
         this.channelId = generateChannelId(data);
 
         this.ignoreAsChannel = isIgnored(channelId);
-        // this.readOnly = data.metadata.writeable;
-        // this.itemType = itemTypeFromMetadata(data.metadata);
-        // this.unit = normalizeUnit(data.metadata.unit);
-        // this.statePattern = statePatternOfItemType(data.metadata);
-
-        // this.label = data.metadata.label;
-        // this.description = data.commandClassName;
     }
 
-    public void setState(Event event) {
+    public @Nullable State setState(Event event) {
         this.state = getStateFromValue(event.args.newValue);
+        return this.state;
     }
 
     private void populateMap() {
@@ -126,7 +133,7 @@ public class ChannelDetails {
         return generateChannelId(value.commandClassName, value.propertyName, value.metadata.unit);
     }
 
-    private @Nullable State getStateFromValue(Object newValue) {
+    private @Nullable State getStateFromValue(@Nullable Object newValue) {
         if (this.ignoreAsChannel) {
             logger.debug("Node id: '{}' getStateFromValue, channelId ignored", nodeId);
             return null;
@@ -135,7 +142,7 @@ public class ChannelDetails {
             return UnDefType.NULL;
         }
         State state = UnDefType.UNDEF;
-        String itemTypeSplitted[] = this.itemType.split(":");
+        String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {
             case "Number":
                 if (itemTypeSplitted.length > 1) {
@@ -162,8 +169,8 @@ public class ChannelDetails {
                 if (unitSymbol != null) {
                     Unit<?> unit = Units.getInstance().getUnit(unitSymbol);
                     String symbol = unit != null && unit.getSymbol() != null ? unit.getSymbol() : unitSymbol;
-                    String dimension = unitMap.getOrDefault(symbol, null);
-                    if (dimension == null) {
+                    String dimension = unitMap.getOrDefault(symbol, "");
+                    if (dimension.isBlank()) {
                         logger.warn("Could not parse '{}' as a unit, fallback to 'Number' itemType", unitSymbol);
                         return "Number";
                     }
@@ -186,7 +193,7 @@ public class ChannelDetails {
     }
 
     public @Nullable String normalizeUnit(@Nullable String unit) {
-        if (unit == null || itemType == null || !itemType.contains(":")) {
+        if (unit == null || !itemType.contains(":")) {
             return null;
         }
 
@@ -196,9 +203,10 @@ public class ChannelDetails {
                 .replace("seconds", "s");
     }
 
-    public StateDescriptionFragment statePatternOfItemType(boolean writeable, Integer min, Integer max, Integer step) {
+    public @Nullable StateDescriptionFragment statePatternOfItemType(boolean writeable, Integer min, Integer max,
+            Integer step) {
         String pattern = "";
-        String itemTypeSplitted[] = this.itemType.split(":");
+        String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {
             case "Number":
                 if (itemTypeSplitted.length > 1) {

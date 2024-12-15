@@ -23,5 +23,9 @@ import org.eclipse.jdt.annotation.Nullable;
 @NonNullByDefault
 public class ZwaveJSChannelConfiguration {
     public @Nullable String incomingUnit;
-    public @Nullable String itemType;
+    public String itemType = "String";
+    public @Nullable String commandClassName;
+    public @Nullable Integer commandClassId;
+    public @Nullable Integer endpoint;
+    public @Nullable String property;
 }

@@ -38,6 +38,14 @@ public class ZwaveJSBindingConstants {
     public static final String CONFIG_PORT = "port";
     public static final String CONFIG_NODE_ID = "id";
 
+    // List of all Channel Configuration Parameters
+    public static final String CONFIG_CHANNEL_INCOMING_UNIT = "incomingUnit";
+    public static final String CONFIG_CHANNEL_ITEM_TYPE = "itemType";
+    public static final String CONFIG_CHANNEL_COMMANDCLASS_NAME = "commandClassName";
+    public static final String CONFIG_CHANNEL_COMMANDCLASS_ID = "commandClassId";
+    public static final String CONFIG_CHANNEL_ENDPOINT = "endpoint";
+    public static final String CONFIG_CHANNEL_WRITE_PROPERTY = "property";
+
     // List of all Thing Properties
     public static final String PROPERTY_HOME_ID = "homeId";
     public static final String PROPERTY_DRIVER_VERSION = "driverVersion";

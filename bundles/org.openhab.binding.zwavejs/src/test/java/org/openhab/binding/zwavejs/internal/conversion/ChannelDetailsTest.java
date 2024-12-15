@@ -45,7 +45,7 @@ public class ChannelDetailsTest {
     }
 
     @Test
-    public void testGenerateDetailsForNode3FirstChannel() throws IOException {
+    public void testChannelDetailsForNode3Channel1() throws IOException {
         Node node = nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
 
         ChannelDetails details = new ChannelDetails(3, node.values.get(0));
@@ -56,13 +56,13 @@ public class ChannelDetailsTest {
         assertEquals("Current value", details.label);
         assertEquals("Binary Switch", details.description);
         assertEquals(OnOffType.ON, details.state);
-        assertEquals(false, details.readOnly);
+        assertEquals(false, details.writable);
         assertNull(details.statePattern);
         assertNull(details.unit);
     }
 
     @Test
-    public void testGenerateDetailsForNode6FirstChannel() throws IOException {
+    public void testChannelDetailsForNode6Channel1() throws IOException {
         Node node = nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(0));
@@ -73,7 +73,7 @@ public class ChannelDetailsTest {
         assertEquals("Current value", details.label);
         assertEquals("Binary Switch", details.description);
         assertEquals(OnOffType.ON, details.state);
-        assertEquals(false, details.readOnly);
+        assertEquals(false, details.writable);
         assertNull(details.statePattern);
         assertNull(details.unit);
     }
@@ -100,7 +100,7 @@ public class ChannelDetailsTest {
     }
 
     @Test
-    public void testGenerateDetailsForNode6Channel3() throws IOException {
+    public void testChannelDetailsForNode3Channel3() throws IOException {
         Node node = nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(2));
@@ -111,14 +111,14 @@ public class ChannelDetailsTest {
         assertEquals("Power", details.label);
         assertEquals("Multilevel Sensor", details.description);
         assertEquals(new QuantityType<>(0, Units.WATT), details.state);
-        assertEquals(false, details.readOnly);
+        assertEquals(false, details.writable);
         assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
                 .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
         assertEquals("W", details.unit);
     }
 
     @Test
-    public void testGenerateDetailsForNode6Channel4() throws IOException {
+    public void testChannelDetailsForNode6Channel4() throws IOException {
         Node node = nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(3));
@@ -129,7 +129,7 @@ public class ChannelDetailsTest {
         assertEquals("Electric Consumption [kWh]", details.label);
         assertEquals("Meter", details.description);
         assertEquals(new QuantityType<>(881.95, Units.KILOWATT_HOUR), details.state);
-        assertEquals(false, details.readOnly);
+        assertEquals(false, details.writable);
         assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
                 .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
         assertEquals("kWh", details.unit);

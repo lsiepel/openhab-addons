@@ -29,6 +29,7 @@ import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.ZWaveJSClient;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.State;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.BaseCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.ListeningCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
@@ -190,6 +191,12 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
     public void getFullState() {
         if (getThing().getStatus().equals(ThingStatus.ONLINE)) {
             client.sendCommand(new ListeningCommand());
+        }
+    }
+
+    public void sendCommand(BaseCommand command) {
+        if (getThing().getStatus().equals(ThingStatus.ONLINE)) {
+            client.sendCommand(command);
         }
     }
 

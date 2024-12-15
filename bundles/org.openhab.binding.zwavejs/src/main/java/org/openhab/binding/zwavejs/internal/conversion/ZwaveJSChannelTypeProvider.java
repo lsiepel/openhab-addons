@@ -52,7 +52,7 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
         // parts.append(details.type);
         parts.append(details.itemType);
         parts.append(details.unit);
-        parts.append(details.readOnly);
+        parts.append(details.writable);
         if (details.statePattern != null) {
             parts.append(details.statePattern.hashCode());
         }

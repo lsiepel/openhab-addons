@@ -21,12 +21,15 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.NodeSetValueCommand;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
 import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSChannelTypeProvider;
 import org.openhab.core.config.core.Configuration;
+import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
@@ -36,7 +39,7 @@ import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.thing.binding.builder.ChannelBuilder;
 import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.types.Command;
-import org.openhab.core.types.RefreshType;
+import org.openhab.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,17 +64,19 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (CHANNEL_1.equals(channelUID.getId())) {
-            if (command instanceof RefreshType) {
-                // TODO: handle data refresh
-            }
+        ZwaveJSBridgeHandler handler = getBridgeHandler();
+        if (handler == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED);
+            return;
+        }
 
-            // TODO: handle command
+        ZwaveJSChannelConfiguration channelConfig = thing.getChannel(channelUID).getConfiguration()
+                .as(ZwaveJSChannelConfiguration.class);
+        NodeSetValueCommand zwaveCommand = new NodeSetValueCommand(config.id, channelConfig);
 
-            // Note: if communication with thing fails for some reason,
-            // indicate that by setting the status with detail information:
-            // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-            // "Could not control device at IP address x.x.x.x");
+        if (command instanceof OnOffType onOffCommand) {
+            zwaveCommand.value = OnOffType.ON.equals(onOffCommand);
+            handler.sendCommand(zwaveCommand);
         }
     }
 
@@ -160,8 +165,9 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         for (Value value : node.values) {
             ChannelDetails details = new ChannelDetails(getId(), value);
             if (!details.ignoreAsChannel) {
-                if (isLinked(details.channelId) && details.state != null) {
-                    updateState(details.channelId, details.state);
+                State state = details.state;
+                if (isLinked(details.channelId) && state != null) {
+                    updateState(details.channelId, state);
                 }
             }
         }
@@ -181,9 +187,10 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
                 details.unit = channelConfig.incomingUnit;
                 details.itemType = channelConfig.itemType;
-                details.setState(event);
-
-                updateState(details.channelId, details.state);
+                State state = details.setState(event);
+                if (state != null) {
+                    updateState(details.channelId, state);
+                }
             }
         }
         return true;
@@ -206,6 +213,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         return true;
     }
 
+    // public void updateChannel(Thing thing, )
+
     public void createChannel(Thing thing, ChannelDetails details) {
         // if ("Configuration".equals(value.commandClassName)) {
         // logger.debug("Thing '{}' createChannel, Configuration commandClass ignored", thing.getLabel());
@@ -217,15 +226,33 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         logger.trace(" >> {}", details);
         ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
 
-        if (thing.getChannel(channelUID) != null) {
-            // channel already exists
+        Channel existingChannel = thing.getChannel(channelUID);
+        if (existingChannel != null) {
             logger.warn("Thing {}, channel {} already exists", thing.getLabel(), channelId);
-            return;
+            Configuration channelConfig = existingChannel.getConfiguration();
+            if (channelConfig.get(CONFIG_CHANNEL_WRITE_PROPERTY) == null && details.writable
+                    && details.writeProperty != null) {
+                channelConfig.put(CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
+                ChannelBuilder.create(existingChannel).withConfiguration(channelConfig).build();
+                logger.warn("Thing {}, channel {} updated", thing.getLabel(), channelId);
+                return;
+
+                // updateThing(editThing().withChannel();
+            } else {
+                logger.warn("Thing {}, channel {} already exists: Ignored", thing.getLabel(), channelId);
+                return;
+            }
         }
 
         Configuration configuration = new Configuration();
-        configuration.put("incomingUnit", details.unit);
-        configuration.put("itemType", details.itemType);
+        configuration.put(CONFIG_CHANNEL_INCOMING_UNIT, details.unit);
+        configuration.put(CONFIG_CHANNEL_ITEM_TYPE, details.itemType);
+        configuration.put(CONFIG_CHANNEL_COMMANDCLASS_ID, details.commandClassId);
+        configuration.put(CONFIG_CHANNEL_COMMANDCLASS_NAME, details.commandClassName);
+        configuration.put(CONFIG_CHANNEL_ENDPOINT, details.endpoint);
+        if (details.writable) {
+            configuration.put(CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
+        }
 
         ChannelType channelType = channelTypeProvider.generateChannelType(details);
         updateThing(editThing().withChannel(ChannelBuilder.create(channelUID).withConfiguration(configuration)
