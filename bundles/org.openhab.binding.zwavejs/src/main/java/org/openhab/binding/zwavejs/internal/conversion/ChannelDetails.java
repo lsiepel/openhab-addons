@@ -110,7 +110,7 @@ public class ChannelDetails {
         unitMap.put("V", "ElectricPotential");
     }
 
-    private String generateChannelId(String commandClassName, @Nullable String propertyName, @Nullable String unit) {
+    private String generateChannelId(String commandClassName, @Nullable String propertyName) {
         // todo unit should be stripped from the method
         String id = commandClassName.toLowerCase().replaceAll(" ", "-");
 
@@ -119,18 +119,15 @@ public class ChannelDetails {
             id += "-" + splitted[splitted.length - 1].toLowerCase();
         }
 
-        if (unit != null) {
-            return id + "-" + unit.toLowerCase();
-        }
         return id;
     }
 
     public String generateChannelId(Event event) {
-        return generateChannelId(event.args.commandClassName, event.args.propertyName, null);
+        return generateChannelId(event.args.commandClassName, event.args.propertyName);
     }
 
     private String generateChannelId(Value value) {
-        return generateChannelId(value.commandClassName, value.propertyName, value.metadata.unit);
+        return generateChannelId(value.commandClassName, value.propertyName);
     }
 
     private @Nullable State getStateFromValue(@Nullable Object newValue) {

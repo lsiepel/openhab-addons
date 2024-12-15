@@ -30,7 +30,6 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
-import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSChannelTypeProvider;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
@@ -116,9 +115,11 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         } catch (IOException e) {
             return null;
         }
-        Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
 
-        when(handler.requestNodeDetails(anyInt())).thenReturn(node);
+        doAnswer(i -> {
+            int nodeId = i.getArgument(0);
+            return resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == nodeId).findAny().orElse(null);
+        }).when(handler).requestNodeDetails(anyInt());
         when(bridge.getStatus()).thenReturn(ThingStatus.ONLINE);
         when(bridge.getHandler()).thenReturn(handler);
 

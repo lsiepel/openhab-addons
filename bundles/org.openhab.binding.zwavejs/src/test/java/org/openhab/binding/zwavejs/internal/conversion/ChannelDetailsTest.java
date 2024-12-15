@@ -105,7 +105,7 @@ public class ChannelDetailsTest {
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(2));
 
-        assertEquals("multilevel-sensor-power-w", details.channelId);
+        assertEquals("multilevel-sensor-power", details.channelId);
         assertEquals("Multilevel Sensor", details.description);
         assertEquals("Number:Power", details.itemType);
         assertEquals("Power", details.label);
@@ -123,7 +123,7 @@ public class ChannelDetailsTest {
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(3));
 
-        assertEquals("meter-value-kwh", details.channelId);
+        assertEquals("meter-value", details.channelId);
         assertEquals("Meter", details.description);
         assertEquals("Number:Energy", details.itemType);
         assertEquals("Electric Consumption [kWh]", details.label);
