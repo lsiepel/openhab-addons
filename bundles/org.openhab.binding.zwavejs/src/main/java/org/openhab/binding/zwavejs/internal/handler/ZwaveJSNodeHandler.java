@@ -150,7 +150,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
     @Override
     public void onNodeRemoved() {
-        // (ThingStatus.OFFLINE, ThingStatusDetail.NONE, "@text/offline.node-removed");
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.GONE);
     }
 
     @Override
@@ -188,6 +188,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
                 details.unit = channelConfig.incomingUnit;
                 details.itemType = channelConfig.itemType;
                 State state = details.setState(event);
+                // TODO check wether the state is part of the accepted states as listed in the metadata class
                 if (state != null) {
                     updateState(details.channelId, state);
                 }
