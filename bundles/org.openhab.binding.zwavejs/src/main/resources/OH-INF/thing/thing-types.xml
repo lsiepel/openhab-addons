@@ -29,8 +29,8 @@
 			<bridge-type-ref id="gateway"/>
 		</supported-bridge-type-refs>
 
-		<label>Unknown Node</label>
-		<description>This node has not been fully discovered by the binding.</description>
+		<label>Z-Wave node</label>
+		<description>A Z-Wave node provided by Zwave JS</description>
 
 		<properties>
 			<property name="manufacturer"></property>
@@ -39,6 +39,8 @@
 			<property name="isSecure"></property>
 			<property name="isListening"></property>
 			<property name="isRouting"></property>
+			<property name="lastSeen"></property>
+			<property name="isFrequentListening"></property>
 		</properties>
 
 		<config-description>

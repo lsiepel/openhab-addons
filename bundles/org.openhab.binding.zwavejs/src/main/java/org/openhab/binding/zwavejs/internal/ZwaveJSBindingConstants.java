@@ -59,6 +59,8 @@ public class ZwaveJSBindingConstants {
     public static final String PROPERTY_NODE_IS_SECURE = "isSecure";
     public static final String PROPERTY_NODE_IS_LISTENING = "isListening";
     public static final String PROPERTY_NODE_IS_ROUTING = "isRouting";
+    public static final String PROPERTY_NODE_LASTSEEN = "lastSeen";
+    public static final String PROPERTY_NODE_FREQ_LISTENING = "isFrequentListening";
 
     // List of all Channel ids
     public static final String CHANNEL_1 = "channel1";

@@ -124,6 +124,8 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
             properties.put(PROPERTY_NODE_MANUFACTURER, node.deviceConfig.manufacturer);
             properties.put(PROPERTY_NODE_PRODUCT_ID, node.productId);
             properties.put(PROPERTY_NODE_PRODUCT_TYPE, node.productType);
+            properties.put(PROPERTY_NODE_LASTSEEN, node.lastSeen);
+            properties.put(PROPERTY_NODE_FREQ_LISTENING, node.isFrequentListening);
 
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
                     .withProperties(properties).withBridge(bridgeUID).withRepresentationProperty(CONFIG_NODE_ID)
