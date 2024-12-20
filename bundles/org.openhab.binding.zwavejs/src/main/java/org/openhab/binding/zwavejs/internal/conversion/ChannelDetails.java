@@ -20,7 +20,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
-import org.openhab.core.items.ItemFactory;
 import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
@@ -65,8 +64,8 @@ public class ChannelDetails {
         this.ignoreAsChannel = isIgnored(channelId);
 
         this.writable = data.metadata.writeable;
-        this.itemType = itemTypeFromMetadata(data.metadata.type, data.metadata.unit);
         this.unit = normalizeUnit(data.metadata.unit);
+        this.itemType = itemTypeFromMetadata(data.metadata.type, this.unit);
         this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
         this.state = toState(data.value);
         this.label = data.metadata.label;
