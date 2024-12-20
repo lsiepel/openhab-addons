@@ -25,7 +25,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.commands.NodeSetValueCommand
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
-import org.openhab.binding.zwavejs.internal.conversion.ChannelTypeDetails;
+import org.openhab.binding.zwavejs.internal.conversion.ChannelTypeUtils;
 import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSDynamicTypeProvider;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.library.types.OnOffType;
@@ -230,18 +230,17 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
         Channel existingChannel = thing.getChannel(channelUID);
         if (existingChannel != null) {
-            logger.warn("Thing {}, channel {} already exists", thing.getLabel(), channelId);
             Configuration channelConfig = existingChannel.getConfiguration();
             if (channelConfig.get(CONFIG_CHANNEL_WRITE_PROPERTY) == null && details.writable
                     && details.writeProperty != null) {
                 channelConfig.put(CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
                 ChannelBuilder.create(existingChannel).withConfiguration(channelConfig).build();
-                logger.warn("Thing {}, channel {} updated", thing.getLabel(), channelId);
+                logger.debug("Thing {}, channel {} existing channel updated", thing.getLabel(), channelId);
                 return;
 
                 // updateThing(editThing().withChannel();
             } else {
-                logger.warn("Thing {}, channel {} already exists: Ignored", thing.getLabel(), channelId);
+                logger.warn("Thing {}, channel {} already exists: ignored", thing.getLabel(), channelId);
                 return;
             }
         }
@@ -256,7 +255,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
             configuration.put(CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
         }
 
-        ChannelType channelType = ChannelTypeDetails.generateChannelType(details);
+        ChannelType channelType = ChannelTypeUtils.generateChannelType(details);
         if (channelType != null) {
             channelTypeProvider.putChannelType(channelType);
             updateThing(editThing().withChannel(ChannelBuilder.create(channelUID).withConfiguration(configuration)

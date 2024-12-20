@@ -35,11 +35,11 @@ import org.openhab.core.thing.type.ChannelType;
 public class ChannelTypeDetailsTest {
 
     @Nullable
-    ChannelTypeDetails provider;
+    ChannelTypeUtils provider;
 
     @BeforeEach
     public void setup() {
-        provider = new ChannelTypeDetails();
+        provider = new ChannelTypeUtils();
     }
 
     @Test

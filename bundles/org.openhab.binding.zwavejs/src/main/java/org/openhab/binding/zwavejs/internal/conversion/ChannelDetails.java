@@ -20,6 +20,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
+import org.openhab.core.items.ItemFactory;
 import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
@@ -46,7 +47,7 @@ public class ChannelDetails {
     public String channelId;
     public boolean writable;
     public @Nullable State state;
-    public String itemType = "String";
+    public String itemType = CoreItemFactory.SWITCH;
     public @Nullable String unit;
     public @Nullable StateDescriptionFragment statePattern;
     public String label = "Unknown Label";

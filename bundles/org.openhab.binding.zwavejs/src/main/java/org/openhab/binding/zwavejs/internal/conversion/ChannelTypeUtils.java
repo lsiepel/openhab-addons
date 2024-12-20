@@ -1,14 +1,14 @@
 /**
- Copyright (c) 2010-2024 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
- See the NOTICE file(s) distributed with this work for additional
- information.
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
  *
- This program and the accompanying materials are made available under the
- terms of the Eclipse Public License 2.0 which is available at
- http://www.eclipse.org/legal/epl-2.0
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
  *
- SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0
  */
 package org.openhab.binding.zwavejs.internal.conversion;
 
@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * @author L. Siepel - Initial contribution
  */
 @NonNullByDefault
-public class ChannelTypeDetails {
+public class ChannelTypeUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelTypeDetails.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelTypeUtils.class);
 
     private final Map<ChannelTypeUID, ChannelType> channelTypeCache = new ConcurrentHashMap<>();
 
