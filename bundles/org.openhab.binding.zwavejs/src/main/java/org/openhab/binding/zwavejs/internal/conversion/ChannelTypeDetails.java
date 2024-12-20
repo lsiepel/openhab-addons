@@ -1,18 +1,16 @@
 /**
- * Copyright (c) 2010-2024 Contributors to the openHAB project
+ Copyright (c) 2010-2024 Contributors to the openHAB project
  *
- * See the NOTICE file(s) distributed with this work for additional
- * information.
+ See the NOTICE file(s) distributed with this work for additional
+ information.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License 2.0 which is available at
+ http://www.eclipse.org/legal/epl-2.0
  *
- * SPDX-License-Identifier: EPL-2.0
+ SPDX-License-Identifier: EPL-2.0
  */
 package org.openhab.binding.zwavejs.internal.conversion;
-
-import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.BINDING_ID;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,30 +21,25 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.thing.type.ChannelTypeBuilder;
-import org.openhab.core.thing.type.ChannelTypeProvider;
 import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.thing.type.StateChannelTypeBuilder;
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link CharacteristicChannelTypeProvider} that provides channel types for dynamically discovered characteristics.
- *
  * @author L. Siepel - Initial contribution
  */
-
 @NonNullByDefault
-@Component(service = { ZwaveJSChannelTypeProvider.class, ChannelTypeProvider.class })
-public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
+public class ChannelTypeDetails {
 
-    private final Logger logger = LoggerFactory.getLogger(ZwaveJSChannelTypeProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelTypeDetails.class);
 
     private final Map<ChannelTypeUID, ChannelType> channelTypeCache = new ConcurrentHashMap<>();
 
-    public ChannelTypeUID generateChannelTypeId(ChannelDetails details) {
+    public static ChannelTypeUID generateChannelTypeId(ChannelDetails details) {
         StringBuilder parts = new StringBuilder();
 
         // parts.append(details.type);
@@ -64,20 +57,22 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
             for (int i = 0; i < array.length; ++i) {
                 stringBuffer.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1, 3));
             }
-            return new ChannelTypeUID(BINDING_ID, stringBuffer.toString());
+            return new ChannelTypeUID(ZwaveJSBindingConstants.BINDING_ID, stringBuffer.toString());
         } catch (NoSuchAlgorithmException e) {
-            logger.warn("NoSuchAlgorithmException error when calculating MD5 hash");
+            LOGGER.warn("NoSuchAlgorithmException error when calculating MD5 hash");
         }
-        return new ChannelTypeUID(BINDING_ID, "unknown");
+        return new ChannelTypeUID(ZwaveJSBindingConstants.BINDING_ID, "unknown");
     }
 
-    public ChannelType generateChannelType(ChannelDetails details) {
-        final ChannelTypeUID channelTypeUID = generateChannelTypeId(details);
-        ChannelType channelType = channelTypeCache.get(channelTypeUID);
-        if (channelType != null) {
-            return channelType;
+    public static @Nullable ChannelType generateChannelType(ChannelDetails details) {
+        if (details.ignoreAsChannel) {
+            return null;
         }
+        final ChannelTypeUID channelTypeUID = generateChannelTypeId(details);
+        return generateChannelType(channelTypeUID, details);
+    }
 
+    public static ChannelType generateChannelType(ChannelTypeUID channelTypeUID, ChannelDetails details) {
         StateChannelTypeBuilder builder = ChannelTypeBuilder.state(channelTypeUID, details.label, details.itemType)
                 .withDescription(details.description);
         if (details.statePattern != null) {
@@ -88,18 +83,13 @@ public class ZwaveJSChannelTypeProvider implements ChannelTypeProvider {
             builder.withUnitHint(details.unit);
         }
 
-        channelType = builder.build();
-        // TODO add category and tags
-        channelTypeCache.put(channelTypeUID, channelType);
-        return channelType;
+        return builder.build();
     }
 
-    @Override
     public Collection<ChannelType> getChannelTypes(@Nullable Locale locale) {
         return channelTypeCache.values();
     }
 
-    @Override
     public @Nullable ChannelType getChannelType(ChannelTypeUID channelTypeUID, @Nullable Locale locale) {
         return channelTypeCache.get(channelTypeUID);
     }

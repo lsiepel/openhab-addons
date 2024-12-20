@@ -34,7 +34,7 @@ import org.osgi.service.component.annotations.Component;
  */
 @Component(service = { ChannelTypeProvider.class, GuntamaticChannelTypeProvider.class })
 @NonNullByDefault
-public class GuntamaticChannelTypeProvider implements ChannelTypeProvider {
+public class GuntamaticChannelTypeProvider implements AbstractStorageBasedTypeProvider {
     private final Map<String, ChannelType> channelTypes = new ConcurrentHashMap<>();
 
     @Override

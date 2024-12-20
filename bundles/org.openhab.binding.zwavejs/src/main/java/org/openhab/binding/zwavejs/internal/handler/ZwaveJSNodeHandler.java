@@ -25,7 +25,8 @@ import org.openhab.binding.zwavejs.internal.api.dto.commands.NodeSetValueCommand
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
-import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSChannelTypeProvider;
+import org.openhab.binding.zwavejs.internal.conversion.ChannelTypeDetails;
+import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSDynamicTypeProvider;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.thing.Bridge;
@@ -53,11 +54,11 @@ import org.slf4j.LoggerFactory;
 public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSNodeHandler.class);
-    private final ZwaveJSChannelTypeProvider channelTypeProvider;
+    private final ZwaveJSDynamicTypeProvider channelTypeProvider;
     private @Nullable ZwaveJSNodeConfiguration config;
     protected ScheduledExecutorService executorService = scheduler;
 
-    public ZwaveJSNodeHandler(final Thing thing, final ZwaveJSChannelTypeProvider channelTypeProvider) {
+    public ZwaveJSNodeHandler(final Thing thing, final ZwaveJSDynamicTypeProvider channelTypeProvider) {
         super(thing);
         this.channelTypeProvider = channelTypeProvider;
     }
@@ -255,9 +256,12 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
             configuration.put(CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
         }
 
-        ChannelType channelType = channelTypeProvider.generateChannelType(details);
-        updateThing(editThing().withChannel(ChannelBuilder.create(channelUID).withConfiguration(configuration)
-                .withType(channelType.getUID()).build()).build());
+        ChannelType channelType = ChannelTypeDetails.generateChannelType(details);
+        if (channelType != null) {
+            channelTypeProvider.putChannelType(channelType);
+            updateThing(editThing().withChannel(ChannelBuilder.create(channelUID).withConfiguration(configuration)
+                    .withType(channelType.getUID()).build()).build());
+        }
     }
 
     @Override

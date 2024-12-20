@@ -12,10 +12,11 @@
  */
 package org.openhab.binding.zwavejs.internal.conversion;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.BINDING_ID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -26,20 +27,19 @@ import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.core.thing.type.ChannelType;
-import org.openhab.core.thing.type.ChannelTypeUID;
 
 /**
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
-public class ZwaveJSChannelTypeProviderTest {
+public class ChannelTypeDetailsTest {
 
     @Nullable
-    ZwaveJSChannelTypeProvider provider;
+    ChannelTypeDetails provider;
 
     @BeforeEach
     public void setup() {
-        provider = new ZwaveJSChannelTypeProvider();
+        provider = new ChannelTypeDetails();
     }
 
     @Test
@@ -47,14 +47,15 @@ public class ZwaveJSChannelTypeProviderTest {
         ResultMessage resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
         Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
 
+        List<ChannelType> channelTypeList = new ArrayList<>();
         for (Value value : node.values) {
-            provider.generateChannelType(new ChannelDetails(3, value));
+            ChannelType channelType = provider.generateChannelType(new ChannelDetails(3, value));
+            if (channelType != null) {
+                channelTypeList.add(channelType);
+            }
         }
 
-        ChannelType type = provider.getChannelType(new ChannelTypeUID(BINDING_ID, "5ce3cf0364723fc1955c85a9bd79fd95"),
-                null);
-
-        assertNotNull(type);
+        assertEquals(7, channelTypeList.size());
     }
 
     @Test
@@ -62,11 +63,14 @@ public class ZwaveJSChannelTypeProviderTest {
         ResultMessage resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
         Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
 
+        List<ChannelType> channelTypeList = new ArrayList<>();
         for (Value value : node.values) {
-            provider.generateChannelType(new ChannelDetails(6, value));
+            ChannelType channelType = provider.generateChannelType(new ChannelDetails(3, value));
+            if (channelType != null) {
+                channelTypeList.add(channelType);
+            }
         }
 
-        assertNotNull(
-                provider.getChannelType(new ChannelTypeUID(BINDING_ID, "52566f32c1d47ae39c0a740744c5b755"), null));
+        assertEquals(6, channelTypeList.size());
     }
 }

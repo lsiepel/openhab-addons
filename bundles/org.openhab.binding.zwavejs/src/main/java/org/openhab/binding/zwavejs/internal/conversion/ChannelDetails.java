@@ -13,8 +13,6 @@
 package org.openhab.binding.zwavejs.internal.conversion;
 
 import java.math.BigDecimal;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.measure.Unit;
 
@@ -22,6 +20,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
+import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
@@ -30,6 +29,7 @@ import org.openhab.core.types.State;
 import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
 import org.openhab.core.types.UnDefType;
+import org.openhab.core.types.util.UnitUtils;
 import org.openhab.core.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 public class ChannelDetails {
 
     private final Logger logger = LoggerFactory.getLogger(ChannelDetails.class);
-    private final Map<String, String> unitMap = new ConcurrentHashMap<>();
 
     public int nodeId;
     public String channelId;
@@ -59,8 +58,6 @@ public class ChannelDetails {
     public @Nullable Object writeProperty;
 
     public ChannelDetails(int nodeId, Value data) {
-        populateMap();
-
         this.nodeId = nodeId;
         this.channelId = generateChannelId(data);
 
@@ -69,8 +66,8 @@ public class ChannelDetails {
         this.writable = data.metadata.writeable;
         this.itemType = itemTypeFromMetadata(data.metadata.type, data.metadata.unit);
         this.unit = normalizeUnit(data.metadata.unit);
-        this.statePattern = statePatternOfItemType(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
-        this.state = getStateFromValue(data.value);
+        this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
+        this.state = toState(data.value);
         this.label = data.metadata.label;
         this.description = data.commandClassName;
         this.commandClassName = data.commandClassName;
@@ -84,12 +81,10 @@ public class ChannelDetails {
 
     private boolean isIgnored(String channelId) {
         return (channelId.startsWith("configuration") || channelId.startsWith("version")
-                || channelId.startsWith("manufacturer-specific"));
+                || channelId.startsWith("notification") || channelId.startsWith("manufacturer-specific"));
     }
 
     public ChannelDetails(int nodeId, Event data) {
-        populateMap();
-
         this.nodeId = nodeId;
         this.channelId = generateChannelId(data);
 
@@ -97,21 +92,10 @@ public class ChannelDetails {
     }
 
     public @Nullable State setState(Event event) {
-        this.state = getStateFromValue(event.args.newValue);
-        return this.state;
-    }
-
-    private void populateMap() {
-        unitMap.put("W", "Power");
-        unitMap.put("kWh", "Energy");
-        unitMap.put("A", "ElectricCurrent");
-        unitMap.put("min", "Time");
-        unitMap.put("s", "Time");
-        unitMap.put("V", "ElectricPotential");
+        return this.state = toState(event.args.newValue);
     }
 
     private String generateChannelId(String commandClassName, @Nullable String propertyName) {
-        // todo unit should be stripped from the method
         String id = commandClassName.toLowerCase().replaceAll(" ", "-");
 
         if (propertyName != null) {
@@ -130,27 +114,27 @@ public class ChannelDetails {
         return generateChannelId(value.commandClassName, value.propertyName);
     }
 
-    private @Nullable State getStateFromValue(@Nullable Object newValue) {
+    private @Nullable State toState(@Nullable Object value) {
         if (this.ignoreAsChannel) {
             logger.debug("Node id: '{}' getStateFromValue, channelId ignored", nodeId);
             return null;
         }
-        if (newValue == null) {
+        if (value == null) {
             return UnDefType.NULL;
         }
         State state = UnDefType.UNDEF;
         String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {
-            case "Number":
+            case CoreItemFactory.NUMBER:
                 if (itemTypeSplitted.length > 1) {
                     Unit<?> unit = Units.getInstance().getUnit(this.unit);
-                    state = new QuantityType<>((Number) newValue, unit);
+                    state = new QuantityType<>((Number) value, unit);
                 } else {
-                    state = new DecimalType((Number) newValue);
+                    state = new DecimalType((Number) value);
                 }
                 break;
-            case "Switch":
-                state = OnOffType.from((boolean) newValue);
+            case CoreItemFactory.SWITCH:
+                state = OnOffType.from((boolean) value);
                 break;
             default:
                 state = UnDefType.UNDEF;
@@ -160,32 +144,30 @@ public class ChannelDetails {
     }
 
     public String itemTypeFromMetadata(String type, @Nullable String unitSymbol) {
-        // TODO Not sure if this is the best way to parse a unit as string that returns a Unit or Dimension.
         switch (type) {
             case "number":
                 if (unitSymbol != null) {
-                    Unit<?> unit = Units.getInstance().getUnit(unitSymbol);
-                    String symbol = unit != null && unit.getSymbol() != null ? unit.getSymbol() : unitSymbol;
-                    String dimension = unitMap.getOrDefault(symbol, "");
-                    if (dimension.isBlank()) {
+                    Unit<?> unit = UnitUtils.parseUnit(unitSymbol);
+                    String dimension = unit != null ? UnitUtils.getDimensionName(unit) : null;
+                    if (dimension == null) {
                         logger.warn("Could not parse '{}' as a unit, fallback to 'Number' itemType", unitSymbol);
-                        return "Number";
+                        return CoreItemFactory.NUMBER;
                     }
 
-                    return String.format("Number:%s", dimension);
+                    return CoreItemFactory.NUMBER + ":" + dimension;
                 }
-                return "Number";
+                return CoreItemFactory.NUMBER;
             case "boolean":
                 // switch (or contact ?)
-                return "Switch";
+                return CoreItemFactory.SWITCH;
             case "string":
             case "string[]":
-                return "String";
+                return CoreItemFactory.STRING;
             default:
                 logger.error(
                         "Could not determine item type based on metadata.type: {}, fallback to 'String' please file a bug report",
                         type);
-                return "String";
+                return CoreItemFactory.STRING;
         }
     }
 
@@ -200,20 +182,21 @@ public class ChannelDetails {
                 .replace("seconds", "s");
     }
 
-    public @Nullable StateDescriptionFragment statePatternOfItemType(boolean writeable, Integer min, Integer max,
+    public @Nullable StateDescriptionFragment createStatePattern(boolean writeable, Integer min, Integer max,
             Integer step) {
         String pattern = "";
         String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {
-            case "Number":
+            case CoreItemFactory.NUMBER:
                 if (itemTypeSplitted.length > 1) {
-                    pattern = "%0.f %unit%"; // TODO how to determine the decimals
+                    // TODO how to determine the decimals
+                    pattern = "%0.f %unit%";
                 } else {
                     pattern = "%0.d";
                 }
                 break;
-            case "String":
-            case "Switch":
+            case CoreItemFactory.STRING:
+            case CoreItemFactory.SWITCH:
             default:
                 return null;
         }
