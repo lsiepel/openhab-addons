@@ -33,6 +33,8 @@ import org.openhab.core.config.core.ConfigDescriptionParameterBuilder;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingRegistry;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.binding.builder.ChannelBuilder;
 import org.openhab.core.thing.type.ChannelType;
@@ -54,35 +56,57 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSTypeGeneratorImpl.class);
+    private ThingRegistry thingRegistry;
 
     private ZwaveJSChannelTypeProvider channelTypeProvider;
     private ZwaveJSConfigDescriptionProvider configDescriptionProvider;
 
     @Activate
     public ZwaveJSTypeGeneratorImpl(@Reference ZwaveJSChannelTypeProvider channelTypeProvider,
-            @Reference ZwaveJSConfigDescriptionProvider configDescriptionProvider) {
+            @Reference ZwaveJSConfigDescriptionProvider configDescriptionProvider,
+            @Reference ThingRegistry thingRegistry) {
         this.channelTypeProvider = channelTypeProvider;
         this.configDescriptionProvider = configDescriptionProvider;
+        this.thingRegistry = thingRegistry;
+    }
+
+    public @Nullable Thing getThing(ThingUID thingUID) {
+        return thingRegistry.get(thingUID);
     }
 
     @Override
     public ZwaveJSTypeGeneratorResult generate(ThingUID thingUID, Node node) {
         ZwaveJSTypeGeneratorResult result = new ZwaveJSTypeGeneratorResult();
+        URI uri = getConfigDescriptionURI(thingUID, node);
         for (Value value : node.values) {
-
             ChannelDetails details = new ChannelDetails(node.nodeId, value);
-            if (!details.ignoreAsChannel) {
+            if (details.isChannel) {
                 result.channels = createChannel(thingUID, result.channels, details);
-            } else if (details.ignoreAsChannel) {
+            } else if (details.isConfiguration) {
                 result.configDescriptions = createConfigDescriptions(result.configDescriptions, details);
             }
+        }
+        if (uri != null) {
+            result.configDescriptionURI = uri;
+            configDescriptionProvider.addConfigDescription(
+                    ConfigDescriptionBuilder.create(uri).withParameters(result.configDescriptions).build());
         }
         return result;
     }
 
-    private List<ConfigDescription> createConfigDescriptions(List<ConfigDescription> configDescriptions,
-            ChannelDetails details) {
+    private List<ConfigDescriptionParameter> createConfigDescriptions(
+            List<ConfigDescriptionParameter> configDescriptions, ChannelDetails details) {
         logger.debug("Node '{}' createConfigDescriptions with Id: {}", details.nodeId, details.channelId);
+
+        ConfigDescriptionParameter configDescription = ConfigDescriptionParameterBuilder
+                .create(details.channelId, details.configType) //
+                .withRequired(true) //
+                .withMultiple(false) //
+                .withContext("item") //
+                .withLabel(details.label) //
+                .withDescription(details.description) //
+                .build();
+        configDescriptions.add(configDescription);
         return configDescriptions;
     }
 
@@ -92,7 +116,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         logger.trace(" >> {}", details);
         ChannelUID channelUID = new ChannelUID(thingUID, details.channelId);
 
-        Channel existingChannel = channels.get(channelUID);
+        Channel existingChannel = channels.get(channelUID.getAsString());
         if (existingChannel != null) {
             Configuration channelConfig = existingChannel.getConfiguration();
             if (channelConfig.get(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY) == null && details.writable
@@ -127,8 +151,13 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 channelTypeProvider.addChannelType(channelType);
             }
         }
+        if (channelType == null) {
+            logger.warn("Node {}, channel {}, ChannelType could not be found or generated, this is a bug",
+                    details.nodeId, details.channelId);
+        }
         channels.put(details.channelId, ChannelBuilder.create(channelUID).withConfiguration(configuration)
                 .withType(channelType.getUID()).build());
+
         return channels;
     }
 
@@ -158,7 +187,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     }
 
     private @Nullable ChannelType generateChannelType(ChannelDetails details) {
-        if (details.ignoreAsChannel) {
+        if (!details.isChannel) {
             return null;
         }
         final ChannelTypeUID channelTypeUID = generateChannelTypeUID(details);
@@ -189,7 +218,8 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
 
             builder.withReadOnly(!detail.writable);
             builder.withDescription(detail.description);
-
+            builder.withGroupName(detail.commandClassName);
+            // if (detail.min)
             // builder.withMinimum(MetadataUtils.createBigDecimal(minValue));
             // builder.withMaximum(MetadataUtils.createBigDecimal(maxValue));
             // if (detail.unit != null) {
@@ -201,9 +231,21 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         return ConfigDescriptionBuilder.create(configDescriptionURI).withParameters(parms).build();
     }
 
-    private @Nullable URI getConfigDescriptionURI(Node node) {
+    private @Nullable URI getConfigDescriptionURI(ThingUID thingUID, Node node) {
+        Thing thing = getThing(thingUID);
+        if (thing == null) {
+            logger.debug("Thing '{}'' not found in registry for getConfigDescriptionURI", thingUID);
+            return null;
+        }
+        ThingUID bridgeUID = thing.getBridgeUID();
+        if (bridgeUID == null) {
+            logger.debug("No bridgeUID found for Thing '{}'' in getConfigDescriptionURI", thingUID);
+            return null;
+        }
+
         try {
-            return new URI("thing-type:zwavejs:node:" + node.nodeId);
+            return new URI(String.format("thing:%s:node:%s:node%s", ZwaveJSBindingConstants.BINDING_ID,
+                    bridgeUID.getId(), node.nodeId));
         } catch (URISyntaxException ex) {
             logger.warn("Can't create configDescriptionURI for node {}", node.nodeId);
             return null;

@@ -12,8 +12,6 @@
  */
 package org.openhab.binding.zwavejs.internal.handler;
 
-import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.*;
-
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -28,7 +26,6 @@ import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
-import org.openhab.core.config.core.ConfigDescription;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.thing.Bridge;
@@ -165,7 +162,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
         for (Value value : node.values) {
             ChannelDetails details = new ChannelDetails(getId(), value);
-            if (!details.ignoreAsChannel) {
+            if (details.isChannel) {
                 State state = details.state;
                 if (isLinked(details.channelId) && state != null) {
                     updateState(details.channelId, state);
@@ -181,7 +178,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         logger.debug("Z-Wave node id: {} state update", config.id);
 
         ChannelDetails details = new ChannelDetails(getId(), event);
-        if (!details.ignoreAsChannel) {
+        if (details.isChannel) {
             if (isLinked(details.channelId)) {
                 ZwaveJSChannelConfiguration channelConfig = thing.getChannel(details.channelId).getConfiguration()
                         .as(ZwaveJSChannelConfiguration.class);
@@ -210,9 +207,6 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         ZwaveJSTypeGeneratorResult result = typeGenerator.generate(thing.getUID(), node);
 
         updateThing(editThing().withChannels(new ArrayList<Channel>(result.channels.values())).build());
-
-        for (ConfigDescription configDescription : result.configDescriptions) {
-        }
 
         return true;
     }

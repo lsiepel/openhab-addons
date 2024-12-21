@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +47,7 @@ public class ChannelDetailsTest {
 
     @Test
     public void testChannelDetailsForNode3Channel1() throws IOException {
-        Node node = nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
+        Node node = Objects.requireNonNull(nodes.stream().filter(f -> f.nodeId == 3).findAny().get());
 
         ChannelDetails details = new ChannelDetails(3, node.values.get(0));
 
@@ -63,7 +64,7 @@ public class ChannelDetailsTest {
 
     @Test
     public void testChannelDetailsForNode6Channel1() throws IOException {
-        Node node = nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
+        Node node = Objects.requireNonNull(nodes.stream().filter(f -> f.nodeId == 6).findAny().get());
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(0));
 
@@ -101,7 +102,7 @@ public class ChannelDetailsTest {
 
     @Test
     public void testChannelDetailsForNode3Channel3() throws IOException {
-        Node node = nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
+        Node node = Objects.requireNonNull(nodes.stream().filter(f -> f.nodeId == 6).findAny().get());
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(2));
 
@@ -119,7 +120,7 @@ public class ChannelDetailsTest {
 
     @Test
     public void testChannelDetailsForNode6Channel4() throws IOException {
-        Node node = nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
+        Node node = Objects.requireNonNull(nodes.stream().filter(f -> f.nodeId == 6).findAny().get());
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(3));
 

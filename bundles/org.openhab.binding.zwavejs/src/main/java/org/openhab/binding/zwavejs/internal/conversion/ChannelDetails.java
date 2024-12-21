@@ -53,17 +53,20 @@ public class ChannelDetails {
     public @Nullable StateDescriptionFragment statePattern;
     public String label = "Unknown Label";
     public String description = "Unknown Description";
-    public boolean ignoreAsChannel;
+    public boolean isConfiguration;
+    public boolean isChannel;
     public @Nullable String commandClassName;
     public int commandClassId;
     public int endpoint;
     public @Nullable Object writeProperty;
+    public Object value;
 
     public ChannelDetails(int nodeId, Value data) {
         this.nodeId = nodeId;
         this.channelId = generateChannelId(data);
 
-        this.ignoreAsChannel = isIgnored(channelId);
+        this.isConfiguration = isConfiguration(channelId);
+        this.isChannel = isChannel(channelId);
 
         this.writable = data.metadata.writeable;
         this.unit = normalizeUnit(data.metadata.unit);
@@ -72,26 +75,33 @@ public class ChannelDetails {
         this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
         this.state = toState(data.value);
         this.label = data.metadata.label;
-        this.description = data.commandClassName;
+        this.description = data.metadata.description != null ? data.metadata.description : data.commandClassName;
         this.commandClassName = data.commandClassName;
         this.commandClassId = data.commandClass;
         this.endpoint = data.endpoint;
+        this.value = data.value;
 
         if (writable) {
             writeProperty = data.property;
         }
     }
 
-    private boolean isIgnored(String channelId) {
-        return (channelId.startsWith("configuration") || channelId.startsWith("version")
-                || channelId.startsWith("notification") || channelId.startsWith("manufacturer-specific"));
+    private boolean isConfiguration(String channelId) {
+        return channelId.startsWith("configuration");
+    }
+
+    private boolean isChannel(String channelId) {
+        return !isConfiguration(channelId) && !channelId.startsWith("version") && !channelId.startsWith("notification")
+                && !channelId.startsWith("manufacturer-specific");
     }
 
     public ChannelDetails(int nodeId, Event data) {
         this.nodeId = nodeId;
         this.channelId = generateChannelId(data);
 
-        this.ignoreAsChannel = isIgnored(channelId);
+        this.isConfiguration = isConfiguration(channelId);
+        this.isChannel = isChannel(channelId);
+        this.value = data.args.newValue;
     }
 
     public @Nullable State setState(Event event) {
@@ -118,7 +128,7 @@ public class ChannelDetails {
     }
 
     private @Nullable State toState(@Nullable Object value) {
-        if (this.ignoreAsChannel) {
+        if (!this.isChannel) {
             logger.debug("Node id: '{}' getStateFromValue, channelId ignored", nodeId);
             return null;
         }
@@ -204,8 +214,8 @@ public class ChannelDetails {
                 .replace("seconds", "s");
     }
 
-    public @Nullable StateDescriptionFragment createStatePattern(boolean writeable, Integer min, Integer max,
-            Integer step) {
+    public @Nullable StateDescriptionFragment createStatePattern(boolean writeable, @Nullable Integer min,
+            @Nullable Integer max, @Nullable Integer step) {
         String pattern = "";
         String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {

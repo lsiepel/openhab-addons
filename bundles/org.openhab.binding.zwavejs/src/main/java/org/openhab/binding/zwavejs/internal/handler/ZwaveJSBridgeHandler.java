@@ -62,7 +62,6 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
 
     protected ScheduledExecutorService executorService = scheduler;
     private @Nullable NodeDiscoveryService discoveryService;
-    private @Nullable ZwaveJSBridgeConfiguration config;
     private ZWaveJSClient client;
 
     public ZwaveJSBridgeHandler(Bridge bridge, WebSocketFactory wsFactory) {
@@ -76,19 +75,12 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             if (command instanceof RefreshType) {
                 // TODO: handle data refresh
             }
-
-            // TODO: handle command
-
-            // Note: if communication with thing fails for some reason,
-            // indicate that by setting the status with detail information:
-            // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-            // "Could not control device at IP address x.x.x.x");
         }
     }
 
     @Override
     public void initialize() {
-        ZwaveJSBridgeConfiguration config = this.config = getConfigAs(ZwaveJSBridgeConfiguration.class);
+        ZwaveJSBridgeConfiguration config = getConfigAs(ZwaveJSBridgeConfiguration.class);
 
         if (!config.isValid()) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Hostname or port invalid");

@@ -12,13 +12,15 @@
  */
 package org.openhab.binding.zwavejs.internal.type;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.core.config.core.ConfigDescription;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
 import org.openhab.core.thing.Channel;
 
 /**
@@ -29,5 +31,6 @@ import org.openhab.core.thing.Channel;
 public class ZwaveJSTypeGeneratorResult {
 
     public Map<String, Channel> channels = new HashMap<>();
-    public List<ConfigDescription> configDescriptions = new ArrayList<>();
+    public List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
+    public @Nullable URI configDescriptionURI;
 }

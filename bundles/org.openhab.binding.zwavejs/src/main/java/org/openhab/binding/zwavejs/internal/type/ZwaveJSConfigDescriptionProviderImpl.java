@@ -28,7 +28,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * Provides all Zwave JS Configuration Descriptions for dynamically discovered characteristics.
  *
- * @author Leo Siepel
+ * @author Leo Siepel - Initial contribution
  */
 @Component(service = { ZwaveJSConfigDescriptionProvider.class, ConfigDescriptionProvider.class })
 @NonNullByDefault
