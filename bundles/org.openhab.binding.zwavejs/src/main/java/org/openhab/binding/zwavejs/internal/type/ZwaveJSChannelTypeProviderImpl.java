@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.conversion;
+package org.openhab.binding.zwavejs.internal.type;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.core.storage.StorageService;
@@ -23,17 +23,18 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * {@link CharacteristicChannelTypeProvider} that provides channel types for dynamically discovered characteristics.
+ * Provides all Zwave JS ChannelTypes for dynamically discovered characteristics.
  *
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 
 @NonNullByDefault
-@Component(service = { ZwaveJSDynamicTypeProvider.class, ChannelTypeProvider.class })
-public class ZwaveJSDynamicTypeProvider extends AbstractStorageBasedTypeProvider {
+@Component(service = { ZwaveJSChannelTypeProvider.class, ChannelTypeProvider.class })
+public class ZwaveJSChannelTypeProviderImpl extends AbstractStorageBasedTypeProvider
+        implements ZwaveJSChannelTypeProvider {
 
     @Activate
-    public ZwaveJSDynamicTypeProvider(@Reference StorageService storageService) {
+    public ZwaveJSChannelTypeProviderImpl(@Reference StorageService storageService) {
         super(storageService);
     }
 
@@ -41,5 +42,10 @@ public class ZwaveJSDynamicTypeProvider extends AbstractStorageBasedTypeProvider
         String thingUid = uid.getAsString() + ":";
         getChannelTypes(null).stream().map(ChannelType::getUID).filter(c -> c.getAsString().startsWith(thingUid))
                 .forEach(this::removeChannelType);
+    }
+
+    @Override
+    public void addChannelType(ChannelType channelType) {
+        this.putChannelType(channelType);
     }
 }

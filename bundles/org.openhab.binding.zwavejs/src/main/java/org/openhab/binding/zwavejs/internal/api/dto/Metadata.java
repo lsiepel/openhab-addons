@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 public class Metadata {
     public Object comments;

@@ -18,7 +18,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
 import org.openhab.binding.zwavejs.internal.discovery.NodeDiscoveryService;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
 public interface ZwaveEventListener {

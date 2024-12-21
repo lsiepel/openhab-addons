@@ -17,7 +17,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 /**
  * The {@link ZwaveJSBridgeConfiguration} class contains fields mapping bridge configuration parameters.
  *
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
 public class ZwaveJSBridgeConfiguration {

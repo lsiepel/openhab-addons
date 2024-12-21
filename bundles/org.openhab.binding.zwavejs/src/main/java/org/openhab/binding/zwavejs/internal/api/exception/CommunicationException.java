@@ -17,7 +17,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 /**
  * Exception if the AccountHandler is not available.
  *
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
 public class CommunicationException extends Exception {

@@ -10,13 +10,13 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.conversion;
+package org.openhab.binding.zwavejs.internal.type;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.BINDING_ID;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -24,22 +24,23 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
-import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
-import org.openhab.core.thing.type.ChannelType;
+import org.openhab.core.thing.ThingUID;
 
 /**
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
-public class ChannelTypeDetailsTest {
+public class ZwaveJSTypeGeneratorTest {
 
     @Nullable
-    ChannelTypeUtils provider;
+    ZwaveJSTypeGenerator provider;
 
     @BeforeEach
     public void setup() {
-        provider = new ChannelTypeUtils();
+        ZwaveJSChannelTypeProvider channelTypeProvider = mock(ZwaveJSChannelTypeProviderImpl.class);
+        ZwaveJSConfigDescriptionProvider configDescriptionProvider = mock(ZwaveJSConfigDescriptionProviderImpl.class);
+        provider = new ZwaveJSTypeGeneratorImpl(channelTypeProvider, configDescriptionProvider);
     }
 
     @Test
@@ -47,15 +48,9 @@ public class ChannelTypeDetailsTest {
         ResultMessage resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
         Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
 
-        List<ChannelType> channelTypeList = new ArrayList<>();
-        for (Value value : node.values) {
-            ChannelType channelType = provider.generateChannelType(new ChannelDetails(3, value));
-            if (channelType != null) {
-                channelTypeList.add(channelType);
-            }
-        }
+        ZwaveJSTypeGeneratorResult results = provider.generate(new ThingUID(BINDING_ID, "test-thing"), node);
 
-        assertEquals(7, channelTypeList.size());
+        assertEquals(2, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -63,14 +58,8 @@ public class ChannelTypeDetailsTest {
         ResultMessage resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
         Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
 
-        List<ChannelType> channelTypeList = new ArrayList<>();
-        for (Value value : node.values) {
-            ChannelType channelType = provider.generateChannelType(new ChannelDetails(3, value));
-            if (channelType != null) {
-                channelTypeList.add(channelType);
-            }
-        }
+        ZwaveJSTypeGeneratorResult results = provider.generate(new ThingUID(BINDING_ID, "test-thing"), node);
 
-        assertEquals(6, channelTypeList.size());
+        assertEquals(2, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 }

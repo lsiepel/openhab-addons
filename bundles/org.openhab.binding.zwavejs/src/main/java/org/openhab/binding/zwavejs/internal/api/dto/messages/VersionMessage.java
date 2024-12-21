@@ -13,7 +13,7 @@
 package org.openhab.binding.zwavejs.internal.api.dto.messages;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 public class VersionMessage extends BaseMessage {
     public String driverVersion;

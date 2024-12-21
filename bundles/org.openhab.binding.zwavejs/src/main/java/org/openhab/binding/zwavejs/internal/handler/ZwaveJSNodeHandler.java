@@ -14,6 +14,7 @@ package org.openhab.binding.zwavejs.internal.handler;
 
 import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.*;
 
+import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -25,8 +26,9 @@ import org.openhab.binding.zwavejs.internal.api.dto.commands.NodeSetValueCommand
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
-import org.openhab.binding.zwavejs.internal.conversion.ChannelTypeUtils;
-import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSDynamicTypeProvider;
+import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
+import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
+import org.openhab.core.config.core.ConfigDescription;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.thing.Bridge;
@@ -37,8 +39,6 @@ import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.ThingStatusInfo;
 import org.openhab.core.thing.binding.BaseThingHandler;
-import org.openhab.core.thing.binding.builder.ChannelBuilder;
-import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.State;
 import org.slf4j.Logger;
@@ -48,19 +48,19 @@ import org.slf4j.LoggerFactory;
  * The {@link ZwaveJSNodeHandler} is responsible for handling commands, which are
  * sent to one of the channels.
  *
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
 public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSNodeHandler.class);
-    private final ZwaveJSDynamicTypeProvider channelTypeProvider;
+    private final ZwaveJSTypeGenerator typeGenerator;
     private @Nullable ZwaveJSNodeConfiguration config;
     protected ScheduledExecutorService executorService = scheduler;
 
-    public ZwaveJSNodeHandler(final Thing thing, final ZwaveJSDynamicTypeProvider channelTypeProvider) {
+    public ZwaveJSNodeHandler(final Thing thing, final ZwaveJSTypeGenerator typeGenerator) {
         super(thing);
-        this.channelTypeProvider = channelTypeProvider;
+        this.typeGenerator = typeGenerator;
     }
 
     @Override
@@ -126,7 +126,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
                             String.format("The Z-Wave JS state of this node is: {}", nodeDetails.status));
                     return;
                 }
-                if (!buildChannels(nodeDetails)) {
+                if (!setupThing(nodeDetails)) {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                             "Initialization failed, could not build channels");
                     return;
@@ -203,64 +203,39 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         return this.config.id;
     }
 
-    private boolean buildChannels(Node node) {
-        logger.debug("Building channels for {}, containing {} values", node.nodeId, node.values.size());
-        for (Value value : node.values) {
-            ChannelDetails details = new ChannelDetails(this.getId(), value);
-            if (!details.ignoreAsChannel) {
-                createChannel(getThing(), details);
-            }
+    private boolean setupThing(Node node) {
+        logger.debug("Building channels and configuration for {}, containing {} values", node.nodeId,
+                node.values.size());
+
+        ZwaveJSTypeGeneratorResult result = typeGenerator.generate(thing.getUID(), node);
+
+        updateThing(editThing().withChannels(new ArrayList<Channel>(result.channels.values())).build());
+
+        for (ConfigDescription configDescription : result.configDescriptions) {
         }
 
         return true;
     }
 
-    // public void updateChannel(Thing thing, )
-
-    public void createChannel(Thing thing, ChannelDetails details) {
-        // if ("Configuration".equals(value.commandClassName)) {
-        // logger.debug("Thing '{}' createChannel, Configuration commandClass ignored", thing.getLabel());
-        // return;
-        // }
-
+    public void createConfig(Thing thing, ChannelDetails details) {
         String channelId = details.channelId;
-        logger.debug("Thing '{}' createChannel with Id: {}", thing.getLabel(), channelId);
+        logger.debug("Thing '{}' createConfig with Id: {}", thing.getLabel(), channelId);
         logger.trace(" >> {}", details);
         ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
 
-        Channel existingChannel = thing.getChannel(channelUID);
-        if (existingChannel != null) {
-            Configuration channelConfig = existingChannel.getConfiguration();
-            if (channelConfig.get(CONFIG_CHANNEL_WRITE_PROPERTY) == null && details.writable
-                    && details.writeProperty != null) {
-                channelConfig.put(CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
-                ChannelBuilder.create(existingChannel).withConfiguration(channelConfig).build();
-                logger.debug("Thing {}, channel {} existing channel updated", thing.getLabel(), channelId);
-                return;
-
-                // updateThing(editThing().withChannel();
-            } else {
-                logger.warn("Thing {}, channel {} already exists: ignored", thing.getLabel(), channelId);
-                return;
-            }
-        }
-
         Configuration configuration = new Configuration();
-        configuration.put(CONFIG_CHANNEL_INCOMING_UNIT, details.unit);
-        configuration.put(CONFIG_CHANNEL_ITEM_TYPE, details.itemType);
-        configuration.put(CONFIG_CHANNEL_COMMANDCLASS_ID, details.commandClassId);
-        configuration.put(CONFIG_CHANNEL_COMMANDCLASS_NAME, details.commandClassName);
-        configuration.put(CONFIG_CHANNEL_ENDPOINT, details.endpoint);
-        if (details.writable) {
-            configuration.put(CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
-        }
 
-        ChannelType channelType = ChannelTypeUtils.generateChannelType(details);
-        if (channelType != null) {
-            channelTypeProvider.putChannelType(channelType);
-            updateThing(editThing().withChannel(ChannelBuilder.create(channelUID).withConfiguration(configuration)
-                    .withType(channelType.getUID()).build()).build());
-        }
+        /*
+         * ConfigDescriptionParameter configDescription = ConfigDescriptionParameterBuilder
+         * .create(CONFIG_INPUT_ITEM, Type.TEXT) //
+         * .withRequired(true) //
+         * .withMultiple(false) //
+         * .withContext(ITEM) //
+         * .withLabel("Input Item") //
+         * .withDescription("Item to monitor") //
+         * .build();
+         */
+        updateThing(editThing().withConfiguration(configuration).build());
     }
 
     @Override

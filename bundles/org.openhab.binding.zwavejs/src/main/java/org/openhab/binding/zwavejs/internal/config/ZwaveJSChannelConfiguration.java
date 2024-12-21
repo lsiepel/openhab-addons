@@ -18,7 +18,7 @@ import org.eclipse.jdt.annotation.Nullable;
 /**
  * The {@link ZwaveJSNodeConfiguration} class contains fields mapping thing configuration parameters.
  *
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
 public class ZwaveJSChannelConfiguration {

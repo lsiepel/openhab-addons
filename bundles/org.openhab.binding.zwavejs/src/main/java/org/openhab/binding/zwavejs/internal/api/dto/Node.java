@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 public class Node {
     public int nodeId;

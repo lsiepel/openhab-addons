@@ -15,7 +15,7 @@ package org.openhab.binding.zwavejs.internal.api.dto;
 import java.util.ArrayList;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 public class DeviceConfig {
     public String filename;

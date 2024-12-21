@@ -19,7 +19,7 @@ import org.openhab.core.thing.ThingTypeUID;
  * The {@link ZwaveJSBindingConstants} class defines common constants, which are
  * used across the whole binding.
  *
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
 public class ZwaveJSBindingConstants {

@@ -13,7 +13,7 @@
 package org.openhab.binding.zwavejs.internal.api.dto;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 public class Root {
     public String type;

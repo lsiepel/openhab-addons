@@ -32,9 +32,12 @@ import org.mockito.invocation.InvocationOnMock;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
-import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSDynamicTypeProvider;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSNodeHandler;
+import org.openhab.binding.zwavejs.internal.type.ZwaveJSChannelTypeProvider;
+import org.openhab.binding.zwavejs.internal.type.ZwaveJSConfigDescriptionProvider;
+import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
+import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorImpl;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
@@ -71,9 +74,14 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
 
     public static ZwaveJSNodeHandlerMock createAndInitHandler(final ThingHandlerCallback callback, final Thing thing) {
         // StorageService storageService = mock(StorageService.class);
-        ZwaveJSDynamicTypeProvider channelTypeProvider = mock(ZwaveJSDynamicTypeProvider.class);
-        doNothing().when(channelTypeProvider).putChannelType(any(ChannelType.class));
-        final ZwaveJSNodeHandlerMock handler = spy(new ZwaveJSNodeHandlerMock(thing, channelTypeProvider));
+        ZwaveJSChannelTypeProvider channelTypeProvider = mock(ZwaveJSChannelTypeProvider.class);
+        ZwaveJSConfigDescriptionProvider configDescriptionProvider = mock(ZwaveJSConfigDescriptionProvider.class);
+        doNothing().when(channelTypeProvider).addChannelType(any(ChannelType.class));
+
+        ZwaveJSTypeGenerator typeGenerator = new ZwaveJSTypeGeneratorImpl(channelTypeProvider,
+                configDescriptionProvider);
+
+        final ZwaveJSNodeHandlerMock handler = spy(new ZwaveJSNodeHandlerMock(thing, typeGenerator));
 
         handler.setCallback(callback);
         handler.initialize();
@@ -81,8 +89,8 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         return handler;
     }
 
-    public ZwaveJSNodeHandlerMock(Thing thing, ZwaveJSDynamicTypeProvider channelTypeProvider) {
-        super(thing, channelTypeProvider);
+    public ZwaveJSNodeHandlerMock(Thing thing, ZwaveJSTypeGenerator typeGenerator) {
+        super(thing, typeGenerator);
 
         executorService = Mockito.mock(ScheduledExecutorService.class);
         doAnswer((InvocationOnMock invocation) -> {

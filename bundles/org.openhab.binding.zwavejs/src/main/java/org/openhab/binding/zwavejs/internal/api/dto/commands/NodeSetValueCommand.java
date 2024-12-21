@@ -16,7 +16,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.ValueId;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 public class NodeSetValueCommand extends BaseCommand {
     public int nodeId;

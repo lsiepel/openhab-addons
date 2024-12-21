@@ -18,7 +18,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.zwavejs.internal.conversion.ZwaveJSDynamicTypeProvider;
+import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.core.i18n.TimeZoneProvider;
 import org.openhab.core.io.net.http.WebSocketFactory;
 import org.openhab.core.thing.Bridge;
@@ -35,7 +35,7 @@ import org.osgi.service.component.annotations.Reference;
  * The {@link ZwaveJSHandlerFactory} is responsible for creating things and thing
  * handlers.
  *
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
 @Component(configurationPid = "binding.zwavejs", service = ThingHandlerFactory.class)
@@ -45,15 +45,14 @@ public class ZwaveJSHandlerFactory extends BaseThingHandlerFactory {
 
     private WebSocketFactory webSocketFactory;
     private TimeZoneProvider timeZoneProvider;
-    private ZwaveJSDynamicTypeProvider channelTypeProvider;
+    private ZwaveJSTypeGenerator typeGenerator;
 
     @Activate
     public ZwaveJSHandlerFactory(final @Reference WebSocketFactory webSocketFactory,
-            final @Reference TimeZoneProvider timeZoneProvider,
-            final @Reference ZwaveJSDynamicTypeProvider channelTypeProvider) {
+            final @Reference TimeZoneProvider timeZoneProvider, final @Reference ZwaveJSTypeGenerator typeGenerator) {
         this.webSocketFactory = webSocketFactory;
         this.timeZoneProvider = timeZoneProvider;
-        this.channelTypeProvider = channelTypeProvider;
+        this.typeGenerator = typeGenerator;
     }
 
     @Override
@@ -68,7 +67,7 @@ public class ZwaveJSHandlerFactory extends BaseThingHandlerFactory {
         if (THING_TYPE_GATEWAY.equals(thingTypeUID)) {
             return new ZwaveJSBridgeHandler((Bridge) thing, webSocketFactory);
         } else if (THING_TYPE_NODE.equals(thingTypeUID)) {
-            return new ZwaveJSNodeHandler(thing, channelTypeProvider);
+            return new ZwaveJSNodeHandler(thing, typeGenerator);
         }
 
         return null;

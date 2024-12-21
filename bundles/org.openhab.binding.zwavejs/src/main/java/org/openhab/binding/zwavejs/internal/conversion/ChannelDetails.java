@@ -20,6 +20,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
+import org.openhab.core.config.core.ConfigDescriptionParameter.Type;
 import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
@@ -35,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
 public class ChannelDetails {
@@ -46,7 +47,8 @@ public class ChannelDetails {
     public String channelId;
     public boolean writable;
     public @Nullable State state;
-    public String itemType = CoreItemFactory.SWITCH;
+    public String itemType = CoreItemFactory.STRING;
+    public Type configType = Type.TEXT;
     public @Nullable String unit;
     public @Nullable StateDescriptionFragment statePattern;
     public String label = "Unknown Label";
@@ -66,6 +68,7 @@ public class ChannelDetails {
         this.writable = data.metadata.writeable;
         this.unit = normalizeUnit(data.metadata.unit);
         this.itemType = itemTypeFromMetadata(data.metadata.type, this.unit);
+        this.configType = configTypeFromMetadata(data.metadata.type);
         this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
         this.state = toState(data.value);
         this.label = data.metadata.label;
@@ -171,8 +174,27 @@ public class ChannelDetails {
         }
     }
 
+    private Type configTypeFromMetadata(String type) {
+        switch (type) {
+            case "number":
+                // Type.INTEGER
+                return Type.DECIMAL;
+            case "boolean":
+                // switch (or contact ?)
+                return Type.BOOLEAN;
+            case "string":
+            case "string[]":
+                return Type.TEXT;
+            default:
+                logger.error(
+                        "Could not determine config type based on metadata.type: {}, fallback to 'Text' please file a bug report",
+                        type);
+                return Type.TEXT;
+        }
+    }
+
     public @Nullable String normalizeUnit(@Nullable String unit) {
-        if (unit == null || !itemType.contains(":")) {
+        if (unit == null) {
             return null;
         }
 

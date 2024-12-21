@@ -13,7 +13,7 @@
 package org.openhab.binding.zwavejs.internal.api.dto;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 public class BackgroundRSSI {
     // TODO Have not yet found a way to handle the parsing of this json:

@@ -10,21 +10,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.config;
+package org.openhab.binding.zwavejs.internal.type;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.core.config.core.ConfigDescription;
+import org.openhab.core.thing.Channel;
 
 /**
- * The {@link ZwaveJSNodeConfiguration} class contains fields mapping thing configuration parameters.
  *
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
-public class ZwaveJSNodeConfiguration {
+public class ZwaveJSTypeGeneratorResult {
 
-    public int id = 0;
-
-    public boolean isValid() {
-        return id > 0;
-    }
+    public Map<String, Channel> channels = new HashMap<>();
+    public List<ConfigDescription> configDescriptions = new ArrayList<>();
 }

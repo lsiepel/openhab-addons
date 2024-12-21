@@ -50,10 +50,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link ZwaveJSNodeHandler} is responsible for handling commands, which are
- * sent to one of the channels.
  *
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
 public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEventListener {

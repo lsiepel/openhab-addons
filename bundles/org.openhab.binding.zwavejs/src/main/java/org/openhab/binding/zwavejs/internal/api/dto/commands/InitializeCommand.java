@@ -15,7 +15,7 @@ package org.openhab.binding.zwavejs.internal.api.dto.commands;
 import org.osgi.framework.FrameworkUtil;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 public class InitializeCommand extends BaseCommand {
     public int schemaVersion;

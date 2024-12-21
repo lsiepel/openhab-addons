@@ -10,21 +10,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.zwavejs.internal.config;
+package org.openhab.binding.zwavejs.internal.type;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.core.thing.type.ChannelType;
+import org.openhab.core.thing.type.ChannelTypeProvider;
 
 /**
- * The {@link ZwaveJSNodeConfiguration} class contains fields mapping thing configuration parameters.
+ * Extends the ChannelTypeProvider to manually add a ChannelType.
  *
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
-public class ZwaveJSNodeConfiguration {
+public interface ZwaveJSChannelTypeProvider extends ChannelTypeProvider {
 
-    public int id = 0;
-
-    public boolean isValid() {
-        return id > 0;
-    }
+    /**
+     * Adds the ChannelType to this provider.
+     */
+    void addChannelType(ChannelType channelType);
 }

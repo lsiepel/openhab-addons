@@ -15,7 +15,7 @@ package org.openhab.binding.zwavejs.internal.api.dto.messages;
 import org.openhab.binding.zwavejs.internal.api.dto.Result;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 public class ResultMessage extends BaseMessage {
     public boolean success;

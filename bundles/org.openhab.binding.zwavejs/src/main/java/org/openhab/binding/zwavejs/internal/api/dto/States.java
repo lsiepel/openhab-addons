@@ -15,7 +15,7 @@ package org.openhab.binding.zwavejs.internal.api.dto;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * @author L. Siepel - Initial contribution
+ * @author Leo Siepel - Initial contribution
  */
 public class States {
     @SerializedName("true")
