@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
+import org.openhab.core.config.core.ConfigDescriptionParameter.Type;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
@@ -140,7 +141,7 @@ public class ChannelDetailsTest {
         ChannelDetails details = new ChannelDetails(6, node.values.get(6));
 
         assertEquals("configuration-function", details.channelId);
-        assertEquals("Number", details.itemType);
+        assertEquals(Type.INTEGER, details.configType);
         assertEquals("Always On Function", details.label);
         assertEquals("Once activated, Wall Plug will keep a connected device ...", details.description);
         assertEquals(true, details.writable);

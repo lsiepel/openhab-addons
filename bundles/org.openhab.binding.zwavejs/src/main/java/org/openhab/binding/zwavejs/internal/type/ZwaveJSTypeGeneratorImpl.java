@@ -26,7 +26,6 @@ import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
-import org.openhab.core.config.core.ConfigDescription;
 import org.openhab.core.config.core.ConfigDescriptionBuilder;
 import org.openhab.core.config.core.ConfigDescriptionParameter;
 import org.openhab.core.config.core.ConfigDescriptionParameterBuilder;
@@ -99,21 +98,29 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             List<ConfigDescriptionParameter> configDescriptions, ChannelDetails details) {
         logger.debug("Node '{}' createConfigDescriptions with Id: {}", details.nodeId, details.channelId);
 
-        ConfigDescriptionParameterBuilder configDescriptionParameterBuilder = ConfigDescriptionParameterBuilder
+        ConfigDescriptionParameterBuilder parameterBuilder = ConfigDescriptionParameterBuilder
                 .create(details.channelId, details.configType) //
                 .withRequired(true) //
                 .withMultiple(false) //
                 .withContext("item") //
                 .withLabel(details.label) //
-                .withDescription(details.description);
+                .withVerify(true).withUnit(null).withDescription(details.description);
+
+        if (details.unit != null) {
+            parameterBuilder.withUnit(details.unit);
+        }
 
         if (details.optionList != null) {
             List<ParameterOption> options = new ArrayList<>();
             details.optionList.forEach((k, v) -> options.add(new ParameterOption(k, v)));
-            configDescriptionParameterBuilder.withOptions(options);
+            logger.info("Node '{}' adding {} options for Id: {}", details.nodeId, details.optionList.size(),
+                    details.channelId);
+            parameterBuilder.withLimitToOptions(true);
+            parameterBuilder.withMultiple(false);
+            parameterBuilder.withOptions(options);
         }
 
-        configDescriptions.add(configDescriptionParameterBuilder.build());
+        configDescriptions.add(parameterBuilder.build());
         return configDescriptions;
     }
 
@@ -214,28 +221,6 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         }
 
         return builder.build();
-    }
-
-    public static ConfigDescription generateConfigDescription(List<ChannelDetails> details, URI configDescriptionURI) {
-        List<ConfigDescriptionParameter> parms = new ArrayList<>();
-
-        for (ChannelDetails detail : details) {
-            ConfigDescriptionParameterBuilder builder = ConfigDescriptionParameterBuilder.create(detail.label,
-                    detail.configType);
-
-            builder.withReadOnly(!detail.writable);
-            builder.withDescription(detail.description);
-            builder.withGroupName(detail.commandClassName);
-            // if (detail.min)
-            // builder.withMinimum(MetadataUtils.createBigDecimal(minValue));
-            // builder.withMaximum(MetadataUtils.createBigDecimal(maxValue));
-            // if (detail.unit != null) {
-            // builder.withUnitLabel(detail.unit);
-            // }
-            parms.add(builder.build());
-        }
-
-        return ConfigDescriptionBuilder.create(configDescriptionURI).withParameters(parms).build();
     }
 
     private @Nullable URI getConfigDescriptionURI(ThingUID thingUID, Node node) {

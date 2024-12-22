@@ -26,7 +26,6 @@ import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
-import org.openhab.core.config.core.Configuration;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Channel;
@@ -209,27 +208,6 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         updateThing(editThing().withChannels(new ArrayList<Channel>(result.channels.values())).build());
 
         return true;
-    }
-
-    public void createConfig(Thing thing, ChannelDetails details) {
-        String channelId = details.channelId;
-        logger.debug("Thing '{}' createConfig with Id: {}", thing.getLabel(), channelId);
-        logger.trace(" >> {}", details);
-        ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
-
-        Configuration configuration = new Configuration();
-
-        /*
-         * ConfigDescriptionParameter configDescription = ConfigDescriptionParameterBuilder
-         * .create(CONFIG_INPUT_ITEM, Type.TEXT) //
-         * .withRequired(true) //
-         * .withMultiple(false) //
-         * .withContext(ITEM) //
-         * .withLabel("Input Item") //
-         * .withDescription("Item to monitor") //
-         * .build();
-         */
-        updateThing(editThing().withConfiguration(configuration).build());
     }
 
     @Override

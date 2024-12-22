@@ -191,8 +191,8 @@ public class ChannelDetails {
     private Type configTypeFromMetadata(String type) {
         switch (type) {
             case "number":
-                // Type.INTEGER
-                return Type.DECIMAL;
+                return Type.INTEGER;
+            // return Type.DECIMAL; // depends on scale?
             case "boolean":
                 // switch (or contact ?)
                 return Type.BOOLEAN;
