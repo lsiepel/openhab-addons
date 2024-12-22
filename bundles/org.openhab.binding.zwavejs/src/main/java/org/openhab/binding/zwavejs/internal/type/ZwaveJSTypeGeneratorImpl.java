@@ -31,6 +31,7 @@ import org.openhab.core.config.core.ConfigDescriptionBuilder;
 import org.openhab.core.config.core.ConfigDescriptionParameter;
 import org.openhab.core.config.core.ConfigDescriptionParameterBuilder;
 import org.openhab.core.config.core.Configuration;
+import org.openhab.core.config.core.ParameterOption;
 import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
@@ -98,15 +99,21 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             List<ConfigDescriptionParameter> configDescriptions, ChannelDetails details) {
         logger.debug("Node '{}' createConfigDescriptions with Id: {}", details.nodeId, details.channelId);
 
-        ConfigDescriptionParameter configDescription = ConfigDescriptionParameterBuilder
+        ConfigDescriptionParameterBuilder configDescriptionParameterBuilder = ConfigDescriptionParameterBuilder
                 .create(details.channelId, details.configType) //
                 .withRequired(true) //
                 .withMultiple(false) //
                 .withContext("item") //
                 .withLabel(details.label) //
-                .withDescription(details.description) //
-                .build();
-        configDescriptions.add(configDescription);
+                .withDescription(details.description);
+
+        if (details.optionList != null) {
+            List<ParameterOption> options = new ArrayList<>();
+            details.optionList.forEach((k, v) -> options.add(new ParameterOption(k, v)));
+            configDescriptionParameterBuilder.withOptions(options);
+        }
+
+        configDescriptions.add(configDescriptionParameterBuilder.build());
         return configDescriptions;
     }
 

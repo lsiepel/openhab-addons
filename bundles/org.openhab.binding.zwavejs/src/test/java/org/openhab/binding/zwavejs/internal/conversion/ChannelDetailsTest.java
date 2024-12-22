@@ -69,7 +69,6 @@ public class ChannelDetailsTest {
         ChannelDetails details = new ChannelDetails(6, node.values.get(0));
 
         assertEquals("binary-switch-value", details.channelId);
-        assertEquals("Binary Switch", details.description);
         assertEquals("Switch", details.itemType);
         assertEquals("Current value", details.label);
         assertEquals("Binary Switch", details.description);
@@ -107,7 +106,6 @@ public class ChannelDetailsTest {
         ChannelDetails details = new ChannelDetails(6, node.values.get(2));
 
         assertEquals("multilevel-sensor-power", details.channelId);
-        assertEquals("Multilevel Sensor", details.description);
         assertEquals("Number:Power", details.itemType);
         assertEquals("Power", details.label);
         assertEquals("Multilevel Sensor", details.description);
@@ -125,7 +123,6 @@ public class ChannelDetailsTest {
         ChannelDetails details = new ChannelDetails(6, node.values.get(3));
 
         assertEquals("meter-value", details.channelId);
-        assertEquals("Meter", details.description);
         assertEquals("Number:Energy", details.itemType);
         assertEquals("Electric Consumption [kWh]", details.label);
         assertEquals("Meter", details.description);
@@ -134,5 +131,25 @@ public class ChannelDetailsTest {
         assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
                 .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
         assertEquals("kWh", details.unit);
+    }
+
+    @Test
+    public void testChannelDetailsForNode6ChannelConfig1() throws IOException {
+        Node node = Objects.requireNonNull(nodes.stream().filter(f -> f.nodeId == 6).findAny().get());
+
+        ChannelDetails details = new ChannelDetails(6, node.values.get(6));
+
+        assertEquals("configuration-function", details.channelId);
+        assertEquals("Number", details.itemType);
+        assertEquals("Always On Function", details.label);
+        assertEquals("Once activated, Wall Plug will keep a connected device ...", details.description);
+        assertEquals(true, details.writable);
+        assertEquals(
+                StateDescriptionFragmentBuilder.create().withPattern("%0.d").withMinimum(BigDecimal.valueOf(0))
+                        .withMaximum(BigDecimal.valueOf(1)).withReadOnly(false).withStep(BigDecimal.valueOf(1)).build(),
+                details.statePattern);
+        assertNull(details.unit);
+        assertEquals(2, details.optionList.size());
+        assertEquals("Inactive", details.optionList.get("1"));
     }
 }

@@ -13,6 +13,7 @@
 package org.openhab.binding.zwavejs.internal.api.dto;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -30,7 +31,7 @@ public class Metadata {
     public boolean secret;
     public CcSpecific ccSpecific;
     public String unit;
-    public States states;
+    public Map<String, String> states;
     @SerializedName("default")
     public int myDefault;
     public Integer min;

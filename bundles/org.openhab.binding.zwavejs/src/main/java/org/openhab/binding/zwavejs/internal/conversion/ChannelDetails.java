@@ -13,6 +13,7 @@
 package org.openhab.binding.zwavejs.internal.conversion;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import javax.measure.Unit;
 
@@ -60,6 +61,7 @@ public class ChannelDetails {
     public int endpoint;
     public @Nullable Object writeProperty;
     public Object value;
+    public @Nullable Map<String, String> optionList;
 
     public ChannelDetails(int nodeId, Value data) {
         this.nodeId = nodeId;
@@ -79,6 +81,8 @@ public class ChannelDetails {
         this.commandClassName = data.commandClassName;
         this.commandClassId = data.commandClass;
         this.endpoint = data.endpoint;
+
+        this.optionList = data.metadata.states;
         this.value = data.value;
 
         if (writable) {
