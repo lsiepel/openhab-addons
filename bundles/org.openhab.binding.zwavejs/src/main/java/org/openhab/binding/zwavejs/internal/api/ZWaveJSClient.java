@@ -29,6 +29,7 @@ import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
+import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.BaseCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.InitializeCommand;
@@ -57,10 +58,10 @@ public class ZWaveJSClient implements WebSocketListener {
     private Set<ZwaveEventListener> listeners = new CopyOnWriteArraySet<>();
     private @Nullable Future<?> sessionFuture;
     private Gson gson;
+    private static final int BUFFER_SIZE = 1048576 * 2; // 2 Mb
 
     public ZWaveJSClient(WebSocketClient wsClient) {
         this.wsClient = wsClient;
-
         RuntimeTypeAdapterFactory<BaseMessage> typeAdapterFactory = RuntimeTypeAdapterFactory.of(BaseMessage.class,
                 "type", true);
         typeAdapterFactory.registerSubtype(VersionMessage.class, "version") //
@@ -121,7 +122,13 @@ public class ZWaveJSClient implements WebSocketListener {
     public void onWebSocketConnect(@NonNullByDefault({}) Session session) {
         logger.debug("onWebSocketConnect('{}')", session);
         this.session = session;
-        // updateStatus(ThingStatus.ONLINE);
+        if (session != null) {
+            final WebSocketPolicy currentPolicy = session.getPolicy();
+            currentPolicy.setInputBufferSize(BUFFER_SIZE);
+            currentPolicy.setMaxTextMessageSize(BUFFER_SIZE);
+            currentPolicy.setMaxBinaryMessageSize(BUFFER_SIZE);
+            this.session = session;
+        }
     }
 
     @Override
