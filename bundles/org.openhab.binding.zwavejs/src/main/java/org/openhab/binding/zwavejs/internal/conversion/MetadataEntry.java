@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.measure.Unit;
 
@@ -26,6 +27,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.core.config.core.ConfigDescriptionParameter.Type;
 import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.HSBType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.types.State;
@@ -53,7 +55,9 @@ public class MetadataEntry {
     private static final Map<String, String> UNIT_REPLACEMENTS = Map.of("lux", "lx", //
             "Lux", "lx", //
             "minutes", "min", //
-            "seconds", "s");
+            "seconds", "s", //
+            "°(C/F)", "", // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
+            "°F/C", ""); // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
 
     public int nodeId;
     public String channelId;
@@ -83,13 +87,13 @@ public class MetadataEntry {
         this.isChannel = isChannel(channelId);
 
         this.writable = data.metadata.writeable;
-        this.unitSymbol = normalizeUnit(data.metadata.unit);
+        this.unitSymbol = normalizeUnit(data.metadata.unit, data.value);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
         if (unitSymbol != null && unit == null) {
             logger.warn("Node id {}, unable to parse unitSymbol '{}', this is a bug", nodeId, unitSymbol);
         }
-        this.itemType = itemTypeFromMetadata(data.metadata.type);
-        this.configType = configTypeFromMetadata(data.metadata.type);
+        this.itemType = itemTypeFromMetadata(data.metadata.type, data.value);
+        this.configType = configTypeFromMetadata(data.metadata.type, data.value);
         this.optionList = data.metadata.states;
 
         this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
@@ -136,7 +140,7 @@ public class MetadataEntry {
      * @return The new state after setting it based on the event's new value.
      */
     public @Nullable State setState(Event event, String itemType, @Nullable String unitSymbol) {
-        this.unitSymbol = normalizeUnit(unitSymbol);
+        this.unitSymbol = normalizeUnit(unitSymbol, event.args.newValue);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
         if (unitSymbol != null && unit == null) {
             logger.warn("Node id {}, unable to parse unitSymbol '{}'' from channel config, this is a bug", nodeId,
@@ -177,13 +181,18 @@ public class MetadataEntry {
         }
         if (value == null) {
             return UnDefType.NULL;
+        } else if (value instanceof Map<?, ?> treeMap) {
+            if (treeMap.containsKey("value")) {
+                value = Objects.requireNonNull(treeMap.get("value"));
+            }
         }
+
         String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {
             case CoreItemFactory.NUMBER:
                 if (itemTypeSplitted.length > 1) {
                     if (unit == null) {
-                        logger.warn("Node id {}, the unit is unexpectedly null, this is a bug", nodeId);
+                        logger.warn("Node id {}, the unit is unexpectedly null, please file a bug report", nodeId);
                         return new DecimalType((Number) value);
                     }
                     return new QuantityType<>((Number) value, unit);
@@ -192,12 +201,37 @@ public class MetadataEntry {
                 }
             case CoreItemFactory.SWITCH:
                 return OnOffType.from((boolean) value);
+            case CoreItemFactory.COLOR:
+                if (value instanceof String colorStr) {
+                    try {
+                        colorStr = colorStr.startsWith("#") ? colorStr : "#" + colorStr;
+                        int red = Integer.valueOf(colorStr.substring(1, 3), 16);
+                        int green = Integer.valueOf(colorStr.substring(3, 5), 16);
+                        int blue = Integer.valueOf(colorStr.substring(5, 7), 16);
+                        return HSBType.fromRGB(red, green, blue);
+                    } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                        logger.warn("Node id {}, invalid color string provided: {}", nodeId, colorStr, e);
+                        return UnDefType.UNDEF;
+                    }
+                } else if (value instanceof Map<?, ?> map && map.containsKey("red") && map.containsKey("green")
+                        && map.containsKey("blue")) {
+                    int red = ((Number) map.get("red")).intValue();
+                    int green = ((Number) map.get("green")).intValue();
+                    int blue = ((Number) map.get("blue")).intValue();
+                    return HSBType.fromRGB(red, green, blue);
+                } else {
+                    logger.warn("Node id {}, unexpected value type for color: {}, please file a bug report", nodeId,
+                            value.getClass().getName());
+                    return UnDefType.UNDEF;
+                }
             default:
                 return UnDefType.UNDEF;
         }
     }
 
-    private String itemTypeFromMetadata(String type) {
+    private String itemTypeFromMetadata(String type, Object value) {
+        type = correctedType(type, value);
+
         switch (type) {
             case "number":
                 Unit<?> unit = this.unit;
@@ -214,6 +248,8 @@ public class MetadataEntry {
             case "boolean":
                 // switch (or contact ?)
                 return CoreItemFactory.SWITCH;
+            case "color":
+                return CoreItemFactory.COLOR;
             case "string":
             case "string[]":
                 return CoreItemFactory.STRING;
@@ -225,11 +261,38 @@ public class MetadataEntry {
         }
     }
 
-    private Type configTypeFromMetadata(String type) {
+    private String correctedType(String type, Object value) {
+        switch (type) {
+            case "any":
+                // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
+                // Can be anything from boolean, string or complex object like RGB. So we need to check the value
+                if (value instanceof Number) {
+                    return "number";
+                } else if (value instanceof Boolean) {
+                    return "boolean";
+                } else if (value instanceof Map<?, ?> treeMap) {
+                    if (treeMap.size() == 3) {
+                        return "color";
+                    }
+                }
+            case "duration":
+                // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
+                // Can be anything from plain Number to a complex object with unit and value. So we need to check the
+                // value
+                return "number";
+            default:
+                return type;
+        }
+    }
+
+    private Type configTypeFromMetadata(String type, Object value) {
+        type = correctedType(type, value);
         switch (type) {
             case "number":
                 return Type.INTEGER;
             // return Type.DECIMAL; // depends on scale?
+            case "color":
+                return Type.TEXT;
             case "boolean":
                 // switch (or contact ?)
                 return Type.BOOLEAN;
@@ -244,15 +307,20 @@ public class MetadataEntry {
         }
     }
 
-    private @Nullable String normalizeUnit(@Nullable String unitString) {
+    private @Nullable String normalizeUnit(@Nullable String unitString, @Nullable Object value) {
+        if (unitString == null && value instanceof Map<?, ?> treeMap) {
+            if (treeMap.containsKey("unit")) {
+                unitString = (String) treeMap.get("unit");
+            }
+        }
         if (unitString == null) {
             return null;
         }
-
         String[] splitted = unitString.split(" ");
         String lastPart = splitted[splitted.length - 1];
+        String output = UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart);
 
-        return UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart);
+        return output != null && !output.isBlank() ? output : null;
     }
 
     private @Nullable StateDescriptionFragment createStatePattern(boolean writeable, @Nullable Integer min,

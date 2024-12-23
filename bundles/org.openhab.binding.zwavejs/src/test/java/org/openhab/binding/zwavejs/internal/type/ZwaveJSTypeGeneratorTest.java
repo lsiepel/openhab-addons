@@ -78,7 +78,7 @@ public class ZwaveJSTypeGeneratorTest {
 
             counter += results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count();
         }
-        ;
+
         assertEquals(81, counter);
     }
 
@@ -94,6 +94,6 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
         // TODO need to investigate why there is this sick amount of channeltypes added.
-        assertEquals(437, counter);
+        assertEquals(425, counter);
     }
 }
