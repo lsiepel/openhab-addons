@@ -48,7 +48,7 @@ public class ZwaveJSTypeGeneratorTest {
 
     @Test
     public void testGenerateChannelTypeForNode3() throws IOException {
-        ResultMessage resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
+        ResultMessage resultMessage = DataUtil.fromJson("store_1.json", ResultMessage.class);
         Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
 
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
@@ -59,12 +59,41 @@ public class ZwaveJSTypeGeneratorTest {
 
     @Test
     public void testGenerateChannelTypeNode6() throws IOException {
-        ResultMessage resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
+        ResultMessage resultMessage = DataUtil.fromJson("store_1.json", ResultMessage.class);
         Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 6).findAny().orElse(null);
 
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
 
         assertEquals(2, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+    }
+
+    @Test
+    public void testGenerateChannelTypeStore2AllNodes() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_2.json", ResultMessage.class);
+        int counter = 0;
+        for (Node node : resultMessage.result.state.nodes) {
+            ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                    .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+
+            counter += results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count();
+        }
+        ;
+        assertEquals(81, counter);
+    }
+
+    @Test
+    public void testGenerateChannelTypeStore3AllNodes() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_3.json", ResultMessage.class);
+        int counter = 0;
+        for (Node node : resultMessage.result.state.nodes) {
+            ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                    .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+
+            counter += results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count();
+        }
+        ;
+        // TODO need to investigate why there is this sick amount of channeltypes added.
+        assertEquals(437, counter);
     }
 }

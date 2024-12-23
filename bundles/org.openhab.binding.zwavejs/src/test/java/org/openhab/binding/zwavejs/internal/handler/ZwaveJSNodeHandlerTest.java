@@ -45,7 +45,7 @@ public class ZwaveJSNodeHandlerTest {
     public void testInvalidConfiguration() {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(0);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
-        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_1.json");
 
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.OFFLINE)
@@ -56,10 +56,10 @@ public class ZwaveJSNodeHandlerTest {
     }
 
     @Test
-    public void testNode3ChannelCreation() {
+    public void testStore1Node3ChannelsCreation() {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(3);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
-        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_1.json");
 
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
@@ -69,10 +69,10 @@ public class ZwaveJSNodeHandlerTest {
     }
 
     @Test
-    public void testNode6ChannelCreation() {
+    public void testStopre1Node6ChannelsCreation() {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(6);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
-        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_1.json");
 
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
@@ -84,10 +84,10 @@ public class ZwaveJSNodeHandlerTest {
     }
 
     @Test
-    public void testNode6SwitchChannelUpdate() throws IOException {
+    public void testStore1Node6SwitchEventUpdate() throws IOException {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(6);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
-        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_1.json");
 
         EventMessage eventMessage = DataUtil.fromJson("event_node_6_switch.json", EventMessage.class);
         handler.onNodeStateChanged(eventMessage.event);
@@ -104,10 +104,10 @@ public class ZwaveJSNodeHandlerTest {
     }
 
     @Test
-    public void testNode6PowerChannelUpdate() throws IOException {
+    public void testStore1Node6PowerEventUpdate() throws IOException {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(6);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
-        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_1.json");
 
         EventMessage eventMessage = DataUtil.fromJson("event_node_6_power.json", EventMessage.class);
         handler.onNodeStateChanged(eventMessage.event);

@@ -28,7 +28,6 @@ import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
-import org.openhab.core.library.unit.Units;
 import org.openhab.core.types.State;
 import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
@@ -77,13 +76,19 @@ public class ChannelDetails {
         this.writable = data.metadata.writeable;
         this.unitSymbol = normalizeUnit(data.metadata.unit);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
+        if (unitSymbol != null && unit == null) {
+            logger.warn("Node id {}, unable to parse unitSymbol '{}'', this is a bug", nodeId, unitSymbol);
+        }
         this.itemType = itemTypeFromMetadata(data.metadata.type);
         this.configType = configTypeFromMetadata(data.metadata.type);
         this.optionList = data.metadata.states;
+
         this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
-        this.state = toState(data.value);
-        this.label = data.metadata.label;
+        this.state = toState(data.value, itemType, unit);
+
         this.description = data.metadata.description != null ? data.metadata.description : data.commandClassName;
+        this.label = data.metadata.label != null ? data.metadata.label : this.description;
+
         this.commandClassName = data.commandClassName;
         this.commandClassId = data.commandClass;
         this.endpoint = data.endpoint;
@@ -95,15 +100,6 @@ public class ChannelDetails {
         }
     }
 
-    private boolean isConfiguration(String channelId) {
-        return channelId.startsWith("configuration");
-    }
-
-    private boolean isChannel(String channelId) {
-        return !isConfiguration(channelId) && !channelId.startsWith("version") && !channelId.startsWith("notification")
-                && !channelId.startsWith("manufacturer-specific");
-    }
-
     public ChannelDetails(int nodeId, Event data) {
         this.nodeId = nodeId;
         this.channelId = generateChannelId(data);
@@ -113,14 +109,29 @@ public class ChannelDetails {
         this.value = data.args.newValue;
     }
 
-    public @Nullable State setState(Event event) {
-        return this.state = toState(event.args.newValue);
+    private boolean isConfiguration(String channelId) {
+        return channelId.startsWith("configuration");
+    }
+
+    private boolean isChannel(String channelId) {
+        return !isConfiguration(channelId) && !channelId.startsWith("version") && !channelId.startsWith("notification")
+                && !channelId.startsWith("manufacturer-specific");
+    }
+
+    public @Nullable State setState(Event event, String itemType, @Nullable String unitSymbol) {
+        this.unitSymbol = normalizeUnit(unitSymbol);
+        this.unit = UnitUtils.parseUnit(this.unitSymbol);
+        if (unitSymbol != null && unit == null) {
+            logger.warn("Node id {}, unable to parse unitSymbol '{}'' from channel config, this is a bug", nodeId,
+                    unitSymbol);
+        }
+        return this.state = toState(event.args.newValue, itemType, this.unit);
     }
 
     private String generateChannelId(String commandClassName, @Nullable String propertyName) {
         String id = commandClassName.toLowerCase().replaceAll(" ", "-");
 
-        if (propertyName != null) {
+        if (propertyName != null && !propertyName.contains("unknown")) {
             String[] splitted = StringUtils.splitByCharacterType(propertyName);
             id += "-" + splitted[splitted.length - 1].toLowerCase();
         }
@@ -136,7 +147,7 @@ public class ChannelDetails {
         return generateChannelId(value.commandClassName, value.propertyName);
     }
 
-    private @Nullable State toState(@Nullable Object value) {
+    private @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit) {
         if (!this.isChannel) {
             logger.debug("Node id: '{}' getStateFromValue, channelId ignored", nodeId);
             return null;
@@ -144,25 +155,23 @@ public class ChannelDetails {
         if (value == null) {
             return UnDefType.NULL;
         }
-        State state = UnDefType.UNDEF;
         String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {
             case CoreItemFactory.NUMBER:
                 if (itemTypeSplitted.length > 1) {
-                    Unit<?> unit = Units.getInstance().getUnit(this.unitSymbol);
-                    state = new QuantityType<>((Number) value, unit);
+                    if (unit == null) {
+                        logger.warn("Node id {}, the unit is unexpectedly null, this is a bug", nodeId);
+                        return new DecimalType((Number) value);
+                    }
+                    return new QuantityType<>((Number) value, unit);
                 } else {
-                    state = new DecimalType((Number) value);
+                    return new DecimalType((Number) value);
                 }
-                break;
             case CoreItemFactory.SWITCH:
-                state = OnOffType.from((boolean) value);
-                break;
+                return OnOffType.from((boolean) value);
             default:
-                state = UnDefType.UNDEF;
-                break;
+                return UnDefType.UNDEF;
         }
-        return state;
     }
 
     public String itemTypeFromMetadata(String type) {
@@ -219,6 +228,7 @@ public class ChannelDetails {
 
         String[] splitted = unit.split(" ");
         return splitted[splitted.length - 1] //
+                .replace("Lux", "lx") //
                 .replace("minutes", "min") //
                 .replace("seconds", "s");
     }

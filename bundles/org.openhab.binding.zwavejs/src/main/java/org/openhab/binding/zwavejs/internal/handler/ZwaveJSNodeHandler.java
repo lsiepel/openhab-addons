@@ -257,9 +257,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
                 ZwaveJSChannelConfiguration channelConfig = thing.getChannel(details.channelId).getConfiguration()
                         .as(ZwaveJSChannelConfiguration.class);
 
-                details.unitSymbol = channelConfig.incomingUnit;
-                details.itemType = channelConfig.itemType;
-                State state = details.setState(event);
+                State state = details.setState(event, channelConfig.itemType, channelConfig.incomingUnit);
                 if (state != null) {
                     updateState(details.channelId, state);
                 }

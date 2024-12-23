@@ -18,10 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
@@ -39,17 +37,18 @@ import org.openhab.core.types.StateOption;
 @NonNullByDefault
 public class ChannelDetailsTest {
 
-    private ArrayList<Node> nodes = new ArrayList<>();
+    private ArrayList<Node> getNodesFromStore(String filename) throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson(filename, ResultMessage.class);
+        return resultMessage.result.state.nodes;
+    }
 
-    @BeforeEach
-    public void setup() throws IOException {
-        ResultMessage resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
-        nodes = resultMessage.result.state.nodes;
+    private Node getNodeFromStore(String filename, int NodeId) throws IOException {
+        return getNodesFromStore(filename).stream().filter(f -> f.nodeId == NodeId).findAny().get();
     }
 
     @Test
-    public void testChannelDetailsForNode3Channel1() throws IOException {
-        Node node = Objects.requireNonNull(nodes.stream().filter(f -> f.nodeId == 3).findAny().get());
+    public void testChannelDetailsStore1Node3Channel1() throws IOException {
+        Node node = getNodeFromStore("store_1.json", 3);
 
         ChannelDetails details = new ChannelDetails(3, node.values.get(0));
 
@@ -65,8 +64,8 @@ public class ChannelDetailsTest {
     }
 
     @Test
-    public void testChannelDetailsForNode6Channel1() throws IOException {
-        Node node = Objects.requireNonNull(nodes.stream().filter(f -> f.nodeId == 6).findAny().get());
+    public void testChannelDetailsStore1Node6Channel1() throws IOException {
+        Node node = getNodeFromStore("store_1.json", 6);
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(0));
 
@@ -81,29 +80,8 @@ public class ChannelDetailsTest {
     }
 
     @Test
-    public void parseUnits() {
-
-        // String x = new QuantityType<>(1,
-        // Units.WATT).getUnit().getDimension().getBaseDimensions().getClass().getName();
-        // assertEquals("x", x);
-        /*
-         * DefaultQuantityFactory.getInstance(null).create(null, null)
-         * 
-         * Dimension.class
-         * Unit<?> unit = Units.getInstance().getUnit("W");
-         * unit.getClass;
-         * var dim = Units.WATT.getSystemUnit().getDimension();
-         * var dim2 = Units.WATT.getSystemUnit().getName();
-         * Units.WATT.getSystemUnit().
-         * assertEquals(Units.WATT.getSystemUnit().getDimension(), unit.getSystemUnit().getDimension());
-         * assertEquals(Units.WATT.getSystemUnit().getName() , unit.getSystemUnit().getName());
-         * assertEquals(Units.WATT, unit);
-         */
-    }
-
-    @Test
-    public void testChannelDetailsForNode3Channel3() throws IOException {
-        Node node = Objects.requireNonNull(nodes.stream().filter(f -> f.nodeId == 6).findAny().get());
+    public void testChannelDetailsStore1Node6Channel3() throws IOException {
+        Node node = getNodeFromStore("store_1.json", 6);
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(2));
 
@@ -119,8 +97,8 @@ public class ChannelDetailsTest {
     }
 
     @Test
-    public void testChannelDetailsForNode6Channel4() throws IOException {
-        Node node = Objects.requireNonNull(nodes.stream().filter(f -> f.nodeId == 6).findAny().get());
+    public void testChannelDetailsStore1Node6Channel4() throws IOException {
+        Node node = getNodeFromStore("store_1.json", 6);
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(3));
 
@@ -136,8 +114,8 @@ public class ChannelDetailsTest {
     }
 
     @Test
-    public void testChannelDetailsForNode6ChannelConfig1() throws IOException {
-        Node node = Objects.requireNonNull(nodes.stream().filter(f -> f.nodeId == 6).findAny().get());
+    public void testChannelDetailsStore1Node6Config1() throws IOException {
+        Node node = getNodeFromStore("store_1.json", 6);
 
         ChannelDetails details = new ChannelDetails(6, node.values.get(6));
 
@@ -156,5 +134,22 @@ public class ChannelDetailsTest {
         assertNull(details.unitSymbol);
         assertEquals(2, details.optionList.size());
         assertEquals("Inactive", details.optionList.get("1"));
+    }
+
+    @Test
+    public void testChannelDetailsStore2Node2Channel66() throws IOException {
+        Node node = getNodeFromStore("store_2.json", 2);
+
+        ChannelDetails details = new ChannelDetails(1, node.values.get(66));
+
+        assertEquals("multilevel-sensor-humidity", details.channelId);
+        assertEquals("Number:Dimensionless", details.itemType);
+        assertEquals("Humidity", details.label);
+        assertEquals("Multilevel Sensor", details.description);
+        assertEquals(new QuantityType<>(17.04, Units.PERCENT), details.state);
+        assertEquals(false, details.writable);
+        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
+                .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
+        assertEquals("%", details.unitSymbol);
     }
 }

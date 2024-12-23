@@ -49,6 +49,7 @@ import org.openhab.core.thing.type.ChannelType;
  */
 @NonNullByDefault
 public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
+    private String filename = "";
 
     public static Configuration createConfig(int id) {
         final Configuration config = new Configuration();
@@ -67,7 +68,8 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         return thing;
     }
 
-    public static ZwaveJSNodeHandlerMock createAndInitHandler(final ThingHandlerCallback callback, final Thing thing) {
+    public static ZwaveJSNodeHandlerMock createAndInitHandler(final ThingHandlerCallback callback, final Thing thing,
+            final String filename) {
         ZwaveJSChannelTypeProvider channelTypeProvider = mock(ZwaveJSChannelTypeProvider.class);
         ZwaveJSConfigDescriptionProvider configDescriptionProvider = mock(ZwaveJSConfigDescriptionProvider.class);
         ThingRegistry thingRegistry = mock(ThingRegistry.class);
@@ -76,7 +78,7 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         ZwaveJSTypeGenerator typeGenerator = new ZwaveJSTypeGeneratorImpl(channelTypeProvider,
                 configDescriptionProvider, thingRegistry);
 
-        final ZwaveJSNodeHandlerMock handler = spy(new ZwaveJSNodeHandlerMock(thing, typeGenerator));
+        final ZwaveJSNodeHandlerMock handler = spy(new ZwaveJSNodeHandlerMock(thing, typeGenerator, filename));
 
         handler.setCallback(callback);
         handler.initialize();
@@ -84,8 +86,9 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         return handler;
     }
 
-    public ZwaveJSNodeHandlerMock(Thing thing, ZwaveJSTypeGenerator typeGenerator) {
+    public ZwaveJSNodeHandlerMock(Thing thing, ZwaveJSTypeGenerator typeGenerator, String filename) {
         super(thing, typeGenerator);
+        this.filename = filename;
 
         executorService = Mockito.mock(ScheduledExecutorService.class);
         doAnswer((InvocationOnMock invocation) -> {
@@ -117,7 +120,7 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         doNothing().when(handler).initialize();
         ResultMessage resultMessage;
         try {
-            resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
+            resultMessage = DataUtil.fromJson(filename, ResultMessage.class);
         } catch (IOException e) {
             return null;
         }
