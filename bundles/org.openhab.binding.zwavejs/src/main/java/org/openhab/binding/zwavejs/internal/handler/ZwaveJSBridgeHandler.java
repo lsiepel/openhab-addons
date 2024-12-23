@@ -90,6 +90,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
 
     protected void startClient(ZwaveJSBridgeConfiguration config) {
         try {
+            client.setBufferSize(config.maxMessageSize);
             client.start("ws://" + config.hostname + ":" + config.port);
             client.addEventListener(this);
             // the thing is set to online when the response/events are received

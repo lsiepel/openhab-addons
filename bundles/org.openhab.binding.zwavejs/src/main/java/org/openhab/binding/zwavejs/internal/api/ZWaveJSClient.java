@@ -72,7 +72,7 @@ import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 public class ZWaveJSClient implements WebSocketListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ZWaveJSClient.class);
-    private static final int BUFFER_SIZE = 1048576 * 8; // 8 Mb
+    private int bufferSize = 1048576 * 2; // 8 Mb
     private static final String BINDING_SHUTDOWN_MESSAGE = "Binding shutdown";
 
     private final WebSocketClient wsClient;
@@ -165,9 +165,9 @@ public class ZWaveJSClient implements WebSocketListener {
         this.session = session;
         if (session != null) {
             final WebSocketPolicy currentPolicy = session.getPolicy();
-            currentPolicy.setInputBufferSize(BUFFER_SIZE);
-            currentPolicy.setMaxTextMessageSize(BUFFER_SIZE);
-            currentPolicy.setMaxBinaryMessageSize(BUFFER_SIZE);
+            currentPolicy.setInputBufferSize(bufferSize);
+            currentPolicy.setMaxTextMessageSize(bufferSize);
+            currentPolicy.setMaxBinaryMessageSize(bufferSize);
             this.session = session;
         }
     }
@@ -257,5 +257,9 @@ public class ZWaveJSClient implements WebSocketListener {
             logger.warn("IOException while sending command: {}. Error {}", command.getClass().getSimpleName(),
                     e.getMessage());
         }
+    }
+
+    public void setBufferSize(int maxMessageSize) {
+        bufferSize = maxMessageSize;
     }
 }

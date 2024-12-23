@@ -25,10 +25,11 @@ The following discovery features are available:
 The `zwavejs` binding requires configuration of the bridge to connect to the Z-Wave JS Webservice.
 The configuration options include:
 
-| Name            | Type    | Description                           | Default | Required | Advanced |
-|-----------------|---------|---------------------------------------|---------|----------|----------|
-| hostname        | text    | Hostname or IP address of the server  | N/A     | yes      | no       |
-| port            | number  | Password to access the device         | 3000    | yes      | no       |
+| Name           | Type   | Description                          | Default | Required | Advanced |
+|----------------|--------|--------------------------------------|---------|----------|----------|
+| hostname       | text   | Hostname or IP address of the server | N/A     | yes      | no       |
+| port           | number | Port number to access the service    | 3000    | yes      | no       |
+| maxMessageSize | number | Maximum size of messages in bytes    | 2097152 | no       | yes      |
 
 ## Thing Configuration
 
