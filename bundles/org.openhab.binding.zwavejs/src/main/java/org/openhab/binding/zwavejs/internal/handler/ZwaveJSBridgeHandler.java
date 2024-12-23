@@ -12,8 +12,6 @@
  */
 package org.openhab.binding.zwavejs.internal.handler;
 
-import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.*;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -136,7 +134,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             if (nodeListener == null) {
                 if (node.status != 4) {
                     logger.warn("Z-Wave node '{}' is ignored due to state: {}", nodeId, node.status);
-                    return;
+                    continue;
                 }
                 logger.debug("Z-Wave node '{}' has no listener, pass to discovery", nodeId);
 

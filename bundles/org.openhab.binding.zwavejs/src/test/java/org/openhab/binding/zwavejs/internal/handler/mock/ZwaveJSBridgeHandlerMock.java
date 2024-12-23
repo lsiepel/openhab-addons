@@ -12,12 +12,8 @@
  */
 package org.openhab.binding.zwavejs.internal.handler.mock;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,21 +37,16 @@ import org.openhab.core.thing.binding.ThingHandlerCallback;
 @NonNullByDefault
 public class ZwaveJSBridgeHandlerMock extends ZwaveJSBridgeHandler {
 
-    private static final Configuration CONFIG = createConfig(true);
-    private static final Configuration BAD_CONFIG = createConfig(false);
-
-    private static Configuration createConfig(boolean returnValid) {
+    private static Configuration createConfig(String hostname) {
         final Configuration config = new Configuration();
-        if (returnValid) {
-            config.put("id", "3");
-        }
+        config.put(ZwaveJSBindingConstants.CONFIG_HOSTNAME, hostname);
         return config;
     }
 
-    public static Bridge mockBridge(boolean withConfiguration) {
+    public static Bridge mockBridge(String hostname) {
         final Bridge bridge = mock(Bridge.class);
         when(bridge.getUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-bridge"));
-        when(bridge.getConfiguration()).thenReturn(withConfiguration ? CONFIG : BAD_CONFIG);
+        when(bridge.getConfiguration()).thenReturn(createConfig(hostname));
 
         return bridge;
     }
@@ -79,10 +70,5 @@ public class ZwaveJSBridgeHandlerMock extends ZwaveJSBridgeHandler {
             ((Runnable) invocation.getArguments()[0]).run();
             return null;
         }).when(executorService).scheduleWithFixedDelay(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
-
-        // doAnswer((InvocationOnMock invocation) -> {
-        // ((Runnable) invocation.getArguments()[0]).run();
-        // return null;
-        // }).when(executorService).execute(any(Runnable.class));
     }
 }

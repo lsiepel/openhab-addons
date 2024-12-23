@@ -12,14 +12,9 @@
  */
 package org.openhab.binding.zwavejs.internal.handler.mock;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.CONFIG_NODE_ID;
 
 import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -59,7 +54,7 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
     public static Configuration createConfig(int id) {
         final Configuration config = new Configuration();
         if (id > 0) {
-            config.put("id", id);
+            config.put(CONFIG_NODE_ID, id);
         }
         return config;
     }
@@ -119,7 +114,7 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
     }
 
     public @Nullable Bridge getBridge() {
-        final Bridge bridge = ZwaveJSBridgeHandlerMock.mockBridge(false);
+        final Bridge bridge = ZwaveJSBridgeHandlerMock.mockBridge("localhost");
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
         final ZwaveJSBridgeHandler handler = ZwaveJSBridgeHandlerMock.createAndInitHandler(callback, bridge);
 
