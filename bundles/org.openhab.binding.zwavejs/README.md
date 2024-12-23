@@ -1,94 +1,74 @@
 # zwavejs Binding
 
-_Give some details about what this binding is meant for - a protocol, system, specific device._
-
-_If possible, provide some resources like pictures (only PNG is supported currently), a video, etc. to give an impression of what can be done with this binding._
-_You can place such resources into a `doc` folder next to this README.md._
-
-_Put each sentence in a separate line to improve readability of diffs._
+The `zwavejs` binding integrates Z-Wave JS with openHAB, allowing you to control and monitor Z-Wave devices using the Z-Wave JS Webservice.
+This binding supports a wide range of Z-Wave devices, including sensors, switches, dimmers, and more.
+For documentation about Z-Wave JS UI please visit <https://zwave-js.github.io/zwave-js-ui/>
 
 ## Supported Things
 
-_Please describe the different supported things / devices including their ThingTypeUID within this section._
-_Which different types are supported, which models were tested etc.?_
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
+This binding supports the following types of things:
 
-- `bridge`: Short description of the Bridge, if any
-- `sample`: Short description of the Thing with the ThingTypeUID `sample`
+- `bridge`: Represents the Z-Wave JS Webservice bridge. This is required to communicate with the Z-Wave network.
+- `node`: Represents a Z-Wave device (node) in the network. Each node can have multiple channels corresponding to its capabilities.
 
 ## Discovery
 
-_Describe the available auto-discovery features here._
-_Mention for what it works and what needs to be kept in mind when using it._
+The `zwavejs` binding supports auto-discovery of Z-Wave devices.
+When the bridge is added and connected, it will automatically discover and add Z-Wave nodes to the openHAB system.
+The following discovery features are available:
+
+- Automatic discovery of Z-Wave nodes when they are added to the network.
+- Automatic update of node information when the node is updated in the Z-Wave network.
 
 ## Binding Configuration
 
-_If your binding requires or supports general configuration settings, please create a folder ```cfg``` and place the configuration file ```<bindingId>.cfg``` inside it._
-_In this section, you should link to this file and provide some information about the options._
-_The file could e.g. look like:_
-
-```
-# Configuration for the zwavejs Binding
-#
-# Default secret key for the pairing of the zwavejs Thing.
-# It has to be between 10-40 (alphanumeric) characters.
-# This may be changed by the user for security reasons.
-secret=openHABSecret
-```
-
-_Note that it is planned to generate some part of this based on the information that is available within ```src/main/resources/OH-INF/binding``` of your binding._
-
-_If your binding does not offer any generic configurations, you can remove this section completely._
-
-## Thing Configuration
-
-_Describe what is needed to manually configure a thing, either through the UI or via a thing-file._
-_This should be mainly about its mandatory and optional configuration parameters._
-
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
-
-### `sample` Thing Configuration
+The `zwavejs` binding requires configuration of the bridge to connect to the Z-Wave JS Webservice.
+The configuration options include:
 
 | Name            | Type    | Description                           | Default | Required | Advanced |
 |-----------------|---------|---------------------------------------|---------|----------|----------|
-| hostname        | text    | Hostname or IP address of the device  | N/A     | yes      | no       |
-| password        | text    | Password to access the device         | N/A     | yes      | no       |
-| refreshInterval | integer | Interval the device is polled in sec. | 600     | no       | yes      |
+| hostname        | text    | Hostname or IP address of the server  | N/A     | yes      | no       |
+| port            | number  | Password to access the device         | 3000    | yes      | no       |
+
+## Thing Configuration
+
+Each Z-Wave node can have its own configuration options.
+All configuration parameters are set by the binding during startup and are read-only.
+Only the advanced parameter `nodeId` can (optionally) be set in the Thing configuration in the openHAB UI or in the `.things` file.
 
 ## Channels
 
-_Here you should provide information about available channel types, what their meaning is and how they can be used._
-
-_Note that it is planned to generate some part of this based on the XML files within ```src/main/resources/OH-INF/thing``` of your binding._
-
-| Channel | Type   | Read/Write | Description                 |
-|---------|--------|------------|-----------------------------|
-| control | Switch | RW         | This is the control channel |
+Z-Wave nodes can have multiple channels corresponding to their capabilities.
+The channels can be linked to items in openHAB to control and monitor the device.
+These Channels are dynamically added to the Thign during node initialization and therefore there is no list of possible channels in this documentation.
 
 ## Full Example
 
-_Provide a full usage example based on textual configuration files._
-_*.things, *.items examples are mandatory as textual configuration is well used by many users._
-_*.sitemap examples are optional._
-
-### Thing Configuration
+### `demo.things` Example
 
 ```java
-Example thing configuration goes here.
+Bridge zwavejs:bridge:myBridge "Z-Wave JS Bridge" [ hostname="localhost", port=3000 ]
+Thing zwavejs:node:myBridge:node1 "Z-Wave Node 1" [ nodeId=1 ]
 ```
-### Item Configuration
+
+### `demo.items` Example
 
 ```java
-Example item configuration goes here.
+Switch LightSwitch "Light Switch" { channel="zwavejs:node:controller:node1:switch_binary" }
 ```
 
-### Sitemap Configuration
+## Troubleshooting
 
-```perl
-Optional Sitemap configuration goes here.
-Remove this section, if not needed.
-```
+If you encounter issues with the `zwavejs` binding, check the following:
 
-## Any custom content here!
+- Ensure the Z-Wave JS Webservice is running and accessible at the configured hostname and port.
+- Check the openHAB logs for any error messages related to the `zwavejs` binding.
+- Verify the configuration of the bridge and nodes in the openHAB UI or configuration files.
 
-_Feel free to add additional sections for whatever you think should also be mentioned about your binding!_
+For further assistance, refer to the openHAB community forums or the Z-Wave JS documentation.
+
+## Resources
+
+- [Z-Wave JS Documentation](https://zwave-js.github.io/node-zwave-js/)
+- [openHAB Documentation](https://www.openhab.org/docs/)
+- [openHAB Community](https://community.openhab.org/)
