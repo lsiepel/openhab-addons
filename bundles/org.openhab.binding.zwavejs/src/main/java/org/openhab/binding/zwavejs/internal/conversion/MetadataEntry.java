@@ -50,7 +50,9 @@ public class MetadataEntry {
     private static final Logger logger = LoggerFactory.getLogger(MetadataEntry.class);
     private static final String DEFAULT_DESCRIPTION = "Unknown Description";
     private static final String DEFAULT_LABEL = "Unknown Label";
-    private static final Map<String, String> UNIT_REPLACEMENTS = Map.of("lux", "lx", "Lux", "lx", "minutes", "min",
+    private static final Map<String, String> UNIT_REPLACEMENTS = Map.of("lux", "lx", //
+            "Lux", "lx", //
+            "minutes", "min", //
             "seconds", "s");
 
     public int nodeId;
@@ -250,13 +252,7 @@ public class MetadataEntry {
         String[] splitted = unitString.split(" ");
         String lastPart = splitted[splitted.length - 1];
 
-        String normalizedUnit = UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart);
-
-        if (!UNIT_REPLACEMENTS.containsKey(lastPart)) {
-            logger.warn("Unexpected unit '{}', using as is", lastPart);
-        }
-
-        return normalizedUnit;
+        return UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart);
     }
 
     private @Nullable StateDescriptionFragment createStatePattern(boolean writeable, @Nullable Integer min,

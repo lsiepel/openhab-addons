@@ -49,7 +49,6 @@ public interface ZwaveNodeListener {
      */
     boolean onNodeStateChanged(Event event);
 
-
     /**
      * This method is called when a node is removed from the Z-Wave network.
      */

@@ -43,7 +43,6 @@ public interface ZwaveEventListener {
      */
     boolean unregisterDiscoveryListener();
 
-
     /**
      * Registers a listener for node events.
      *
