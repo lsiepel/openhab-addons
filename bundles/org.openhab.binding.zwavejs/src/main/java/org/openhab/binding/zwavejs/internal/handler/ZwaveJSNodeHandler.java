@@ -13,8 +13,13 @@
 package org.openhab.binding.zwavejs.internal.handler;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
+import javax.measure.Unit;
+
+import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
@@ -26,7 +31,24 @@ import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
+import org.openhab.core.config.core.Configuration;
+import org.openhab.core.config.core.validation.ConfigValidationException;
+import org.openhab.core.library.types.DateTimeType;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.HSBType;
+import org.openhab.core.library.types.IncreaseDecreaseType;
+import org.openhab.core.library.types.NextPreviousType;
 import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.OpenClosedType;
+import org.openhab.core.library.types.PercentType;
+import org.openhab.core.library.types.PlayPauseType;
+import org.openhab.core.library.types.PointType;
+import org.openhab.core.library.types.QuantityType;
+import org.openhab.core.library.types.RewindFastforwardType;
+import org.openhab.core.library.types.StopMoveType;
+import org.openhab.core.library.types.StringListType;
+import org.openhab.core.library.types.StringType;
+import org.openhab.core.library.types.UpDownType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
@@ -37,6 +59,7 @@ import org.openhab.core.thing.ThingStatusInfo;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.State;
+import org.openhab.core.types.util.UnitUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +83,17 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
     }
 
     @Override
+    public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
+            throws ConfigValidationException {
+        super.handleConfigurationUpdate(configurationParameters);
+
+        // TODO handle update
+        // 1 determine changed parameter
+        // 2 prepare command
+        // 3 sendCommand
+    }
+
+    @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         ZwaveJSBridgeHandler handler = getBridgeHandler();
         if (handler == null) {
@@ -73,6 +107,43 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
 
         if (command instanceof OnOffType onOffCommand) {
             zwaveCommand.value = OnOffType.ON.equals(onOffCommand);
+        } else if (command instanceof QuantityType<?> quantityCommand) {
+            Unit<?> unit = UnitUtils.parseUnit(channelConfig.incomingUnit);
+            if (unit == null) {
+                logger.warn("Could not parse '{}' as a unit, this is a bug.", channelConfig.incomingUnit);
+                return;
+            }
+            zwaveCommand.value = Objects.requireNonNull(quantityCommand.toUnit(unit)).doubleValue();
+        } else if (command instanceof DecimalType decimalCommand) {
+            zwaveCommand.value = decimalCommand.doubleValue();
+        } else if (command instanceof DateTimeType dateTimeCommand) {
+            throw new NotImplementedException();
+        } else if (command instanceof HSBType hsbTypeCommand) {
+            throw new NotImplementedException();
+        } else if (command instanceof PercentType percentTypeCommand) {
+            zwaveCommand.value = percentTypeCommand.doubleValue();
+        } else if (command instanceof IncreaseDecreaseType increaseDecreaseCommand) {
+            throw new NotImplementedException();
+        } else if (command instanceof NextPreviousType nextPreviousCommand) {
+            throw new NotImplementedException();
+        } else if (command instanceof OpenClosedType openClosedCommand) {
+            zwaveCommand.value = OpenClosedType.OPEN.equals(openClosedCommand);
+        } else if (command instanceof PlayPauseType stringCommand) {
+            throw new NotImplementedException();
+        } else if (command instanceof PointType pointCommand) {
+            throw new NotImplementedException();
+        } else if (command instanceof RewindFastforwardType rewindFastforwardCommand) {
+            throw new NotImplementedException();
+        } else if (command instanceof StopMoveType stopMoveCommand) {
+            throw new NotImplementedException();
+        } else if (command instanceof StringListType stringListCommand) {
+            throw new NotImplementedException();
+        } else if (command instanceof UpDownType upDownCommand) {
+            throw new NotImplementedException();
+        } else if (command instanceof StringType stringCommand) {
+            zwaveCommand.value = stringCommand.toString();
+        }
+        if (zwaveCommand.value != null) {
             handler.sendCommand(zwaveCommand);
         }
     }
@@ -166,6 +237,10 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
                 if (isLinked(details.channelId) && state != null) {
                     updateState(details.channelId, state);
                 }
+            } else if (details.isConfiguration) {
+                Configuration configuration = editConfiguration();
+                configuration.put(details.channelId, details.value);
+                updateConfiguration(configuration);
             }
         }
 
@@ -182,10 +257,9 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
                 ZwaveJSChannelConfiguration channelConfig = thing.getChannel(details.channelId).getConfiguration()
                         .as(ZwaveJSChannelConfiguration.class);
 
-                details.unit = channelConfig.incomingUnit;
+                details.unitSymbol = channelConfig.incomingUnit;
                 details.itemType = channelConfig.itemType;
                 State state = details.setState(event);
-                // TODO check wether the state is part of the accepted states as listed in the metadata class
                 if (state != null) {
                     updateState(details.channelId, state);
                 }

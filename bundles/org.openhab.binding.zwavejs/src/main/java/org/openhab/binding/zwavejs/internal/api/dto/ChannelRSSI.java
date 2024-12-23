@@ -15,10 +15,7 @@ package org.openhab.binding.zwavejs.internal.api.dto;
 /**
  * @author Leo Siepel - Initial contribution
  */
-public class BackgroundRSSI {
-    public ChannelRSSI channel0;
-    public ChannelRSSI channel1;
-    public ChannelRSSI channel2;
-    public ChannelRSSI channel3;
-    public long timestamp;
+public class ChannelRSSI {
+    public int current;
+    public int average;
 }

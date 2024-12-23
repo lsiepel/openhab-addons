@@ -31,6 +31,7 @@ import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
+import org.openhab.core.types.StateOption;
 
 /**
  * @author Leo Siepel - Initial contribution
@@ -60,7 +61,7 @@ public class ChannelDetailsTest {
         assertEquals(OnOffType.ON, details.state);
         assertEquals(false, details.writable);
         assertNull(details.statePattern);
-        assertNull(details.unit);
+        assertNull(details.unitSymbol);
     }
 
     @Test
@@ -76,7 +77,7 @@ public class ChannelDetailsTest {
         assertEquals(OnOffType.ON, details.state);
         assertEquals(false, details.writable);
         assertNull(details.statePattern);
-        assertNull(details.unit);
+        assertNull(details.unitSymbol);
     }
 
     @Test
@@ -114,7 +115,7 @@ public class ChannelDetailsTest {
         assertEquals(false, details.writable);
         assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
                 .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
-        assertEquals("W", details.unit);
+        assertEquals("W", details.unitSymbol);
     }
 
     @Test
@@ -131,7 +132,7 @@ public class ChannelDetailsTest {
         assertEquals(false, details.writable);
         assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
                 .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
-        assertEquals("kWh", details.unit);
+        assertEquals("kWh", details.unitSymbol);
     }
 
     @Test
@@ -145,11 +146,14 @@ public class ChannelDetailsTest {
         assertEquals("Always On Function", details.label);
         assertEquals("Once activated, Wall Plug will keep a connected device ...", details.description);
         assertEquals(true, details.writable);
-        assertEquals(
-                StateDescriptionFragmentBuilder.create().withPattern("%0.d").withMinimum(BigDecimal.valueOf(0))
-                        .withMaximum(BigDecimal.valueOf(1)).withReadOnly(false).withStep(BigDecimal.valueOf(1)).build(),
-                details.statePattern);
-        assertNull(details.unit);
+        assertEquals(BigDecimal.valueOf(0), details.statePattern.getMinimum());
+        assertEquals(BigDecimal.valueOf(1), details.statePattern.getMaximum());
+        assertEquals(BigDecimal.valueOf(1), details.statePattern.getStep());
+        assertEquals("%0.d", details.statePattern.getPattern());
+        assertEquals(new StateOption("0", "Activated"), details.statePattern.getOptions().get(0));
+        assertEquals(new StateOption("1", "Inactive"), details.statePattern.getOptions().get(1));
+
+        assertNull(details.unitSymbol);
         assertEquals(2, details.optionList.size());
         assertEquals("Inactive", details.optionList.get("1"));
     }

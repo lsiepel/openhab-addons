@@ -102,8 +102,6 @@ public class ZWaveJSClient implements WebSocketListener {
     }
 
     public void addEventListener(ZwaveEventListener listener) {
-        // TODO use some kind of id as part of the listeners to only send event to listeners that need the event
-        // The listener can provide some kind of id it listens to ?!
         listeners.add(listener);
     }
 
@@ -148,20 +146,19 @@ public class ZWaveJSClient implements WebSocketListener {
 
     @Override
     public void onWebSocketBinary(@NonNullByDefault({}) byte[] payload, int offset, int len) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'onWebSocketBinary'");
     }
 
     @Override
     public void onWebSocketText(@NonNullByDefault({}) String message) {
         if (!message.contains("\"event\":\"statistics updated\"")) {
-            logger.trace("onWebSocketText('{}')", message);
+            return;
         }
 
         BaseMessage baseEvent = Objects.requireNonNull(gson.fromJson(message, BaseMessage.class));
 
         if (baseEvent.type == null) {
-            logger.warn("event with unknown type received. Message: {}", message);
+            logger.warn("Event with unknown type received. Message: {}", message);
         } else if (baseEvent instanceof ResultMessage resultMessage) {
             if (resultMessage.success && resultMessage.result.status != 5) {
                 logger.debug("onWebSocketText received message type: {}, success: {}", baseEvent.type,

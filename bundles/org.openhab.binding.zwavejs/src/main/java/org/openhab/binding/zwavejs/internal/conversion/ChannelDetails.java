@@ -13,6 +13,8 @@
 package org.openhab.binding.zwavejs.internal.conversion;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.measure.Unit;
@@ -30,6 +32,7 @@ import org.openhab.core.library.unit.Units;
 import org.openhab.core.types.State;
 import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
+import org.openhab.core.types.StateOption;
 import org.openhab.core.types.UnDefType;
 import org.openhab.core.types.util.UnitUtils;
 import org.openhab.core.util.StringUtils;
@@ -50,7 +53,8 @@ public class ChannelDetails {
     public @Nullable State state;
     public String itemType = CoreItemFactory.STRING;
     public Type configType = Type.TEXT;
-    public @Nullable String unit;
+    public @Nullable String unitSymbol;
+    public @Nullable Unit<?> unit;
     public @Nullable StateDescriptionFragment statePattern;
     public String label = "Unknown Label";
     public String description = "Unknown Description";
@@ -71,9 +75,11 @@ public class ChannelDetails {
         this.isChannel = isChannel(channelId);
 
         this.writable = data.metadata.writeable;
-        this.unit = normalizeUnit(data.metadata.unit);
-        this.itemType = itemTypeFromMetadata(data.metadata.type, this.unit);
+        this.unitSymbol = normalizeUnit(data.metadata.unit);
+        this.unit = UnitUtils.parseUnit(this.unitSymbol);
+        this.itemType = itemTypeFromMetadata(data.metadata.type);
         this.configType = configTypeFromMetadata(data.metadata.type);
+        this.optionList = data.metadata.states;
         this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
         this.state = toState(data.value);
         this.label = data.metadata.label;
@@ -82,7 +88,6 @@ public class ChannelDetails {
         this.commandClassId = data.commandClass;
         this.endpoint = data.endpoint;
 
-        this.optionList = data.metadata.states;
         this.value = data.value;
 
         if (writable) {
@@ -144,7 +149,7 @@ public class ChannelDetails {
         switch (itemTypeSplitted[0]) {
             case CoreItemFactory.NUMBER:
                 if (itemTypeSplitted.length > 1) {
-                    Unit<?> unit = Units.getInstance().getUnit(this.unit);
+                    Unit<?> unit = Units.getInstance().getUnit(this.unitSymbol);
                     state = new QuantityType<>((Number) value, unit);
                 } else {
                     state = new DecimalType((Number) value);
@@ -160,12 +165,12 @@ public class ChannelDetails {
         return state;
     }
 
-    public String itemTypeFromMetadata(String type, @Nullable String unitSymbol) {
+    public String itemTypeFromMetadata(String type) {
         switch (type) {
             case "number":
-                if (unitSymbol != null) {
-                    Unit<?> unit = UnitUtils.parseUnit(unitSymbol);
-                    String dimension = unit != null ? UnitUtils.getDimensionName(unit) : null;
+                Unit<?> unit = this.unit;
+                if (unit != null) {
+                    String dimension = UnitUtils.getDimensionName(unit);
                     if (dimension == null) {
                         logger.warn("Could not parse '{}' as a unit, fallback to 'Number' itemType", unitSymbol);
                         return CoreItemFactory.NUMBER;
@@ -246,13 +251,14 @@ public class ChannelDetails {
         if (max != null) {
             fragment.withMaximum(BigDecimal.valueOf(max));
         }
-        // fragment.withOptions(null);
-        // TODO from states but need to find out how to properly deserialize it into a
-        // key/value pair
+        if (optionList != null) {
+            List<StateOption> options = new ArrayList<>();
+            optionList.forEach((k, v) -> options.add(new StateOption(k, v)));
+            fragment.withOptions(options);
+        }
         if (step != null) {
             fragment.withStep(BigDecimal.valueOf(step));
         }
-        // TODO there does not seem to be a property that can be used for this
         return fragment.build();
     }
 
@@ -264,7 +270,7 @@ public class ChannelDetails {
         sb.append(", channelId=" + channelId);
         sb.append(", state=" + state);
         sb.append(", itemType=" + itemType);
-        sb.append(", unit=" + unit);
+        sb.append(", unit=" + unitSymbol);
         sb.append(", statePattern=" + statePattern);
         sb.append(", label=" + label);
         sb.append(", description=" + description);

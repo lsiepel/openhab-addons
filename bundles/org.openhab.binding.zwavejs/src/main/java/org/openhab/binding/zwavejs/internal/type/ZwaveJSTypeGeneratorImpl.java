@@ -106,8 +106,8 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 .withLabel(details.label) //
                 .withVerify(true).withUnit(null).withDescription(details.description);
 
-        if (details.unit != null) {
-            parameterBuilder.withUnit(details.unit);
+        if (details.unitSymbol != null) {
+            parameterBuilder.withUnit(details.unitSymbol);
         }
 
         if (details.optionList != null) {
@@ -147,7 +147,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         }
 
         Configuration configuration = new Configuration();
-        configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_INCOMING_UNIT, details.unit);
+        configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_INCOMING_UNIT, details.unitSymbol);
         configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_ITEM_TYPE, details.itemType);
         configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_COMMANDCLASS_ID, details.commandClassId);
         configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_COMMANDCLASS_NAME, details.commandClassName);
@@ -180,7 +180,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
 
         // parts.append(details.type);
         parts.append(details.itemType);
-        parts.append(details.unit);
+        parts.append(details.unitSymbol);
         parts.append(details.writable);
         if (details.statePattern != null) {
             parts.append(details.statePattern.hashCode());
@@ -216,8 +216,8 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             builder.withStateDescriptionFragment(details.statePattern);
         }
 
-        if (details.unit != null) {
-            builder.withUnitHint(details.unit);
+        if (details.unitSymbol != null) {
+            builder.withUnitHint(details.unitSymbol);
         }
 
         return builder.build();
