@@ -19,7 +19,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
@@ -33,9 +32,6 @@ import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.binding.ThingHandlerCallback;
-import org.openhab.core.thing.type.ChannelType;
-
-import javafx.scene.Node;
 
 /**
  * @author Leo Siepel - Initial contribution
@@ -77,11 +73,10 @@ public class ZwaveJSBridgeHandlerTest {
         final ZwaveJSBridgeHandler handler = ZwaveJSBridgeHandlerMock.createAndInitHandler(callback, thing);
         final NodeDiscoveryService discoveryService = mock(NodeDiscoveryService.class);
         doNothing().when(handler).getFullState();
-        //when(bridge.getStatus()).thenReturn(ThingStatus.ONLINE);
+        // when(bridge.getStatus()).thenReturn(ThingStatus.ONLINE);
         handler.registerDiscoveryListener(discoveryService);
 
         ResultMessage resultMessage = DataUtil.fromJson("store_2.json", ResultMessage.class);
-
 
         handler.onEvent(resultMessage);
 

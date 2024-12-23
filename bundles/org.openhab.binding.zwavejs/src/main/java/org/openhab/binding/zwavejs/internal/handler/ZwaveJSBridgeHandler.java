@@ -27,6 +27,7 @@ import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.ZWaveJSClient;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.State;
+import org.openhab.binding.zwavejs.internal.api.dto.Status;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.BaseCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.ListeningCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
@@ -132,7 +133,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             final int nodeId = node.nodeId;
             final NodeListener nodeListener = nodeListeners.get(nodeId);
             if (nodeListener == null) {
-                if (node.status != 4) {
+                if (Status.DEAD.equals(node.status)) {
                     logger.warn("Z-Wave node '{}' is ignored due to state: {}", nodeId, node.status);
                     continue;
                 }

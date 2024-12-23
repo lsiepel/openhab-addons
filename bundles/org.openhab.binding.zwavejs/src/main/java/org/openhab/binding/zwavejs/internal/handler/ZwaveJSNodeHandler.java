@@ -24,6 +24,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
+import org.openhab.binding.zwavejs.internal.api.dto.Status;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.NodeSetValueCommand;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
@@ -188,7 +189,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
                             "Could not obtain node details");
                     return;
                 }
-                if (nodeDetails.status != 4) {
+                if (Status.DEAD.equals(nodeDetails.status)) {
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
                             String.format("The Z-Wave JS state of this node is: {}", nodeDetails.status));
                     return;

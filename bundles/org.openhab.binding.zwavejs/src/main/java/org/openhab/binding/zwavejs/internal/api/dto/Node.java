@@ -21,7 +21,7 @@ import java.util.Date;
 public class Node {
     public int nodeId;
     public int index;
-    public int status;
+    public Status status;
     public boolean ready;
     public boolean isListening;
     public boolean isRouting;
