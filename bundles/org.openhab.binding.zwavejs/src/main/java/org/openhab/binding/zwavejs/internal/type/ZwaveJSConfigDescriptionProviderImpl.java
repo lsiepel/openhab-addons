@@ -26,7 +26,12 @@ import org.openhab.core.config.core.ConfigDescriptionProvider;
 import org.osgi.service.component.annotations.Component;
 
 /**
- * Provides all Zwave JS Configuration Descriptions for dynamically discovered characteristics.
+ * Implementation of the {@link ZwaveJSConfigDescriptionProvider} interface.
+ * This class provides configuration descriptions for Z-Wave JS.
+ * 
+ * <p>
+ * It maintains a map of configuration descriptions indexed by their URI.
+ * </p>
  *
  * @author Leo Siepel - Initial contribution
  */

@@ -12,18 +12,17 @@
  */
 package org.openhab.binding.zwavejs.internal.type;
 
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.core.config.core.ConfigDescriptionParameter;
 import org.openhab.core.thing.Channel;
 
 /**
+ * This class represents the result of the ZwaveJS type generator.
+ * It contains a map of channels, where the key is a string and the value is a Channel object.
+ *
+ * @see Channel
  *
  * @author Leo Siepel - Initial contribution
  */
@@ -31,6 +30,4 @@ import org.openhab.core.thing.Channel;
 public class ZwaveJSTypeGeneratorResult {
 
     public Map<String, Channel> channels = new HashMap<>();
-    public List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
-    public @Nullable URI configDescriptionURI;
 }

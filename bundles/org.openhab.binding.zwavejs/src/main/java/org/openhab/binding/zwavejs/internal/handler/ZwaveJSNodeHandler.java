@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
-public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener {
+public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSNodeHandler.class);
     private final ZwaveJSTypeGenerator typeGenerator;

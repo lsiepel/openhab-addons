@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
 public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSBridgeHandler.class);
-    private final Map<Integer, NodeListener> nodeListeners = new ConcurrentHashMap<>();
+    private final Map<Integer, ZwaveNodeListener> nodeListeners = new ConcurrentHashMap<>();
     private final Map<Integer, Node> lastNodeStates = new ConcurrentHashMap<>();
 
     protected ScheduledExecutorService executorService = scheduler;
@@ -118,7 +118,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             updateStatus(ThingStatus.ONLINE);
         } else if (message instanceof EventMessage result) {
             if ("value updated".equals(result.event.event)) {
-                final NodeListener nodeListener = nodeListeners.get(result.event.nodeId);
+                final ZwaveNodeListener nodeListener = nodeListeners.get(result.event.nodeId);
                 if (nodeListener != null) {
                     nodeListener.onNodeStateChanged(result.event);
                 }
@@ -135,7 +135,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             logger.debug("Processing node id: {} label: {}", node.nodeId, node.label);
 
             final int nodeId = node.nodeId;
-            final NodeListener nodeListener = nodeListeners.get(nodeId);
+            final ZwaveNodeListener nodeListener = nodeListeners.get(nodeId);
             if (nodeListener == null) {
                 if (Status.DEAD.equals(node.status)) {
                     logger.warn("Z-Wave node '{}' is ignored due to state: {}", nodeId, node.status);
@@ -161,7 +161,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             logger.trace("Z-Wave node '{}' removed, state is missing update", nodeId);
             lastNodeStates.remove(nodeId);
 
-            final NodeListener nodeListener = nodeListeners.get(nodeId);
+            final ZwaveNodeListener nodeListener = nodeListeners.get(nodeId);
             if (nodeListener != null) {
                 nodeListener.onNodeRemoved();
             }
@@ -195,7 +195,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
     }
 
     @Override
-    public boolean registerNodeListener(NodeListener nodeListener) {
+    public boolean registerNodeListener(ZwaveNodeListener nodeListener) {
         final Integer id = nodeListener.getId();
         if (!nodeListeners.containsKey(id)) {
             logger.debug("Registering Z-Wave node {} listener", id);
@@ -211,7 +211,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
     }
 
     @Override
-    public boolean unregisterNodeListener(NodeListener nodeListener) {
+    public boolean unregisterNodeListener(ZwaveNodeListener nodeListener) {
         logger.debug("Unregistering Z-Wave node {} listener", nodeListener.getId());
         return nodeListeners.remove(nodeListener.getId()) != null;
     }

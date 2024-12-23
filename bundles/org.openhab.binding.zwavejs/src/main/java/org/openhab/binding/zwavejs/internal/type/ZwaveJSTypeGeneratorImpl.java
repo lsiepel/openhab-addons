@@ -50,16 +50,24 @@ import org.slf4j.LoggerFactory;
 /**
  * Generates openHAB entities (Channel, ChannelType and ConfigDescription) based on the Z-Wave JS data.
  *
+ * @see ChannelType
+ * @see ChannelTypeBuilder
+ * @see ChannelTypeUID
+ * @see StateChannelTypeBuilder
+ * @see ThingRegistry
+ * @see ZwaveJSChannelTypeProvider
+ * @see ZwaveJSConfigDescriptionProvider
+ *
  * @author Leo Siepel - Initial contribution
  */
 @Component
 @NonNullByDefault
 public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSTypeGeneratorImpl.class);
-    private ThingRegistry thingRegistry;
 
-    private ZwaveJSChannelTypeProvider channelTypeProvider;
-    private ZwaveJSConfigDescriptionProvider configDescriptionProvider;
+    private final ThingRegistry thingRegistry;
+    private final ZwaveJSChannelTypeProvider channelTypeProvider;
+    private final ZwaveJSConfigDescriptionProvider configDescriptionProvider;
 
     @Activate
     public ZwaveJSTypeGeneratorImpl(@Reference ZwaveJSChannelTypeProvider channelTypeProvider,
@@ -70,38 +78,49 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         this.thingRegistry = thingRegistry;
     }
 
+    /**
+     * Retrieves a Thing by its UID.
+     *
+     * @param thingUID the UID of the Thing
+     * @return the Thing, or null if not found
+     */
     public @Nullable Thing getThing(ThingUID thingUID) {
         return thingRegistry.get(thingUID);
     }
 
+    /**
+     * Generates Z-Wave JS types based on the provided Thing UID and Node.
+     *
+     * @param thingUID the UID of the Thing
+     * @param node the Node containing Z-Wave JS data
+     * @return the result containing generated types
+     */
     @Override
     public ZwaveJSTypeGeneratorResult generate(ThingUID thingUID, Node node) {
         ZwaveJSTypeGeneratorResult result = new ZwaveJSTypeGeneratorResult();
+        List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
         URI uri = getConfigDescriptionURI(thingUID, node);
         for (Value value : node.values) {
             MetadataEntry details = new MetadataEntry(node.nodeId, value);
             if (details.isChannel) {
                 result.channels = createChannel(thingUID, result.channels, details);
             } else if (details.isConfiguration) {
-                result.configDescriptions = createConfigDescriptions(result.configDescriptions, details);
+                configDescriptions.add(createConfigDescription(details));
             }
         }
         if (uri != null) {
-            result.configDescriptionURI = uri;
             configDescriptionProvider.addConfigDescription(
-                    ConfigDescriptionBuilder.create(uri).withParameters(result.configDescriptions).build());
+                    ConfigDescriptionBuilder.create(uri).withParameters(configDescriptions).build());
         }
         return result;
     }
 
-    private List<ConfigDescriptionParameter> createConfigDescriptions(
-            List<ConfigDescriptionParameter> configDescriptions, MetadataEntry details) {
+    private ConfigDescriptionParameter createConfigDescription(MetadataEntry details) {
         logger.debug("Node '{}' createConfigDescriptions with Id: {}", details.nodeId, details.channelId);
 
         ConfigDescriptionParameterBuilder parameterBuilder = ConfigDescriptionParameterBuilder
                 .create(details.channelId, details.configType) //
                 .withRequired(true) //
-                .withMultiple(false) //
                 .withContext("item") //
                 .withLabel(details.label) //
                 .withVerify(true).withUnit(null).withDescription(details.description);
@@ -113,15 +132,14 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         if (details.optionList != null) {
             List<ParameterOption> options = new ArrayList<>();
             details.optionList.forEach((k, v) -> options.add(new ParameterOption(k, v)));
-            logger.info("Node '{}' adding {} options for Id: {}", details.nodeId, details.optionList.size(),
+            logger.debug("Node '{}' adding {} options for Id: {}", details.nodeId, details.optionList.size(),
                     details.channelId);
             parameterBuilder.withLimitToOptions(true);
             parameterBuilder.withMultiple(false);
             parameterBuilder.withOptions(options);
         }
 
-        configDescriptions.add(parameterBuilder.build());
-        return configDescriptions;
+        return parameterBuilder.build();
     }
 
     private Map<String, Channel> createChannel(ThingUID thingUID, Map<String, Channel> channels,
@@ -130,6 +148,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         logger.trace(" >> {}", details);
         ChannelUID channelUID = new ChannelUID(thingUID, details.channelId);
 
+        @Nullable
         Channel existingChannel = channels.get(channelUID.getAsString());
         if (existingChannel != null) {
             Configuration channelConfig = existingChannel.getConfiguration();
@@ -178,7 +197,6 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     private ChannelTypeUID generateChannelTypeUID(MetadataEntry details) {
         StringBuilder parts = new StringBuilder();
 
-        // parts.append(details.type);
         parts.append(details.itemType);
         parts.append(details.unitSymbol);
         parts.append(details.writable);
@@ -189,11 +207,11 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("MD5");
             byte[] array = messageDigest.digest(parts.toString().getBytes());
-            StringBuffer stringBuffer = new StringBuffer();
+            StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < array.length; ++i) {
-                stringBuffer.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1, 3));
+                stringBuilder.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1, 3));
             }
-            return new ChannelTypeUID(ZwaveJSBindingConstants.BINDING_ID, stringBuffer.toString());
+            return new ChannelTypeUID(ZwaveJSBindingConstants.BINDING_ID, stringBuilder.toString());
         } catch (NoSuchAlgorithmException e) {
             logger.warn("NoSuchAlgorithmException error when calculating MD5 hash");
         }
@@ -208,7 +226,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         return generateChannelType(channelTypeUID, details);
     }
 
-    public static ChannelType generateChannelType(ChannelTypeUID channelTypeUID, MetadataEntry details) {
+    private ChannelType generateChannelType(ChannelTypeUID channelTypeUID, MetadataEntry details) {
         StateChannelTypeBuilder builder = ChannelTypeBuilder.state(channelTypeUID, details.label, details.itemType)
                 .withDescription(details.description);
 

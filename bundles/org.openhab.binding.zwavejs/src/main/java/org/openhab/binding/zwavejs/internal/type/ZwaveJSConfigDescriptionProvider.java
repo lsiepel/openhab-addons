@@ -21,7 +21,10 @@ import org.openhab.core.config.core.ConfigDescription;
 import org.openhab.core.config.core.ConfigDescriptionProvider;
 
 /**
- * Extends the ConfigDescriptionProvider to manually add a ConfigDescription.
+ * The {@code ZwaveJSConfigDescriptionProvider} interface extends the {@link ConfigDescriptionProvider}
+ * and provides methods to add and retrieve configuration descriptions specific to Z-Wave JS.
+ * 
+ * @see ConfigDescriptionProvider
  *
  * @author Leo Siepel - Initial contribution
  */
@@ -29,7 +32,9 @@ import org.openhab.core.config.core.ConfigDescriptionProvider;
 public interface ZwaveJSConfigDescriptionProvider extends ConfigDescriptionProvider {
 
     /**
-     * Adds the ConfigDescription to this provider.
+     * Adds a configuration description to the provider.
+     *
+     * @param configDescription the configuration description to be added
      */
     void addConfigDescription(ConfigDescription configDescription);
 

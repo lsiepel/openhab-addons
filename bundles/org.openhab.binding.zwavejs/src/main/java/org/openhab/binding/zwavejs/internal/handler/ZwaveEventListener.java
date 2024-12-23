@@ -18,6 +18,11 @@ import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
 import org.openhab.binding.zwavejs.internal.discovery.NodeDiscoveryService;
 
 /**
+ * Implementations of this {@link ZwaveEventListener} interface can be registered with the {@link ZWaveJSClient}
+ * to receive notifications about various Z-Wave events such as node updates, value changes,
+ * and other Z-Wave network events.
+ * 
+ * 
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
@@ -38,26 +43,27 @@ public interface ZwaveEventListener {
      */
     boolean unregisterDiscoveryListener();
 
-    /**
-     * Register a node listener.
-     *
-     * @param nodeListener the node listener
-     * @return {@code true} if the collection of listeners has changed as a result of this call
-     */
-    boolean registerNodeListener(NodeListener nodeListener);
 
     /**
-     * Unregister a node listener.
+     * Registers a listener for node events.
      *
-     * @param nodeListener the node listener
-     * @return {@code true} if the collection of listeners has changed as a result of this call
+     * @param nodeListener the listener to be registered
+     * @return true if the listener was successfully registered, false otherwise
      */
-    boolean unregisterNodeListener(NodeListener nodeListener);
+    boolean registerNodeListener(ZwaveNodeListener nodeListener);
 
     /**
-     * Inform listener about new event
+     * Unregisters a previously registered node listener.
      *
-     * @param message the event message
+     * @param nodeListener the node listener to unregister
+     * @return true if the listener was successfully unregistered, false otherwise
+     */
+    boolean unregisterNodeListener(ZwaveNodeListener nodeListener);
+
+    /**
+     * Handles an event when a message is received.
+     *
+     * @param message the message that was received
      */
     void onEvent(BaseMessage message);
 }

@@ -17,6 +17,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.core.thing.ThingUID;
 
 /**
+ * Interface for generating ChannelTypes and ConfigDescriptions for a given Z-Wave JS node.
  *
  * @author Leo Siepel - Initial contribution
  */
@@ -24,11 +25,11 @@ import org.openhab.core.thing.ThingUID;
 public interface ZwaveJSTypeGenerator {
 
     /**
-     * Generates the ChannelTypes and ConfigDescriptions for the given node.
-     * 
-     * @param thingUID The ThingUID that the generated channels belong to
-     * @param node The Z-Wave JS node data to proces and transform into openHAB domain
-     * @return ZwaveJSTypeGeneratorResult containing the channels and configuration
+     * Generates a {@link ZwaveJSTypeGeneratorResult} based on the provided ThingUID and Node.
+     *
+     * @param thingUID the unique identifier of the thing
+     * @param node the node for which the type is being generated
+     * @return a ZwaveJSTypeGeneratorResult containing the generated type information
      */
     ZwaveJSTypeGeneratorResult generate(ThingUID thingUID, Node node);
 }
