@@ -23,11 +23,20 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * Provides all Zwave JS ChannelTypes for dynamically discovered characteristics.
+ * Implementation of the {@link ZwaveJSChannelTypeProvider} interface that provides
+ * channel types for Z-Wave JS devices. This class extends the {@link AbstractStorageBasedTypeProvider}
+ * to leverage storage-based channel type management.
+ *
+ * <p>
+ * This class is registered as an OSGi component and provides services for the
+ * {@link ZwaveJSChannelTypeProvider} interface.
+ *
+ * @see ZwaveJSChannelTypeProvider
+ * @see ChannelTypeProvider
+ * @see AbstractStorageBasedTypeProvider
  *
  * @author Leo Siepel - Initial contribution
  */
-
 @NonNullByDefault
 @Component(service = { ZwaveJSChannelTypeProvider.class, ChannelTypeProvider.class })
 public class ZwaveJSChannelTypeProviderImpl extends AbstractStorageBasedTypeProvider
@@ -38,6 +47,11 @@ public class ZwaveJSChannelTypeProviderImpl extends AbstractStorageBasedTypeProv
         super(storageService);
     }
 
+    /**
+     * Removes all channel types associated with the specified ThingUID.
+     *
+     * @param uid the ThingUID for which the channel types should be removed
+     */
     public void removeChannelTypesForThing(ThingUID uid) {
         String thingUid = uid.getAsString() + ":";
         getChannelTypes(null).stream().map(ChannelType::getUID).filter(c -> c.getAsString().startsWith(thingUid))

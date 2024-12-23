@@ -35,7 +35,7 @@ import org.openhab.core.types.StateOption;
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
-public class ChannelDetailsTest {
+public class MetadataEntryTest {
 
     private ArrayList<Node> getNodesFromStore(String filename) throws IOException {
         ResultMessage resultMessage = DataUtil.fromJson(filename, ResultMessage.class);
@@ -50,7 +50,7 @@ public class ChannelDetailsTest {
     public void testChannelDetailsStore1Node3Channel1() throws IOException {
         Node node = getNodeFromStore("store_1.json", 3);
 
-        ChannelDetails details = new ChannelDetails(3, node.values.get(0));
+        MetadataEntry details = new MetadataEntry(3, node.values.get(0));
 
         assertEquals("binary-switch-value", details.channelId);
         assertEquals("Binary Switch", details.description);
@@ -67,7 +67,7 @@ public class ChannelDetailsTest {
     public void testChannelDetailsStore1Node6Channel1() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
-        ChannelDetails details = new ChannelDetails(6, node.values.get(0));
+        MetadataEntry details = new MetadataEntry(6, node.values.get(0));
 
         assertEquals("binary-switch-value", details.channelId);
         assertEquals("Switch", details.itemType);
@@ -83,7 +83,7 @@ public class ChannelDetailsTest {
     public void testChannelDetailsStore1Node6Channel3() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
-        ChannelDetails details = new ChannelDetails(6, node.values.get(2));
+        MetadataEntry details = new MetadataEntry(6, node.values.get(2));
 
         assertEquals("multilevel-sensor-power", details.channelId);
         assertEquals("Number:Power", details.itemType);
@@ -100,7 +100,7 @@ public class ChannelDetailsTest {
     public void testChannelDetailsStore1Node6Channel4() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
-        ChannelDetails details = new ChannelDetails(6, node.values.get(3));
+        MetadataEntry details = new MetadataEntry(6, node.values.get(3));
 
         assertEquals("meter-value", details.channelId);
         assertEquals("Number:Energy", details.itemType);
@@ -117,7 +117,7 @@ public class ChannelDetailsTest {
     public void testChannelDetailsStore1Node6Config1() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
-        ChannelDetails details = new ChannelDetails(6, node.values.get(6));
+        MetadataEntry details = new MetadataEntry(6, node.values.get(6));
 
         assertEquals("configuration-function", details.channelId);
         assertEquals(Type.INTEGER, details.configType);
@@ -140,7 +140,7 @@ public class ChannelDetailsTest {
     public void testChannelDetailsStore2Node2Channel66() throws IOException {
         Node node = getNodeFromStore("store_2.json", 2);
 
-        ChannelDetails details = new ChannelDetails(1, node.values.get(66));
+        MetadataEntry details = new MetadataEntry(1, node.values.get(66));
 
         assertEquals("multilevel-sensor-humidity", details.channelId);
         assertEquals("Number:Dimensionless", details.itemType);

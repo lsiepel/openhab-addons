@@ -28,7 +28,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.NodeSetValueCommand;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
-import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
+import org.openhab.binding.zwavejs.internal.conversion.MetadataEntry;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
 import org.openhab.core.config.core.Configuration;
@@ -231,7 +231,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         logger.debug("Z-Wave node id: {} state update", node.nodeId);
 
         for (Value value : node.values) {
-            ChannelDetails details = new ChannelDetails(getId(), value);
+            MetadataEntry details = new MetadataEntry(getId(), value);
             if (details.isChannel) {
                 State state = details.state;
                 if (isLinked(details.channelId) && state != null) {
@@ -251,7 +251,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
     public boolean onNodeStateChanged(Event event) {
         logger.debug("Z-Wave node id: {} state update", config.id);
 
-        ChannelDetails details = new ChannelDetails(getId(), event);
+        MetadataEntry details = new MetadataEntry(getId(), event);
         if (details.isChannel) {
             if (isLinked(details.channelId)) {
                 ZwaveJSChannelConfiguration channelConfig = thing.getChannel(details.channelId).getConfiguration()

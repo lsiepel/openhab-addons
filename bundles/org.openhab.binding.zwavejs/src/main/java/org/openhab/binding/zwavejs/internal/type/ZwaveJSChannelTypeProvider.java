@@ -17,7 +17,11 @@ import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.thing.type.ChannelTypeProvider;
 
 /**
- * Extends the ChannelTypeProvider to manually add a ChannelType.
+ * This interface represents a provider for Z-Wave JS channel types.
+ * It extends the {@link ChannelTypeProvider} interface and provides
+ * additional functionality specific to Z-Wave JS.
+ * 
+ * @see ChannelTypeProvider
  *
  * @author Leo Siepel - Initial contribution
  */
@@ -25,7 +29,9 @@ import org.openhab.core.thing.type.ChannelTypeProvider;
 public interface ZwaveJSChannelTypeProvider extends ChannelTypeProvider {
 
     /**
-     * Adds the ChannelType to this provider.
+     * Adds a new channel type to the provider.
+     *
+     * @param channelType the channel type to be added
      */
     void addChannelType(ChannelType channelType);
 }

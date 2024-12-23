@@ -47,45 +47,75 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 
 /**
+ * The {@code ZWaveJSClient} class is responsible for managing the WebSocket connection
+ * to the Z-Wave JS Webservice. It implements the {@link WebSocketListener} interface to
+ * handle WebSocket events such as connection, disconnection, and message reception.
+ * 
+ * <p>
+ * This class provides methods to start and stop the WebSocket connection, as well as
+ * to add and remove event listeners for Z-Wave events. It also includes functionality
+ * to send commands to the Z-Wave JS server.
+ * 
+ * <p>
+ * Thread Safety: This class is thread-safe. It uses a {@link CopyOnWriteArraySet} for
+ * managing event listeners and ensures that the WebSocket session is accessed in a
+ * thread-safe manner.
+ * 
+ * @see WebSocketListener
+ * @see WebSocketClient
+ * @see BaseMessage
+ * @see BaseCommand
+ * 
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
 public class ZWaveJSClient implements WebSocketListener {
 
-    private final Logger logger = LoggerFactory.getLogger(ZWaveJSClient.class);
-    private final WebSocketClient wsClient;
-    private @Nullable volatile Session session;
-    private Set<ZwaveEventListener> listeners = new CopyOnWriteArraySet<>();
-    private @Nullable Future<?> sessionFuture;
-    private Gson gson;
+    private static final Logger logger = LoggerFactory.getLogger(ZWaveJSClient.class);
     private static final int BUFFER_SIZE = 1048576 * 8; // 8 Mb
+    private static final String BINDING_SHUTDOWN_MESSAGE = "Binding shutdown";
+
+    private final WebSocketClient wsClient;
+    private volatile @Nullable Session session;
+    private final Set<ZwaveEventListener> listeners = new CopyOnWriteArraySet<>();
+    private @Nullable Future<?> sessionFuture;
+    private final Gson gson;
 
     public ZWaveJSClient(WebSocketClient wsClient) {
         this.wsClient = wsClient;
         RuntimeTypeAdapterFactory<BaseMessage> typeAdapterFactory = RuntimeTypeAdapterFactory.of(BaseMessage.class,
                 "type", true);
-        typeAdapterFactory.registerSubtype(VersionMessage.class, "version") //
-                .registerSubtype(ResultMessage.class, "result") //
-                .registerSubtype(EventMessage.class, "event"); //
+        typeAdapterFactory.registerSubtype(VersionMessage.class, "version")
+                .registerSubtype(ResultMessage.class, "result").registerSubtype(EventMessage.class, "event");
 
-        gson = new GsonBuilder().registerTypeAdapterFactory(typeAdapterFactory).create();
+        this.gson = new GsonBuilder().registerTypeAdapterFactory(typeAdapterFactory).create();
     }
 
-    public void start(String URI) throws CommunicationException, InterruptedException {
+    /**
+     * Starts the WebSocket connection to the Z-Wave JS Webservice.
+     *
+     * @param uri the URI of the WebSocket server
+     * @throws CommunicationException if there is an error during communication
+     * @throws InterruptedException if the thread is interrupted
+     */
+    public void start(String uri) throws CommunicationException, InterruptedException {
         logger.debug("Connecting to Z-Wave JS Webservice");
         try {
-            sessionFuture = wsClient.connect(this, new URI(URI));
+            sessionFuture = wsClient.connect(this, new URI(uri));
         } catch (IOException | URISyntaxException e) {
-            throw new CommunicationException(e.getMessage());
+            throw new CommunicationException("Failed to connect to Z-Wave JS Webservice: " + e.getMessage());
         }
     }
 
+    /**
+     * Stops the WebSocket connection to the Z-Wave JS Webservice.
+     */
     public void stop() {
         logger.debug("Disconnecting from Z-Wave JS Webservice");
         Session localSession = this.session;
         if (localSession != null) {
             try {
-                localSession.close(StatusCode.NORMAL, "Binding shutdown");
+                localSession.close(StatusCode.NORMAL, BINDING_SHUTDOWN_MESSAGE);
             } catch (Exception e) {
                 logger.debug("Error while closing websocket communication: {} ({})", e.getClass().getName(),
                         e.getMessage());
@@ -101,10 +131,20 @@ public class ZWaveJSClient implements WebSocketListener {
         }
     }
 
+    /**
+     * Adds a Z-Wave event listener to the list of listeners.
+     *
+     * @param listener the Z-Wave event listener to be added
+     */
     public void addEventListener(ZwaveEventListener listener) {
         listeners.add(listener);
     }
 
+    /**
+     * Removes the specified event listener from the list of listeners.
+     *
+     * @param listener the event listener to be removed
+     */
     public void removeEventListener(ZwaveEventListener listener) {
         listeners.remove(listener);
     }
@@ -113,7 +153,10 @@ public class ZWaveJSClient implements WebSocketListener {
     public void onWebSocketClose(int statusCode, @NonNullByDefault({}) String reason) {
         logger.debug("onClose({}, '{}')", statusCode, reason);
 
-        // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, reason);
+        // Event should be going up to the BridgeHandler to set the status
+
+        session = null;
+        sessionFuture = null;
     }
 
     @Override
@@ -191,6 +234,13 @@ public class ZWaveJSClient implements WebSocketListener {
         }
     }
 
+    /**
+     * Sends a command to the Z-Wave JS server.
+     *
+     * @param command the command to be sent, represented as a {@link BaseCommand} object.
+     * @throws IOException if an I/O error occurs while sending the command.
+     * @throws IllegalStateException if the session or remote endpoint is not available.
+     */
     public void sendCommand(BaseCommand command) {
         String commandAsJson = gson.toJson(command);
         Session session = this.session;

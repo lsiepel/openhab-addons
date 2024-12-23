@@ -39,12 +39,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * The {@link MetadataEntry} class represents metadata information for a Z-Wave node.
+ * It contains various properties and methods to handle metadata and state information.
+ * 
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
-public class ChannelDetails {
+public class MetadataEntry {
 
-    private final Logger logger = LoggerFactory.getLogger(ChannelDetails.class);
+    private static final Logger logger = LoggerFactory.getLogger(MetadataEntry.class);
+    private static final String DEFAULT_DESCRIPTION = "Unknown Description";
+    private static final String DEFAULT_LABEL = "Unknown Label";
+    private static final Map<String, String> UNIT_REPLACEMENTS = Map.of("lux", "lx", "Lux", "lx", "minutes", "min",
+            "seconds", "s");
 
     public int nodeId;
     public String channelId;
@@ -55,8 +62,8 @@ public class ChannelDetails {
     public @Nullable String unitSymbol;
     public @Nullable Unit<?> unit;
     public @Nullable StateDescriptionFragment statePattern;
-    public String label = "Unknown Label";
-    public String description = "Unknown Description";
+    public String label = DEFAULT_LABEL;
+    public String description = DEFAULT_DESCRIPTION;
     public boolean isConfiguration;
     public boolean isChannel;
     public @Nullable String commandClassName;
@@ -66,7 +73,7 @@ public class ChannelDetails {
     public Object value;
     public @Nullable Map<String, String> optionList;
 
-    public ChannelDetails(int nodeId, Value data) {
+    public MetadataEntry(int nodeId, Value data) {
         this.nodeId = nodeId;
         this.channelId = generateChannelId(data);
 
@@ -77,7 +84,7 @@ public class ChannelDetails {
         this.unitSymbol = normalizeUnit(data.metadata.unit);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
         if (unitSymbol != null && unit == null) {
-            logger.warn("Node id {}, unable to parse unitSymbol '{}'', this is a bug", nodeId, unitSymbol);
+            logger.warn("Node id {}, unable to parse unitSymbol '{}', this is a bug", nodeId, unitSymbol);
         }
         this.itemType = itemTypeFromMetadata(data.metadata.type);
         this.configType = configTypeFromMetadata(data.metadata.type);
@@ -100,7 +107,7 @@ public class ChannelDetails {
         }
     }
 
-    public ChannelDetails(int nodeId, Event data) {
+    public MetadataEntry(int nodeId, Event data) {
         this.nodeId = nodeId;
         this.channelId = generateChannelId(data);
 
@@ -118,6 +125,14 @@ public class ChannelDetails {
                 && !channelId.startsWith("manufacturer-specific");
     }
 
+    /**
+     * Sets the state based on the provided event, item type, and unit symbol.
+     *
+     * @param event The event containing the new value to set the state to.
+     * @param itemType The type of the item for which the state is being set.
+     * @param unitSymbol The unit symbol to be used for the state, can be null.
+     * @return The new state after setting it based on the event's new value.
+     */
     public @Nullable State setState(Event event, String itemType, @Nullable String unitSymbol) {
         this.unitSymbol = normalizeUnit(unitSymbol);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
@@ -139,7 +154,13 @@ public class ChannelDetails {
         return id;
     }
 
-    public String generateChannelId(Event event) {
+    /**
+     * Generates a channel ID based on the provided event.
+     *
+     * @param event the event containing the command class name and property name
+     * @return the generated channel ID
+     */
+    private String generateChannelId(Event event) {
         return generateChannelId(event.args.commandClassName, event.args.propertyName);
     }
 
@@ -174,7 +195,7 @@ public class ChannelDetails {
         }
     }
 
-    public String itemTypeFromMetadata(String type) {
+    private String itemTypeFromMetadata(String type) {
         switch (type) {
             case "number":
                 Unit<?> unit = this.unit;
@@ -221,19 +242,24 @@ public class ChannelDetails {
         }
     }
 
-    public @Nullable String normalizeUnit(@Nullable String unit) {
-        if (unit == null) {
+    private @Nullable String normalizeUnit(@Nullable String unitString) {
+        if (unitString == null) {
             return null;
         }
 
-        String[] splitted = unit.split(" ");
-        return splitted[splitted.length - 1] //
-                .replace("Lux", "lx") //
-                .replace("minutes", "min") //
-                .replace("seconds", "s");
+        String[] splitted = unitString.split(" ");
+        String lastPart = splitted[splitted.length - 1];
+
+        String normalizedUnit = UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart);
+
+        if (!UNIT_REPLACEMENTS.containsKey(lastPart)) {
+            logger.warn("Unexpected unit '{}', using as is", lastPart);
+        }
+
+        return normalizedUnit;
     }
 
-    public @Nullable StateDescriptionFragment createStatePattern(boolean writeable, @Nullable Integer min,
+    private @Nullable StateDescriptionFragment createStatePattern(boolean writeable, @Nullable Integer min,
             @Nullable Integer max, @Nullable Integer step) {
         String pattern = "";
         String itemTypeSplitted[] = itemType.split(":");

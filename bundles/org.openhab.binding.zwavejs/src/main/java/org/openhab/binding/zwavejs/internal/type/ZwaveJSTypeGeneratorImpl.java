@@ -25,7 +25,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
-import org.openhab.binding.zwavejs.internal.conversion.ChannelDetails;
+import org.openhab.binding.zwavejs.internal.conversion.MetadataEntry;
 import org.openhab.core.config.core.ConfigDescriptionBuilder;
 import org.openhab.core.config.core.ConfigDescriptionParameter;
 import org.openhab.core.config.core.ConfigDescriptionParameterBuilder;
@@ -79,7 +79,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         ZwaveJSTypeGeneratorResult result = new ZwaveJSTypeGeneratorResult();
         URI uri = getConfigDescriptionURI(thingUID, node);
         for (Value value : node.values) {
-            ChannelDetails details = new ChannelDetails(node.nodeId, value);
+            MetadataEntry details = new MetadataEntry(node.nodeId, value);
             if (details.isChannel) {
                 result.channels = createChannel(thingUID, result.channels, details);
             } else if (details.isConfiguration) {
@@ -95,7 +95,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     }
 
     private List<ConfigDescriptionParameter> createConfigDescriptions(
-            List<ConfigDescriptionParameter> configDescriptions, ChannelDetails details) {
+            List<ConfigDescriptionParameter> configDescriptions, MetadataEntry details) {
         logger.debug("Node '{}' createConfigDescriptions with Id: {}", details.nodeId, details.channelId);
 
         ConfigDescriptionParameterBuilder parameterBuilder = ConfigDescriptionParameterBuilder
@@ -125,7 +125,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     }
 
     private Map<String, Channel> createChannel(ThingUID thingUID, Map<String, Channel> channels,
-            ChannelDetails details) {
+            MetadataEntry details) {
         logger.debug("Node '{}' createChannel with Id: {}", details.nodeId, details.channelId);
         logger.trace(" >> {}", details);
         ChannelUID channelUID = new ChannelUID(thingUID, details.channelId);
@@ -175,7 +175,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         return channels;
     }
 
-    private ChannelTypeUID generateChannelTypeUID(ChannelDetails details) {
+    private ChannelTypeUID generateChannelTypeUID(MetadataEntry details) {
         StringBuilder parts = new StringBuilder();
 
         // parts.append(details.type);
@@ -200,7 +200,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         return new ChannelTypeUID(ZwaveJSBindingConstants.BINDING_ID, "unknown");
     }
 
-    private @Nullable ChannelType generateChannelType(ChannelDetails details) {
+    private @Nullable ChannelType generateChannelType(MetadataEntry details) {
         if (!details.isChannel) {
             return null;
         }
@@ -208,7 +208,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         return generateChannelType(channelTypeUID, details);
     }
 
-    public static ChannelType generateChannelType(ChannelTypeUID channelTypeUID, ChannelDetails details) {
+    public static ChannelType generateChannelType(ChannelTypeUID channelTypeUID, MetadataEntry details) {
         StateChannelTypeBuilder builder = ChannelTypeBuilder.state(channelTypeUID, details.label, details.itemType)
                 .withDescription(details.description);
 
