@@ -84,16 +84,20 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
         updateStatus(ThingStatus.UNKNOWN);
 
         scheduler.execute(() -> {
-            try {
-                client.start("ws://" + config.hostname + ":" + config.port);
-                client.addEventListener(this);
-                // the thing is set to online when the response/events are received
-            } catch (CommunicationException e) {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
-            } catch (InterruptedException e) {
-                updateStatus(ThingStatus.OFFLINE);
-            }
+            startClient(config);
         });
+    }
+
+    protected void startClient(ZwaveJSBridgeConfiguration config) {
+        try {
+            client.start("ws://" + config.hostname + ":" + config.port);
+            client.addEventListener(this);
+            // the thing is set to online when the response/events are received
+        } catch (CommunicationException e) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+        } catch (InterruptedException e) {
+            updateStatus(ThingStatus.OFFLINE);
+        }
     }
 
     @Override
@@ -139,7 +143,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
                 }
                 logger.debug("Z-Wave node '{}' has no listener, pass to discovery", nodeId);
 
-                if (discovery != null && !lastNodeStatesCopy.containsKey(nodeId)) {
+                if (discovery != null) {
                     discovery.addNodeDiscovery(node);
                 }
 
@@ -154,7 +158,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
 
         // Check for removed nodes
         lastNodeStatesCopy.forEach((nodeId, node) -> {
-            logger.trace("Z-Wave node '{}' revmoed, state is missing update", nodeId);
+            logger.trace("Z-Wave node '{}' removed, state is missing update", nodeId);
             lastNodeStates.remove(nodeId);
 
             final NodeListener nodeListener = nodeListeners.get(nodeId);

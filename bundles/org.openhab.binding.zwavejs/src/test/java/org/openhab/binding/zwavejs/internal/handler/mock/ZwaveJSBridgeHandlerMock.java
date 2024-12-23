@@ -22,6 +22,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
+import org.openhab.binding.zwavejs.internal.config.ZwaveJSBridgeConfiguration;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.io.net.http.WebSocketFactory;
@@ -70,5 +71,10 @@ public class ZwaveJSBridgeHandlerMock extends ZwaveJSBridgeHandler {
             ((Runnable) invocation.getArguments()[0]).run();
             return null;
         }).when(executorService).scheduleWithFixedDelay(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
+    }
+
+    @Override
+    protected void startClient(ZwaveJSBridgeConfiguration config) {
+        // dont connect in unit test mode
     }
 }

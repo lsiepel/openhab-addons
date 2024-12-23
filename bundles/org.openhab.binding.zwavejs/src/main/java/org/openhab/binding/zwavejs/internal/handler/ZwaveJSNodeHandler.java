@@ -19,7 +19,6 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.measure.Unit;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
@@ -118,29 +117,29 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements NodeListener
         } else if (command instanceof DecimalType decimalCommand) {
             zwaveCommand.value = decimalCommand.doubleValue();
         } else if (command instanceof DateTimeType dateTimeCommand) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (command instanceof HSBType hsbTypeCommand) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (command instanceof PercentType percentTypeCommand) {
             zwaveCommand.value = percentTypeCommand.doubleValue();
         } else if (command instanceof IncreaseDecreaseType increaseDecreaseCommand) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (command instanceof NextPreviousType nextPreviousCommand) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (command instanceof OpenClosedType openClosedCommand) {
             zwaveCommand.value = OpenClosedType.OPEN.equals(openClosedCommand);
         } else if (command instanceof PlayPauseType stringCommand) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (command instanceof PointType pointCommand) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (command instanceof RewindFastforwardType rewindFastforwardCommand) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (command instanceof StopMoveType stopMoveCommand) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (command instanceof StringListType stringListCommand) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (command instanceof UpDownType upDownCommand) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (command instanceof StringType stringCommand) {
             zwaveCommand.value = stringCommand.toString();
         }

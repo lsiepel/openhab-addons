@@ -27,7 +27,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
-import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSNodeHandler;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSChannelTypeProvider;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSConfigDescriptionProvider;
@@ -69,7 +68,6 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
     }
 
     public static ZwaveJSNodeHandlerMock createAndInitHandler(final ThingHandlerCallback callback, final Thing thing) {
-        // StorageService storageService = mock(StorageService.class);
         ZwaveJSChannelTypeProvider channelTypeProvider = mock(ZwaveJSChannelTypeProvider.class);
         ZwaveJSConfigDescriptionProvider configDescriptionProvider = mock(ZwaveJSConfigDescriptionProvider.class);
         ThingRegistry thingRegistry = mock(ThingRegistry.class);
@@ -115,9 +113,8 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
 
     public @Nullable Bridge getBridge() {
         final Bridge bridge = ZwaveJSBridgeHandlerMock.mockBridge("localhost");
-        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
-        final ZwaveJSBridgeHandler handler = ZwaveJSBridgeHandlerMock.createAndInitHandler(callback, bridge);
-
+        final ZwaveJSBridgeHandlerMock handler = mock(ZwaveJSBridgeHandlerMock.class);
+        doNothing().when(handler).initialize();
         ResultMessage resultMessage;
         try {
             resultMessage = DataUtil.fromJson("initial.json", ResultMessage.class);
@@ -131,7 +128,7 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         }).when(handler).requestNodeDetails(anyInt());
         when(bridge.getStatus()).thenReturn(ThingStatus.ONLINE);
         when(bridge.getHandler()).thenReturn(handler);
-
+        when(handler.registerNodeListener(any())).thenReturn(true);
         return bridge;
     }
 }
