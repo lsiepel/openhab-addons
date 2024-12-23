@@ -151,7 +151,7 @@ public class ZWaveJSClient implements WebSocketListener {
 
     @Override
     public void onWebSocketText(@NonNullByDefault({}) String message) {
-        if (!message.contains("\"event\":\"statistics updated\"")) {
+        if (message.contains("\"event\":\"statistics updated\"")) {
             return;
         }
 
