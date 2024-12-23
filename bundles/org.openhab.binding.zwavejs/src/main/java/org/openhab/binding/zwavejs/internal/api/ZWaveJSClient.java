@@ -58,7 +58,7 @@ public class ZWaveJSClient implements WebSocketListener {
     private Set<ZwaveEventListener> listeners = new CopyOnWriteArraySet<>();
     private @Nullable Future<?> sessionFuture;
     private Gson gson;
-    private static final int BUFFER_SIZE = 1048576 * 2; // 2 Mb
+    private static final int BUFFER_SIZE = 1048576 * 8; // 8 Mb
 
     public ZWaveJSClient(WebSocketClient wsClient) {
         this.wsClient = wsClient;
