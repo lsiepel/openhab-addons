@@ -20,11 +20,11 @@
 				<description>Port the remote Z-Wave JS server listens on</description>
 				<default>3000</default>
 			</parameter>
-            <parameter name="maxMessageSize" type="integer" required="true" min="1048576" max="33554432" step="262144">	
+			<parameter name="maxMessageSize" type="integer" required="true" min="1048576" max="33554432" step="262144">
 				<label>Maximum Message Size</label>
 				<description>The maximum size of the message (in bytes) that the ZWave-JS server can send</description>
 				<default>2097152</default>
-                <advanced>true</advanced>
+				<advanced>true</advanced>
 			</parameter>
 		</config-description>
 
