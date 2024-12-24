@@ -116,7 +116,7 @@ public class TelldusLiveDeviceController implements DeviceChangeListener, Sensor
 
     private AsyncHttpClientConfig createAsyncHttpClientConfig() {
         Builder builder = new DefaultAsyncHttpClientConfig.Builder();
-        builder.setConnectTimeout(REQUEST_TIMEOUT_MS);
+        builder.setConnectTimeout(Duration.ofMillis(REQUEST_TIMEOUT_MS));
         return builder.build();
     }
 
