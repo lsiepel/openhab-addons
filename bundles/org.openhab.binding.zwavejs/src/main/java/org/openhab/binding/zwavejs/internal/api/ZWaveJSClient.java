@@ -176,14 +176,20 @@ public class ZWaveJSClient implements WebSocketListener {
     public void onWebSocketError(@NonNullByDefault({}) Throwable cause) {
         Throwable localThrowable = (cause != null) ? cause
                 : new IllegalStateException("Null Exception passed to onWebSocketError");
-        logger.warn("Error during websocket communication: {}", localThrowable.getMessage(), localThrowable);
-
-        // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, localThrowable.getMessage());
+        logger.debug("Error during websocket communication: {}", localThrowable.getMessage());
 
         Session localSession = session;
         if (localSession != null) {
             localSession.close(StatusCode.SERVER_ERROR, "Failure: " + localThrowable.getMessage());
             session = null;
+        }
+
+        try {
+            for (ZwaveEventListener listener : listeners) {
+                listener.onConnectionError(localThrowable.getMessage());
+            }
+        } catch (Exception e) {
+            logger.warn("Error invoking event listener", e);
         }
     }
 

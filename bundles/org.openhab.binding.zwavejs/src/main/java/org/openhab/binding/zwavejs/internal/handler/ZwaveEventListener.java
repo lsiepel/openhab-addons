@@ -65,4 +65,11 @@ public interface ZwaveEventListener {
      * @param message the message that was received
      */
     void onEvent(BaseMessage message);
+
+    /**
+     * This method is called when there is a connection error.
+     *
+     * @param message the error message describing the connection issue
+     */
+    void onConnectionError(String message);
 }

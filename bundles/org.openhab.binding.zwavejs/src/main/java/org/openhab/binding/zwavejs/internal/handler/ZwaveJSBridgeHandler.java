@@ -250,4 +250,9 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
         client.stop();
         super.dispose();
     }
+
+    @Override
+    public void onConnectionError(String message) {
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, message);
+    }
 }
