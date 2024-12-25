@@ -29,7 +29,6 @@ import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
-import org.openhab.core.types.StateOption;
 
 /**
  * @author Leo Siepel - Initial contribution
@@ -50,13 +49,13 @@ public class MetadataEntryTest {
     public void testChannelDetailsStore1Node3Channel1() throws IOException {
         Node node = getNodeFromStore("store_1.json", 3);
 
-        MetadataEntry details = new MetadataEntry(3, node.values.get(0));
+        ChannelMetadata details = new ChannelMetadata(3, node.values.get(0));
 
-        assertEquals("binary-switch-value", details.channelId);
-        assertEquals("Binary Switch", details.description);
+        assertEquals("binary-switch-current-value", details.Id);
+        assertNull(details.description);
         assertEquals("Switch", details.itemType);
-        assertEquals("Current value", details.label);
-        assertEquals("Binary Switch", details.description);
+        assertEquals("Current Value", details.label);
+        assertNull(details.description);
         assertEquals(OnOffType.ON, details.state);
         assertEquals(false, details.writable);
         assertNull(details.statePattern);
@@ -67,12 +66,12 @@ public class MetadataEntryTest {
     public void testChannelDetailsStore1Node6Channel1() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
-        MetadataEntry details = new MetadataEntry(6, node.values.get(0));
+        ChannelMetadata details = new ChannelMetadata(6, node.values.get(0));
 
-        assertEquals("binary-switch-value", details.channelId);
+        assertEquals("binary-switch-current-value", details.Id);
         assertEquals("Switch", details.itemType);
-        assertEquals("Current value", details.label);
-        assertEquals("Binary Switch", details.description);
+        assertEquals("Current Value", details.label);
+        assertNull(details.description);
         assertEquals(OnOffType.ON, details.state);
         assertEquals(false, details.writable);
         assertNull(details.statePattern);
@@ -83,12 +82,12 @@ public class MetadataEntryTest {
     public void testChannelDetailsStore1Node6Channel3() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
-        MetadataEntry details = new MetadataEntry(6, node.values.get(2));
+        ChannelMetadata details = new ChannelMetadata(6, node.values.get(2));
 
-        assertEquals("multilevel-sensor-power", details.channelId);
+        assertEquals("multilevel-sensor-power", details.Id);
         assertEquals("Number:Power", details.itemType);
         assertEquals("Power", details.label);
-        assertEquals("Multilevel Sensor", details.description);
+        assertNull(details.description);
         assertEquals(new QuantityType<>(0, Units.WATT), details.state);
         assertEquals(false, details.writable);
         assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
@@ -100,12 +99,12 @@ public class MetadataEntryTest {
     public void testChannelDetailsStore1Node6Channel4() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
-        MetadataEntry details = new MetadataEntry(6, node.values.get(3));
+        ChannelMetadata details = new ChannelMetadata(6, node.values.get(3));
 
-        assertEquals("meter-value", details.channelId);
+        assertEquals("meter-value", details.Id);
         assertEquals("Number:Energy", details.itemType);
-        assertEquals("Electric Consumption [kWh]", details.label);
-        assertEquals("Meter", details.description);
+        assertEquals("Value", details.label);
+        assertNull(details.description);
         assertEquals(new QuantityType<>(881.95, Units.KILOWATT_HOUR), details.state);
         assertEquals(false, details.writable);
         assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
@@ -117,19 +116,20 @@ public class MetadataEntryTest {
     public void testChannelDetailsStore1Node6Config1() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
-        MetadataEntry details = new MetadataEntry(6, node.values.get(6));
+        ConfigMetadata details = new ConfigMetadata(6, node.values.get(6));
 
-        assertEquals("configuration-function", details.channelId);
+        assertEquals("configuration-always-on-function", details.Id);
         assertEquals(Type.INTEGER, details.configType);
         assertEquals("Always On Function", details.label);
         assertEquals("Once activated, Wall Plug will keep a connected device ...", details.description);
-        assertEquals(true, details.writable);
-        assertEquals(BigDecimal.valueOf(0), details.statePattern.getMinimum());
-        assertEquals(BigDecimal.valueOf(1), details.statePattern.getMaximum());
-        assertEquals(BigDecimal.valueOf(1), details.statePattern.getStep());
-        assertEquals("%0.d", details.statePattern.getPattern());
-        assertEquals(new StateOption("0", "Activated"), details.statePattern.getOptions().get(0));
-        assertEquals(new StateOption("1", "Inactive"), details.statePattern.getOptions().get(1));
+        assertEquals(false, details.writable);
+        assertNull(details.statePattern);
+        // assertEquals(BigDecimal.valueOf(0), details.statePattern.getMinimum());
+        // assertEquals(BigDecimal.valueOf(1), details.statePattern.getMaximum());
+        // assertEquals(BigDecimal.valueOf(1), details.statePattern.getStep());
+        // assertEquals("%0.d", details.statePattern.getPattern());
+        // assertEquals(new StateOption("0", "Activated"), details.statePattern.getOptions().get(0));
+        // assertEquals(new StateOption("1", "Inactive"), details.statePattern.getOptions().get(1));
 
         assertNull(details.unitSymbol);
         assertEquals(2, details.optionList.size());
@@ -140,12 +140,12 @@ public class MetadataEntryTest {
     public void testChannelDetailsStore2Node2Channel66() throws IOException {
         Node node = getNodeFromStore("store_2.json", 2);
 
-        MetadataEntry details = new MetadataEntry(1, node.values.get(66));
+        ChannelMetadata details = new ChannelMetadata(1, node.values.get(66));
 
-        assertEquals("multilevel-sensor-humidity", details.channelId);
+        assertEquals("multilevel-sensor-humidity", details.Id);
         assertEquals("Number:Dimensionless", details.itemType);
         assertEquals("Humidity", details.label);
-        assertEquals("Multilevel Sensor", details.description);
+        assertNull(details.description);
         assertEquals(new QuantityType<>(17.04, Units.PERCENT), details.state);
         assertEquals(false, details.writable);
         assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)

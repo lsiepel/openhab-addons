@@ -225,7 +225,7 @@ public class ZWaveJSClient implements WebSocketListener {
             logger.warn("Error invoking event listener", e);
         }
 
-        if (baseEvent instanceof VersionMessage event) {
+        if (baseEvent instanceof VersionMessage) {
             // the binding is starting up, perform schema version handshake
             // also start listening to events
             sendCommand(new InitializeCommand());

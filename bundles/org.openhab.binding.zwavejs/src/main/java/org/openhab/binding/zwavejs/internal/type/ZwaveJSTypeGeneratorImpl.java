@@ -19,13 +19,15 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
-import org.openhab.binding.zwavejs.internal.conversion.MetadataEntry;
+import org.openhab.binding.zwavejs.internal.conversion.ChannelMetadata;
+import org.openhab.binding.zwavejs.internal.conversion.ConfigMetadata;
 import org.openhab.core.config.core.ConfigDescriptionBuilder;
 import org.openhab.core.config.core.ConfigDescriptionParameter;
 import org.openhab.core.config.core.ConfigDescriptionParameterBuilder;
@@ -101,11 +103,10 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
         URI uri = getConfigDescriptionURI(thingUID, node);
         for (Value value : node.values) {
-            MetadataEntry details = new MetadataEntry(node.nodeId, value);
-            if (details.isChannel) {
-                result.channels = createChannel(thingUID, result.channels, details);
-            } else if (details.isConfiguration) {
-                configDescriptions.add(createConfigDescription(details));
+            if ("configuration".equals(value.commandClassName)) {
+                configDescriptions.add(createConfigDescription(new ConfigMetadata(node.nodeId, value)));
+            } else {
+                result.channels = createChannel(thingUID, result.channels, new ChannelMetadata(node.nodeId, value));
             }
         }
         if (uri != null) {
@@ -115,25 +116,26 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         return result;
     }
 
-    private ConfigDescriptionParameter createConfigDescription(MetadataEntry details) {
-        logger.debug("Node '{}' createConfigDescriptions with Id: {}", details.nodeId, details.channelId);
+    private ConfigDescriptionParameter createConfigDescription(ConfigMetadata details) {
+        logger.debug("Node '{}' createConfigDescriptions with Id: {}", details.nodeId, details.Id);
 
         ConfigDescriptionParameterBuilder parameterBuilder = ConfigDescriptionParameterBuilder
-                .create(details.channelId, details.configType) //
+                .create(details.Id, details.configType) //
                 .withRequired(true) //
                 .withContext("item") //
                 .withLabel(details.label) //
-                .withVerify(true).withUnit(null).withDescription(details.description);
+                .withVerify(true) //
+                .withUnit(null) //
+                .withDescription(details.description);
 
         if (details.unitSymbol != null) {
             parameterBuilder.withUnit(details.unitSymbol);
         }
-
-        if (details.optionList != null) {
+        Map<String, String> optionList = details.optionList;
+        if (optionList != null) {
             List<ParameterOption> options = new ArrayList<>();
-            details.optionList.forEach((k, v) -> options.add(new ParameterOption(k, v)));
-            logger.debug("Node '{}' adding {} options for Id: {}", details.nodeId, details.optionList.size(),
-                    details.channelId);
+            optionList.forEach((k, v) -> options.add(new ParameterOption(k, v)));
+            logger.debug("Node '{}' adding {} options for Id: {}", details.nodeId, optionList.size(), details.Id);
             parameterBuilder.withLimitToOptions(true);
             parameterBuilder.withMultiple(false);
             parameterBuilder.withOptions(options);
@@ -143,10 +145,11 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     }
 
     private Map<String, Channel> createChannel(ThingUID thingUID, Map<String, Channel> channels,
-            MetadataEntry details) {
-        logger.debug("Node '{}' createChannel with Id: {}", details.nodeId, details.channelId);
+            ChannelMetadata details) {
+        logger.debug("Node '{}' createChannel with Id: {}", details.nodeId, details.Id);
         logger.trace(" >> {}", details);
-        ChannelUID channelUID = new ChannelUID(thingUID, details.channelId);
+
+        ChannelUID channelUID = new ChannelUID(thingUID, details.Id);
 
         @Nullable
         Channel existingChannel = channels.get(channelUID.getAsString());
@@ -155,12 +158,12 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             if (channelConfig.get(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY) == null && details.writable
                     && details.writeProperty != null) {
                 channelConfig.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
-                channels.put(details.channelId,
+                channels.put(details.Id,
                         ChannelBuilder.create(existingChannel).withConfiguration(channelConfig).build());
-                logger.debug("Node {}, channel {} existing channel updated", details.nodeId, details.channelId);
+                logger.debug("Node {}, channel {} existing channel updated", details.nodeId, details.Id);
                 return channels;
             } else {
-                logger.warn("Node {}, channel {} already exists: ignored", details.nodeId, details.channelId);
+                logger.warn("Node {}, channel {} already exists: ignored", details.nodeId, details.Id);
                 return channels;
             }
         }
@@ -186,15 +189,15 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         }
         if (channelType == null) {
             logger.warn("Node {}, channel {}, ChannelType could not be found or generated, this is a bug",
-                    details.nodeId, details.channelId);
+                    details.nodeId, details.Id);
         }
-        channels.put(details.channelId, ChannelBuilder.create(channelUID).withConfiguration(configuration)
+        channels.put(details.Id, ChannelBuilder.create(channelUID).withConfiguration(configuration)
                 .withType(channelType.getUID()).build());
 
         return channels;
     }
 
-    private ChannelTypeUID generateChannelTypeUID(MetadataEntry details) {
+    private ChannelTypeUID generateChannelTypeUID(ChannelMetadata details) {
         StringBuilder parts = new StringBuilder();
 
         parts.append(details.itemType);
@@ -218,17 +221,17 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         return new ChannelTypeUID(ZwaveJSBindingConstants.BINDING_ID, "unknown");
     }
 
-    private @Nullable ChannelType generateChannelType(MetadataEntry details) {
-        if (!details.isChannel) {
-            return null;
-        }
+    private @Nullable ChannelType generateChannelType(ChannelMetadata details) {
         final ChannelTypeUID channelTypeUID = generateChannelTypeUID(details);
         return generateChannelType(channelTypeUID, details);
     }
 
-    private ChannelType generateChannelType(ChannelTypeUID channelTypeUID, MetadataEntry details) {
-        StateChannelTypeBuilder builder = ChannelTypeBuilder.state(channelTypeUID, details.label, details.itemType)
-                .withDescription(details.description);
+    private ChannelType generateChannelType(ChannelTypeUID channelTypeUID, ChannelMetadata details) {
+        StateChannelTypeBuilder builder = ChannelTypeBuilder.state(channelTypeUID, details.label, details.itemType);
+
+        if (details.description != null) {
+            builder.withDescription(Objects.requireNonNull(details.description));
+        }
 
         if (details.statePattern != null) {
             builder.withStateDescriptionFragment(details.statePattern);

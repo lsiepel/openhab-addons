@@ -1,0 +1,100 @@
+/**
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package org.openhab.binding.zwavejs.internal.conversion;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.zwavejs.internal.api.dto.Value;
+import org.openhab.core.config.core.ConfigDescriptionParameter.Type;
+import org.openhab.core.types.State;
+import org.openhab.core.types.StateDescriptionFragment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * The {@link ConfigMetadata} class represents configuration metadata information for a Z-Wave node.
+ * It contains various properties and methods to handle metadata and state information.
+ * 
+ * @author Leo Siepel - Initial contribution
+ */
+@NonNullByDefault
+public class ConfigMetadata extends BaseMetadata {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConfigMetadata.class);
+
+    public @Nullable State state;
+    public Type configType = Type.TEXT;
+    public @Nullable StateDescriptionFragment statePattern;
+    public @Nullable String commandClassName;
+    public int commandClassId;
+    public int endpoint;
+
+    public ConfigMetadata(int nodeId, Value data) {
+        super(nodeId, data);
+
+        // confirmed
+        this.configType = configTypeFromMetadata(data.metadata.type, data.value);
+
+        // unkown
+        // this.state = toState(data.value, itemType, unit);
+        // this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
+        this.commandClassName = data.commandClassName;
+        this.commandClassId = data.commandClass;
+        this.endpoint = data.endpoint;
+    }
+
+    private Type configTypeFromMetadata(String type, Object value) {
+        type = correctedType(type, value);
+        switch (type) {
+            case "number":
+                return Type.INTEGER;
+            // return Type.DECIMAL; // depends on scale?
+            case "color":
+                return Type.TEXT;
+            case "boolean":
+                // switch (or contact ?)
+                return Type.BOOLEAN;
+            case "string":
+            case "string[]":
+                return Type.TEXT;
+            default:
+                logger.error(
+                        "Could not determine config type based on metadata.type: {}, fallback to 'Text' please file a bug report",
+                        type);
+                return Type.TEXT;
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("BaseMetadata [");
+        sb.append(", nodeId=" + nodeId);
+        sb.append(", Id=" + Id);
+        sb.append(", label=" + label);
+        sb.append(", description=" + description);
+        sb.append(", unitSymbol=" + unitSymbol);
+        sb.append(", value=" + value);
+        sb.append(", itemType=" + itemType);
+        sb.append(", writable=" + writable);
+        sb.append(", writeProperty=" + writeProperty);
+        sb.append(", state=" + state);
+        sb.append(", configType=" + configType);
+        sb.append(", statePattern=" + statePattern);
+        sb.append(", commandClassName=" + commandClassName);
+        sb.append(", commandClassId=" + commandClassId);
+        sb.append(", endpoint=" + endpoint);
+        sb.append("]");
+        return sb.toString();
+    }
+}

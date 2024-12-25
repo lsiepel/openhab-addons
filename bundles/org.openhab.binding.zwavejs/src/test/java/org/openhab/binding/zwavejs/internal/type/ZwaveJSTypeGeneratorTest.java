@@ -22,12 +22,15 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
+import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ThingRegistry;
 import org.openhab.core.thing.ThingUID;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Leo Siepel - Initial contribution
@@ -54,7 +57,7 @@ public class ZwaveJSTypeGeneratorTest {
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
 
-        assertEquals(2, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(14, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -65,7 +68,25 @@ public class ZwaveJSTypeGeneratorTest {
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
 
-        assertEquals(2, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(19, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+    }
+
+    @Disabled
+    @Test
+    public void testGeneratedChannelUIDStore2AllNodes() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_2.json", ResultMessage.class);
+        int counter = 0;
+        for (Node node : resultMessage.result.state.nodes) {
+            ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                    .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+
+            for (Channel channel : results.channels.values()) {
+                LoggerFactory.getLogger(ZwaveJSTypeGeneratorTest.class).error("Node {} {}", node.nodeId,
+                        channel.getUID());
+            }
+        }
+
+        assertEquals(0, counter);
     }
 
     @Test
@@ -79,7 +100,7 @@ public class ZwaveJSTypeGeneratorTest {
             counter += results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count();
         }
 
-        assertEquals(81, counter);
+        assertEquals(295, counter);
     }
 
     @Test
@@ -94,6 +115,6 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
         // TODO need to investigate why there is this sick amount of channeltypes added.
-        assertEquals(425, counter);
+        assertEquals(1676, counter);
     }
 }

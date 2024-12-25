@@ -136,7 +136,8 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
             logger.debug("Processing node id: {} label: {}", node.nodeId, node.label);
 
             final int nodeId = node.nodeId;
-            final ZwaveNodeListener nodeListener = nodeListeners.get(nodeId);
+
+            final @Nullable ZwaveNodeListener nodeListener = nodeListeners.get(nodeId);
             if (nodeListener == null) {
                 if (Status.DEAD.equals(node.status)) {
                     logger.warn("Z-Wave node '{}' is ignored due to state: {}", nodeId, node.status);

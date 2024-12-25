@@ -14,9 +14,11 @@ package org.openhab.binding.zwavejs.internal.conversion;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.measure.Unit;
 
@@ -24,7 +26,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
-import org.openhab.core.config.core.ConfigDescriptionParameter.Type;
 import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.HSBType;
@@ -41,16 +42,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link MetadataEntry} class represents metadata information for a Z-Wave node.
+ * The {@link BaseMetadata} class represents basic metadata information for a Z-Wave node.
  * It contains various properties and methods to handle metadata and state information.
  * 
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
-public class MetadataEntry {
+public abstract class BaseMetadata {
 
-    private static final Logger logger = LoggerFactory.getLogger(MetadataEntry.class);
-    private static final String DEFAULT_DESCRIPTION = "Unknown Description";
+    private static final Logger logger = LoggerFactory.getLogger(BaseMetadata.class);
     private static final String DEFAULT_LABEL = "Unknown Label";
     private static final Map<String, String> UNIT_REPLACEMENTS = Map.of("lux", "lx", //
             "Lux", "lx", //
@@ -60,125 +60,77 @@ public class MetadataEntry {
             "°F/C", ""); // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
 
     public int nodeId;
-    public String channelId;
-    public boolean writable;
-    public @Nullable State state;
-    public String itemType = CoreItemFactory.STRING;
-    public Type configType = Type.TEXT;
-    public @Nullable String unitSymbol;
-    public @Nullable Unit<?> unit;
-    public @Nullable StateDescriptionFragment statePattern;
+    public String Id;
     public String label = DEFAULT_LABEL;
-    public String description = DEFAULT_DESCRIPTION;
-    public boolean isConfiguration;
-    public boolean isChannel;
-    public @Nullable String commandClassName;
-    public int commandClassId;
-    public int endpoint;
+    public @Nullable String description;
+    public @Nullable String unitSymbol;
+    protected @Nullable Unit<?> unit;
+    protected Object value;
+    protected boolean writable;
+    public String itemType = CoreItemFactory.STRING;
     public @Nullable Object writeProperty;
-    public Object value;
-    public @Nullable Map<String, String> optionList;
+    protected @Nullable Map<String, String> optionList;
 
-    public MetadataEntry(int nodeId, Value data) {
+    protected BaseMetadata(int nodeId, Value value) {
         this.nodeId = nodeId;
-        this.channelId = generateChannelId(data);
+        this.Id = generateChannelId(value);
 
-        this.isConfiguration = isConfiguration(channelId);
-        this.isChannel = isChannel(channelId);
-
-        this.writable = data.metadata.writeable;
-        this.unitSymbol = normalizeUnit(data.metadata.unit, data.value);
+        this.label = capitalize(value.propertyName);
+        this.description = value.metadata.description;
+        this.unitSymbol = normalizeUnit(value.metadata.unit, value.value);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
+        this.itemType = itemTypeFromMetadata(value.metadata.type, value.value);
         if (unitSymbol != null && unit == null) {
-            logger.warn("Node id {}, unable to parse unitSymbol '{}', this is a bug", nodeId, unitSymbol);
+            logger.warn("Node id {}, unable to parse unitSymbol '{}', please file a bug report", nodeId, unitSymbol);
         }
-        this.itemType = itemTypeFromMetadata(data.metadata.type, data.value);
-        this.configType = configTypeFromMetadata(data.metadata.type, data.value);
-        this.optionList = data.metadata.states;
-
-        this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
-        this.state = toState(data.value, itemType, unit);
-
-        this.description = data.metadata.description != null ? data.metadata.description : data.commandClassName;
-        this.label = data.metadata.label != null ? data.metadata.label : this.description;
-
-        this.commandClassName = data.commandClassName;
-        this.commandClassId = data.commandClass;
-        this.endpoint = data.endpoint;
-
-        this.value = data.value;
+        this.optionList = value.metadata.states;
+        this.value = value.value;
 
         if (writable) {
-            writeProperty = data.property;
+            writeProperty = value.property;
         }
     }
 
-    public MetadataEntry(int nodeId, Event data) {
+    public BaseMetadata(int nodeId, Event data) {
         this.nodeId = nodeId;
-        this.channelId = generateChannelId(data);
+        this.Id = generateId(data);
 
-        this.isConfiguration = isConfiguration(channelId);
-        this.isChannel = isChannel(channelId);
         this.value = data.args.newValue;
     }
 
-    private boolean isConfiguration(String channelId) {
-        return channelId.startsWith("configuration");
-    }
-
-    private boolean isChannel(String channelId) {
-        return !isConfiguration(channelId) && !channelId.startsWith("version") && !channelId.startsWith("notification")
-                && !channelId.startsWith("manufacturer-specific");
-    }
-
-    /**
-     * Sets the state based on the provided event, item type, and unit symbol.
-     *
-     * @param event The event containing the new value to set the state to.
-     * @param itemType The type of the item for which the state is being set.
-     * @param unitSymbol The unit symbol to be used for the state, can be null.
-     * @return The new state after setting it based on the event's new value.
-     */
-    public @Nullable State setState(Event event, String itemType, @Nullable String unitSymbol) {
-        this.unitSymbol = normalizeUnit(unitSymbol, event.args.newValue);
-        this.unit = UnitUtils.parseUnit(this.unitSymbol);
-        if (unitSymbol != null && unit == null) {
-            logger.warn("Node id {}, unable to parse unitSymbol '{}'' from channel config, this is a bug", nodeId,
-                    unitSymbol);
+    private String capitalize(@Nullable String input) {
+        if (input == null || input.isBlank()) {
+            return DEFAULT_LABEL;
         }
-        return this.state = toState(event.args.newValue, itemType, this.unit);
+
+        return Arrays.stream(StringUtils.splitByCharacterType(input)).filter(f -> !f.isBlank())
+                .map(word -> StringUtils.capitalize(word)).collect(Collectors.joining(" "));
     }
 
-    private String generateChannelId(String commandClassName, @Nullable String propertyName) {
+    private String generateId(String commandClassName, @Nullable String propertyName) {
         String id = commandClassName.toLowerCase().replaceAll(" ", "-");
-
+        String[] splitted;
         if (propertyName != null && !propertyName.contains("unknown")) {
-            String[] splitted = StringUtils.splitByCharacterType(propertyName);
-            id += "-" + splitted[splitted.length - 1].toLowerCase();
+            splitted = StringUtils.splitByCharacterType(propertyName);
+            List<String> result = Arrays.asList(splitted).stream().filter(s -> s.matches("^[a-zA-Z]+$"))
+                    .map(m -> m.toLowerCase()).toList();
+            if (result.size() > 0) {
+                id += "-" + String.join("-", result);
+            }
         }
 
         return id;
     }
 
-    /**
-     * Generates a channel ID based on the provided event.
-     *
-     * @param event the event containing the command class name and property name
-     * @return the generated channel ID
-     */
-    private String generateChannelId(Event event) {
-        return generateChannelId(event.args.commandClassName, event.args.propertyName);
+    private String generateId(Event event) {
+        return generateId(event.args.commandClassName, event.args.propertyName);
     }
 
     private String generateChannelId(Value value) {
-        return generateChannelId(value.commandClassName, value.propertyName);
+        return generateId(value.commandClassName, value.propertyName);
     }
 
-    private @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit) {
-        if (!this.isChannel) {
-            logger.debug("Node id: '{}' getStateFromValue, channelId ignored", nodeId);
-            return null;
-        }
+    protected @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit) {
         if (value == null) {
             return UnDefType.NULL;
         } else if (value instanceof Map<?, ?> treeMap) {
@@ -229,7 +181,31 @@ public class MetadataEntry {
         }
     }
 
-    private String itemTypeFromMetadata(String type, Object value) {
+    protected String correctedType(String type, Object value) {
+        switch (type) {
+            case "any":
+                // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
+                // Can be anything from boolean, string or complex object like RGB. So we need to check the value
+                if (value instanceof Number) {
+                    return "number";
+                } else if (value instanceof Boolean) {
+                    return "boolean";
+                } else if (value instanceof Map<?, ?> treeMap) {
+                    if (treeMap.size() == 3) {
+                        return "color";
+                    }
+                }
+            case "duration":
+                // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
+                // Can be anything from plain Number to a complex object with unit and value. So we need to check the
+                // value
+                return "number";
+            default:
+                return type;
+        }
+    }
+
+    protected String itemTypeFromMetadata(String type, Object value) {
         type = correctedType(type, value);
 
         switch (type) {
@@ -261,69 +237,7 @@ public class MetadataEntry {
         }
     }
 
-    private String correctedType(String type, Object value) {
-        switch (type) {
-            case "any":
-                // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
-                // Can be anything from boolean, string or complex object like RGB. So we need to check the value
-                if (value instanceof Number) {
-                    return "number";
-                } else if (value instanceof Boolean) {
-                    return "boolean";
-                } else if (value instanceof Map<?, ?> treeMap) {
-                    if (treeMap.size() == 3) {
-                        return "color";
-                    }
-                }
-            case "duration":
-                // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
-                // Can be anything from plain Number to a complex object with unit and value. So we need to check the
-                // value
-                return "number";
-            default:
-                return type;
-        }
-    }
-
-    private Type configTypeFromMetadata(String type, Object value) {
-        type = correctedType(type, value);
-        switch (type) {
-            case "number":
-                return Type.INTEGER;
-            // return Type.DECIMAL; // depends on scale?
-            case "color":
-                return Type.TEXT;
-            case "boolean":
-                // switch (or contact ?)
-                return Type.BOOLEAN;
-            case "string":
-            case "string[]":
-                return Type.TEXT;
-            default:
-                logger.error(
-                        "Could not determine config type based on metadata.type: {}, fallback to 'Text' please file a bug report",
-                        type);
-                return Type.TEXT;
-        }
-    }
-
-    private @Nullable String normalizeUnit(@Nullable String unitString, @Nullable Object value) {
-        if (unitString == null && value instanceof Map<?, ?> treeMap) {
-            if (treeMap.containsKey("unit")) {
-                unitString = (String) treeMap.get("unit");
-            }
-        }
-        if (unitString == null) {
-            return null;
-        }
-        String[] splitted = unitString.split(" ");
-        String lastPart = splitted[splitted.length - 1];
-        String output = UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart);
-
-        return output != null && !output.isBlank() ? output : null;
-    }
-
-    private @Nullable StateDescriptionFragment createStatePattern(boolean writeable, @Nullable Integer min,
+    protected @Nullable StateDescriptionFragment createStatePattern(boolean writeable, @Nullable Integer min,
             @Nullable Integer max, @Nullable Integer step) {
         String pattern = "";
         String itemTypeSplitted[] = itemType.split(":");
@@ -351,7 +265,6 @@ public class MetadataEntry {
         if (max != null) {
             fragment.withMaximum(BigDecimal.valueOf(max));
         }
-        Map<String, String> optionList = this.optionList;
         if (optionList != null) {
             List<StateOption> options = new ArrayList<>();
             optionList.forEach((k, v) -> options.add(new StateOption(k, v)));
@@ -363,18 +276,36 @@ public class MetadataEntry {
         return fragment.build();
     }
 
+    protected @Nullable String normalizeUnit(@Nullable String unitString, @Nullable Object value) {
+        if (unitString == null && value instanceof Map<?, ?> treeMap) {
+            if (treeMap.containsKey("unit")) {
+                unitString = (String) treeMap.get("unit");
+            }
+        }
+        if (unitString == null) {
+            return null;
+        }
+        String[] splitted = unitString.split(" ");
+        String lastPart = splitted[splitted.length - 1];
+        String output = UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart);
+
+        return output != null && !output.isBlank() ? output : null;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("ChannelDetails [");
+        sb.append("BaseMetadata [");
         sb.append(", nodeId=" + nodeId);
-        sb.append(", channelId=" + channelId);
-        sb.append(", state=" + state);
-        sb.append(", itemType=" + itemType);
-        sb.append(", unit=" + unitSymbol);
-        sb.append(", statePattern=" + statePattern);
+        sb.append(", Id=" + Id);
         sb.append(", label=" + label);
         sb.append(", description=" + description);
+        sb.append(", unitSymbol=" + unitSymbol);
+        sb.append(", value=" + value);
+        sb.append(", itemType=" + itemType);
+        sb.append(", writable=" + writable);
+        sb.append(", writeProperty=" + writeProperty);
+        sb.append(", itemType=" + itemType);
         sb.append("]");
         return sb.toString();
     }

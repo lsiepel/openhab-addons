@@ -28,7 +28,8 @@ import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.NodeSetValueCommand;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
-import org.openhab.binding.zwavejs.internal.conversion.MetadataEntry;
+import org.openhab.binding.zwavejs.internal.conversion.ChannelMetadata;
+import org.openhab.binding.zwavejs.internal.conversion.ConfigMetadata;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
 import org.openhab.core.config.core.Configuration;
@@ -231,16 +232,18 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         logger.debug("Z-Wave node id: {} state update", node.nodeId);
 
         for (Value value : node.values) {
-            MetadataEntry details = new MetadataEntry(getId(), value);
-            if (details.isChannel) {
-                State state = details.state;
-                if (isLinked(details.channelId) && state != null) {
-                    updateState(details.channelId, state);
-                }
-            } else if (details.isConfiguration) {
+            if ("configuration".equals(value.commandClassName)) {
+                ConfigMetadata details = new ConfigMetadata(getId(), value);
                 Configuration configuration = editConfiguration();
-                configuration.put(details.channelId, details.value);
+                // TODO value needs to be processed to state ?
+                configuration.put(details.Id, value.value);
                 updateConfiguration(configuration);
+            } else {
+                ChannelMetadata details = new ChannelMetadata(getId(), value);
+                State state = details.state;
+                if (isLinked(details.Id) && state != null) {
+                    updateState(details.Id, state);
+                }
             }
         }
 
@@ -251,15 +254,18 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
     public boolean onNodeStateChanged(Event event) {
         logger.debug("Z-Wave node id: {} state update", config.id);
 
-        MetadataEntry details = new MetadataEntry(getId(), event);
-        if (details.isChannel) {
-            if (isLinked(details.channelId)) {
-                ZwaveJSChannelConfiguration channelConfig = thing.getChannel(details.channelId).getConfiguration()
+        if ("configuration".equals(event.args.commandClassName)) {
+            // configDescriptions.add(createConfigDescription(new ConfigMetadata(node.nodeId, value)));
+        } else {
+            ChannelMetadata details = new ChannelMetadata(getId(), event);
+            if (isLinked(details.Id)) {
+                @SuppressWarnings("null") // as we checked by isLinked the channel can't be null
+                ZwaveJSChannelConfiguration channelConfig = thing.getChannel(details.Id).getConfiguration()
                         .as(ZwaveJSChannelConfiguration.class);
 
                 State state = details.setState(event, channelConfig.itemType, channelConfig.incomingUnit);
                 if (state != null) {
-                    updateState(details.channelId, state);
+                    updateState(details.Id, state);
                 }
             }
         }

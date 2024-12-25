@@ -69,7 +69,7 @@ public class ZwaveJSNodeHandlerTest {
     }
 
     @Test
-    public void testStopre1Node6ChannelsCreation() {
+    public void testStore1Node6ChannelsCreation() {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(6);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
         final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_1.json");
@@ -78,6 +78,9 @@ public class ZwaveJSNodeHandlerTest {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
                     argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
+            handler.getThing().getChannels().forEach(channel -> {
+                System.out.println(channel.getUID());
+            });
         } finally {
             handler.dispose();
         }
@@ -92,7 +95,7 @@ public class ZwaveJSNodeHandlerTest {
         EventMessage eventMessage = DataUtil.fromJson("event_node_6_switch.json", EventMessage.class);
         handler.onNodeStateChanged(eventMessage.event);
 
-        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:binary-switch-value");
+        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:binary-switch-current-value");
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
