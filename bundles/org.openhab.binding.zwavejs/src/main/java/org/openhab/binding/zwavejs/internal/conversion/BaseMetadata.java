@@ -69,7 +69,7 @@ public abstract class BaseMetadata {
     protected boolean writable;
     public String itemType = CoreItemFactory.STRING;
     public @Nullable Object writeProperty;
-    protected @Nullable Map<String, String> optionList;
+    public @Nullable Map<String, String> optionList;
 
     protected BaseMetadata(int nodeId, Value value) {
         this.nodeId = nodeId;

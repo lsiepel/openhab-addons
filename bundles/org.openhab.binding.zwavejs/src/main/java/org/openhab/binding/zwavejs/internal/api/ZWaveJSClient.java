@@ -186,7 +186,7 @@ public class ZWaveJSClient implements WebSocketListener {
 
         try {
             for (ZwaveEventListener listener : listeners) {
-                listener.onConnectionError(localThrowable.getMessage());
+                listener.onConnectionError(String.format("Error: %s", localThrowable.getMessage()));
             }
         } catch (Exception e) {
             logger.warn("Error invoking event listener", e);
