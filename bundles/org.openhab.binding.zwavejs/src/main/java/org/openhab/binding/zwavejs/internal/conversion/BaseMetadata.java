@@ -59,6 +59,9 @@ public abstract class BaseMetadata {
             "°(C/F)", "", // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
             "°F/C", ""); // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
 
+    private static final Map<String, String> CHANNEL_ID_PROPERTY_NAME_REPLACEMENTS = Map.of("currentValue", "value", //
+            "targetValue", "value"); //
+
     public int nodeId;
     public String Id;
     public String label = DEFAULT_LABEL;
@@ -66,13 +69,22 @@ public abstract class BaseMetadata {
     public @Nullable String unitSymbol;
     protected @Nullable Unit<?> unit;
     protected Object value;
-    protected boolean writable;
+    public boolean writable;
     public String itemType = CoreItemFactory.STRING;
     public @Nullable Object writeProperty;
     public @Nullable Map<String, String> optionList;
 
+    public @Nullable String commandClassName;
+    public int commandClassId;
+    public int endpoint;
+
     protected BaseMetadata(int nodeId, Value value) {
         this.nodeId = nodeId;
+        this.commandClassName = value.commandClassName;
+        this.commandClassId = value.commandClass;
+        this.endpoint = value.endpoint;
+        this.writable = value.metadata.writeable;
+
         this.Id = generateChannelId(value);
 
         this.label = capitalize(value.propertyName);
@@ -107,10 +119,14 @@ public abstract class BaseMetadata {
                 .map(word -> StringUtils.capitalize(word)).collect(Collectors.joining(" "));
     }
 
-    private String generateId(String commandClassName, int endpoint, @Nullable String propertyName) {
+    // TODO check if we need to add propertyKey (and how)
+    // also check if it is added to the event value updated
+    private String generateId(String commandClassName, int endpoint, @Nullable String propertyName,
+            @Nullable String propertyKey) {
         String id = commandClassName.toLowerCase().replaceAll(" ", "-");
         String[] splitted;
         if (propertyName != null && !propertyName.contains("unknown")) {
+            propertyName = CHANNEL_ID_PROPERTY_NAME_REPLACEMENTS.getOrDefault(propertyName, propertyName);
             splitted = StringUtils.splitByCharacterType(propertyName);
             List<String> result = Arrays.asList(splitted).stream().filter(s -> s.matches("^[a-zA-Z]+$"))
                     .map(m -> m.toLowerCase()).toList();
@@ -125,11 +141,11 @@ public abstract class BaseMetadata {
     }
 
     private String generateId(Event event) {
-        return generateId(event.args.commandClassName, event.args.endpoint, event.args.propertyName);
+        return generateId(event.args.commandClassName, event.args.endpoint, event.args.propertyName, null);
     }
 
     private String generateChannelId(Value value) {
-        return generateId(value.commandClassName, value.endpoint, value.propertyName);
+        return generateId(value.commandClassName, value.endpoint, value.propertyName, null);
     }
 
     protected @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit) {

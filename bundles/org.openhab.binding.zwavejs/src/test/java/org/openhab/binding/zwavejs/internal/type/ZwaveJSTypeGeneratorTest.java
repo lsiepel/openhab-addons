@@ -13,6 +13,7 @@
 package org.openhab.binding.zwavejs.internal.type;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.BINDING_ID;
 
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
+import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.core.thing.Channel;
@@ -59,7 +61,7 @@ public class ZwaveJSTypeGeneratorTest {
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
 
-        assertEquals(4, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(5, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -70,7 +72,7 @@ public class ZwaveJSTypeGeneratorTest {
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
 
-        assertEquals(2, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(4, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Disabled
@@ -110,6 +112,45 @@ public class ZwaveJSTypeGeneratorTest {
          * - 02 are CC `Battery`, classify as Channel
          */
         assertEquals(12, results.channels.size());
+    }
+
+    @Test
+    public void testGenerateChannelTypeStore1Node6Label() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_1.json", ResultMessage.class);
+        Map<String, Channel> channels = new HashMap<>();
+
+        for (Node node : resultMessage.result.state.nodes) {
+            ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                    .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+            channels.putAll(results.channels);
+            if (node.nodeId == 6) {
+                Channel channel = results.channels.get("meter-reset");
+                assertEquals("Reset", channel.getLabel());
+                assertNull(channel.getDescription());
+            }
+        }
+        ;
+
+        assertEquals(6, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+    }
+
+    @Test
+    public void testGenerateChannelTypeStore1Node6WriteProperty() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_1.json", ResultMessage.class);
+        Map<String, Channel> channels = new HashMap<>();
+
+        for (Node node : resultMessage.result.state.nodes) {
+            ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                    .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+            channels.putAll(results.channels);
+            if (node.nodeId == 6) {
+                Channel channel = results.channels.get("binary-switch-value");
+
+                assertEquals("targetValue",
+                        channel.getConfiguration().get(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
+            }
+        }
+        ;
     }
 
     @Test

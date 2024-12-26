@@ -24,17 +24,18 @@ import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
-import org.openhab.core.config.core.ConfigDescriptionParameter.Type;
+import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
+import org.openhab.core.types.UnDefType;
 
 /**
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
-public class MetadataEntryTest {
+public class ChannelMetadataTest {
 
     private ArrayList<Node> getNodesFromStore(String filename) throws IOException {
         ResultMessage resultMessage = DataUtil.fromJson(filename, ResultMessage.class);
@@ -51,7 +52,7 @@ public class MetadataEntryTest {
 
         ChannelMetadata details = new ChannelMetadata(3, node.values.get(0));
 
-        assertEquals("binary-switch-current-value", details.Id);
+        assertEquals("binary-switch-value", details.Id);
         assertNull(details.description);
         assertEquals("Switch", details.itemType);
         assertEquals("Current Value", details.label);
@@ -63,12 +64,12 @@ public class MetadataEntryTest {
     }
 
     @Test
-    public void testChannelDetailsStore1Node6Channel1() throws IOException {
+    public void testChannelDetailsStore1Node6Channel0() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
         ChannelMetadata details = new ChannelMetadata(6, node.values.get(0));
 
-        assertEquals("binary-switch-current-value", details.Id);
+        assertEquals("binary-switch-value", details.Id);
         assertEquals("Switch", details.itemType);
         assertEquals("Current Value", details.label);
         assertNull(details.description);
@@ -79,7 +80,7 @@ public class MetadataEntryTest {
     }
 
     @Test
-    public void testChannelDetailsStore1Node6Channel3() throws IOException {
+    public void testChannelDetailsStore1Node6Channel2() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
         ChannelMetadata details = new ChannelMetadata(6, node.values.get(2));
@@ -96,7 +97,7 @@ public class MetadataEntryTest {
     }
 
     @Test
-    public void testChannelDetailsStore1Node6Channel4() throws IOException {
+    public void testChannelDetailsStore1Node6Channel3() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
         ChannelMetadata details = new ChannelMetadata(6, node.values.get(3));
@@ -113,27 +114,19 @@ public class MetadataEntryTest {
     }
 
     @Test
-    public void testChannelDetailsStore1Node6Config1() throws IOException {
+    public void testChannelDetailsStore1Node6Channel5() throws IOException {
         Node node = getNodeFromStore("store_1.json", 6);
 
-        ConfigMetadata details = new ConfigMetadata(6, node.values.get(6));
+        ChannelMetadata details = new ChannelMetadata(6, node.values.get(5));
 
-        assertEquals("configuration-always-on-function", details.Id);
-        assertEquals(Type.INTEGER, details.configType);
-        assertEquals("Always On Function", details.label);
-        assertEquals("Once activated, Wall Plug will keep a connected device ...", details.description);
-        assertEquals(false, details.writable);
+        assertEquals("meter-reset", details.Id);
+        assertEquals("Switch", details.itemType);
+        assertEquals("Reset", details.label);
+        assertNull(details.description);
+        assertEquals(UnDefType.NULL, details.state);
+        assertEquals(true, details.writable);
         assertNull(details.statePattern);
-        // assertEquals(BigDecimal.valueOf(0), details.statePattern.getMinimum());
-        // assertEquals(BigDecimal.valueOf(1), details.statePattern.getMaximum());
-        // assertEquals(BigDecimal.valueOf(1), details.statePattern.getStep());
-        // assertEquals("%0.d", details.statePattern.getPattern());
-        // assertEquals(new StateOption("0", "Activated"), details.statePattern.getOptions().get(0));
-        // assertEquals(new StateOption("1", "Inactive"), details.statePattern.getOptions().get(1));
-
         assertNull(details.unitSymbol);
-        assertEquals(2, details.optionList.size());
-        assertEquals("Inactive", details.optionList.get("1"));
     }
 
     @Test
@@ -151,5 +144,26 @@ public class MetadataEntryTest {
         assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%0.f %unit%").withReadOnly(true)
                 .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
         assertEquals("%", details.unitSymbol);
+    }
+
+    @Test
+    public void testChannelDetailsStore2Node14Channel0() throws IOException {
+        Node node = getNodeFromStore("store_2.json", 14);
+
+        ChannelMetadata details = new ChannelMetadata(14, node.values.get(0));
+
+        assertEquals("multilevel-switch-value", details.Id);
+        assertEquals("Number", details.itemType);
+        assertEquals("Current Value", details.label);
+        assertNull(details.description);
+        assertEquals(new DecimalType(0.0), details.state);
+        assertEquals(false, details.writable);
+
+        assertEquals(BigDecimal.valueOf(0), details.statePattern.getMinimum());
+        assertEquals(BigDecimal.valueOf(99), details.statePattern.getMaximum());
+        assertEquals(BigDecimal.valueOf(1), details.statePattern.getStep());
+        assertEquals("%0.d", details.statePattern.getPattern());
+
+        assertNull(details.unitSymbol);
     }
 }

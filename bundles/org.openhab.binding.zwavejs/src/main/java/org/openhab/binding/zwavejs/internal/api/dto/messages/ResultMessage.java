@@ -22,4 +22,5 @@ public class ResultMessage extends BaseMessage {
     public Result result;
     public String errorCode;
     public String message;
+    public String zwaveErrorMessage;
 }

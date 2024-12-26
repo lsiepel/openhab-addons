@@ -107,9 +107,6 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 configDescriptions.add(createConfigDescription(new ConfigMetadata(node.nodeId, value)));
             } else {
                 ChannelMetadata metadata = new ChannelMetadata(node.nodeId, value);
-                if (metadata.isIgnoredCommandClass(metadata.commandClassName)) {
-                    continue;
-                }
                 result.channels = createChannel(thingUID, result.channels, metadata);
             }
         }
@@ -150,37 +147,42 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
 
     private Map<String, Channel> createChannel(ThingUID thingUID, Map<String, Channel> channels,
             ChannelMetadata details) {
+        if (details.isIgnoredCommandClass(details.commandClassName)) {
+            return channels;
+        }
         logger.debug("Node '{}' createChannel with Id: {}", details.nodeId, details.Id);
         logger.trace(" >> {}", details);
 
         ChannelUID channelUID = new ChannelUID(thingUID, details.Id);
 
+        Configuration newChannelConfiguration = new Configuration();
+        newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_INCOMING_UNIT, details.unitSymbol);
+        newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_ITEM_TYPE, details.itemType);
+        newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_COMMANDCLASS_ID, details.commandClassId);
+        newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_COMMANDCLASS_NAME, details.commandClassName);
+        newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_ENDPOINT, details.endpoint);
+
+        if (details.writable) {
+            newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
+        }
+
         @Nullable
-        Channel existingChannel = channels.get(channelUID.getAsString());
+        Channel existingChannel = channels.get(channelUID.getId());
         if (existingChannel != null) {
-            Configuration channelConfig = existingChannel.getConfiguration();
-            if (channelConfig.get(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY) == null && details.writable
-                    && details.writeProperty != null) {
-                channelConfig.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
+            Configuration existingChannelConfiguration = existingChannel.getConfiguration();
+            if (ChannelMetadata.isSameReadWriteChannel(existingChannelConfiguration, newChannelConfiguration)) {
+
                 channels.put(details.Id,
-                        ChannelBuilder.create(existingChannel).withConfiguration(channelConfig).build());
+                        ChannelBuilder.create(existingChannel)
+                                .withConfiguration(
+                                        details.writable ? newChannelConfiguration : existingChannelConfiguration)
+                                .build());
                 logger.error("Node {}, channel {} existing channel updated", details.nodeId, details.Id);
                 return channels;
             } else {
                 logger.error("Node {}, channel {} already exists: ignored", details.nodeId, details.Id);
                 return channels;
             }
-        }
-
-        Configuration configuration = new Configuration();
-        configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_INCOMING_UNIT, details.unitSymbol);
-        configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_ITEM_TYPE, details.itemType);
-        configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_COMMANDCLASS_ID, details.commandClassId);
-        configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_COMMANDCLASS_NAME, details.commandClassName);
-        configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_ENDPOINT, details.endpoint);
-
-        if (details.writable) {
-            configuration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
         }
 
         ChannelTypeUID channelTypeUID = generateChannelTypeUID(details);
@@ -195,8 +197,14 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             logger.warn("Node {}, channel {}, ChannelType could not be found or generated, this is a bug",
                     details.nodeId, details.Id);
         }
-        channels.put(details.Id, ChannelBuilder.create(channelUID).withConfiguration(configuration)
-                .withType(channelType.getUID()).build());
+        ChannelBuilder builder = ChannelBuilder.create(channelUID).withLabel(details.label)
+                .withConfiguration(newChannelConfiguration).withType(channelType.getUID());
+
+        if (details.description != null) {
+            builder.withDescription(Objects.requireNonNull(details.description));
+        }
+
+        channels.put(details.Id, builder.build());
 
         return channels;
     }

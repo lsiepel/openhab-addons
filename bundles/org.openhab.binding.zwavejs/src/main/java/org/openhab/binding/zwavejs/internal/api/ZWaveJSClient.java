@@ -207,20 +207,24 @@ public class ZWaveJSClient implements WebSocketListener {
         BaseMessage baseEvent = Objects.requireNonNull(gson.fromJson(message, BaseMessage.class));
 
         if (baseEvent.type == null) {
-            logger.warn("Event with unknown type received. Message: {}", message);
+            logger.warn("Event with unknown type received.");
+            logger.trace("DATA >> {}", message);
         } else if (baseEvent instanceof ResultMessage resultMessage) {
-            if (resultMessage.success && resultMessage.result.status != 5) {
+            if (resultMessage.success && (resultMessage.result != null && resultMessage.result.status != 5)) {
                 logger.debug("onWebSocketText received message type: {}, success: {}", baseEvent.type,
                         resultMessage.success);
                 logger.trace("DATA >> {}", message);
             } else {
                 logger.warn(
                         "onWebSocketText received message type: {}, success: {}, status: {}, error_code: {}, message: {}",
-                        baseEvent.type, resultMessage.success, resultMessage.result.status, resultMessage.errorCode,
-                        resultMessage.message);
+                        baseEvent.type, resultMessage.success,
+                        resultMessage.result != null ? resultMessage.result.status : "null", resultMessage.errorCode,
+                        resultMessage.message != null ? resultMessage.message : resultMessage.zwaveErrorMessage);
+                logger.trace("DATA >> {}", message);
             }
         } else {
             logger.debug("onWebSocketText received message type: {}. Ignoring", baseEvent.type);
+            logger.trace("DATA >> {}", message);
         }
 
         try {

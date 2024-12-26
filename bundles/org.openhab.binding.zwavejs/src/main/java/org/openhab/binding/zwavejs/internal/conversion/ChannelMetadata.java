@@ -18,6 +18,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
+import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
+import org.openhab.core.config.core.Configuration;
 import org.openhab.core.types.State;
 import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.util.UnitUtils;
@@ -36,12 +38,8 @@ public class ChannelMetadata extends BaseMetadata {
     private static final Logger logger = LoggerFactory.getLogger(ChannelMetadata.class);
     private static final List<String> IGNORED_COMMANDCLASSES = List.of("Manufacturer Specific", "Version");
 
-    public boolean writable;
     public @Nullable State state;
     public @Nullable StateDescriptionFragment statePattern;
-    public @Nullable String commandClassName;
-    public int commandClassId;
-    public int endpoint;
 
     public ChannelMetadata(int nodeId, Value data) {
         super(nodeId, data);
@@ -50,15 +48,19 @@ public class ChannelMetadata extends BaseMetadata {
         // should be pulled up from base this.itemType = itemTypeFromMetadata(data.metadata.type, data.value);
         this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
         this.state = toState(data.value, itemType, unit);
-
-        // unknown
-        this.commandClassName = data.commandClassName;
-        this.commandClassId = data.commandClass;
-        this.endpoint = data.endpoint;
     }
 
     public ChannelMetadata(int nodeId, Event data) {
         super(nodeId, data);
+    }
+
+    public static boolean isSameReadWriteChannel(Configuration configA, Configuration configB) {
+        ZwaveJSChannelConfiguration cA = configA.as(ZwaveJSChannelConfiguration.class);
+        ZwaveJSChannelConfiguration cB = configB.as(ZwaveJSChannelConfiguration.class);
+        return cA.endpoint != null && cA.endpoint.equals(cB.endpoint) //
+                && cA.commandClassId != null && cA.commandClassId.equals(cB.commandClassId) //
+                && ((cA.writeProperty != null && !cA.writeProperty.equals(cB.writeProperty)) //
+                        || (cB.writeProperty != null && !cB.writeProperty.equals(cA.writeProperty)));
     }
 
     public boolean isIgnoredCommandClass(@Nullable String commandClassName) {
@@ -90,7 +92,7 @@ public class ChannelMetadata extends BaseMetadata {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("ChannelMetadata [");
-        sb.append(", nodeId=" + nodeId);
+        sb.append("nodeId=" + nodeId);
         sb.append(", Id=" + Id);
         sb.append(", label=" + label);
         sb.append(", description=" + description);

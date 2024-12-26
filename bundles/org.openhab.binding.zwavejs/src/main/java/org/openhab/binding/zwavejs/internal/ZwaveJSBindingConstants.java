@@ -44,7 +44,7 @@ public class ZwaveJSBindingConstants {
     public static final String CONFIG_CHANNEL_COMMANDCLASS_NAME = "commandClassName";
     public static final String CONFIG_CHANNEL_COMMANDCLASS_ID = "commandClassId";
     public static final String CONFIG_CHANNEL_ENDPOINT = "endpoint";
-    public static final String CONFIG_CHANNEL_WRITE_PROPERTY = "property";
+    public static final String CONFIG_CHANNEL_WRITE_PROPERTY = "writeProperty";
 
     // List of all Thing Properties
     public static final String PROPERTY_HOME_ID = "homeId";

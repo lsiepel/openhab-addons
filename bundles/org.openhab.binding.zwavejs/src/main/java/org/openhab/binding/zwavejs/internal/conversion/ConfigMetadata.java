@@ -35,9 +35,6 @@ public class ConfigMetadata extends BaseMetadata {
     public @Nullable State state;
     public Type configType = Type.TEXT;
     public @Nullable StateDescriptionFragment statePattern;
-    public @Nullable String commandClassName;
-    public int commandClassId;
-    public int endpoint;
 
     public ConfigMetadata(int nodeId, Value data) {
         super(nodeId, data);
@@ -48,9 +45,6 @@ public class ConfigMetadata extends BaseMetadata {
         // unkown
         // this.state = toState(data.value, itemType, unit);
         // this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
-        this.commandClassName = data.commandClassName;
-        this.commandClassId = data.commandClass;
-        this.endpoint = data.endpoint;
     }
 
     private Type configTypeFromMetadata(String type, Object value) {

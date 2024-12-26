@@ -95,7 +95,7 @@ public class ZwaveJSNodeHandlerTest {
         EventMessage eventMessage = DataUtil.fromJson("event_node_6_switch.json", EventMessage.class);
         handler.onNodeStateChanged(eventMessage.event);
 
-        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:binary-switch-current-value");
+        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:binary-switch-value");
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
