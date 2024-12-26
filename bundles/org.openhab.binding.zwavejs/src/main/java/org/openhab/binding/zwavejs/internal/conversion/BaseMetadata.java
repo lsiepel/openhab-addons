@@ -130,7 +130,7 @@ public abstract class BaseMetadata {
             splitted = StringUtils.splitByCharacterType(propertyName);
             List<String> result = Arrays.asList(splitted).stream().filter(s -> s.matches("^[a-zA-Z]+$"))
                     .map(m -> m.toLowerCase()).toList();
-            if (result.size() > 0) {
+            if (!result.isEmpty()) {
                 id += "-" + String.join("-", result);
             }
         }
@@ -185,9 +185,9 @@ public abstract class BaseMetadata {
                     }
                 } else if (value instanceof Map<?, ?> map && map.containsKey("red") && map.containsKey("green")
                         && map.containsKey("blue")) {
-                    int red = ((Number) map.get("red")).intValue();
-                    int green = ((Number) map.get("green")).intValue();
-                    int blue = ((Number) map.get("blue")).intValue();
+                    int red = ((Number) Objects.requireNonNull(map.get("red"))).intValue();
+                    int green = ((Number) Objects.requireNonNull(map.get("green"))).intValue();
+                    int blue = ((Number) Objects.requireNonNull(map.get("blue"))).intValue();
                     return HSBType.fromRGB(red, green, blue);
                 } else {
                     logger.warn("Node id {}, unexpected value type for color: {}, please file a bug report", nodeId,
@@ -283,6 +283,7 @@ public abstract class BaseMetadata {
         if (max != null) {
             fragment.withMaximum(BigDecimal.valueOf(max));
         }
+        Map<String, String> optionList = this.optionList;
         if (optionList != null) {
             List<StateOption> options = new ArrayList<>();
             optionList.forEach((k, v) -> options.add(new StateOption(k, v)));
@@ -305,7 +306,7 @@ public abstract class BaseMetadata {
         }
         String[] splitted = unitString.split(" ");
         String lastPart = splitted[splitted.length - 1];
-        String output = UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart);
+        String output = Objects.requireNonNull(UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart));
 
         return output != null && !output.isBlank() ? output : null;
     }

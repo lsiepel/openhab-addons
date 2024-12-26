@@ -102,8 +102,12 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             return;
         }
 
-        ZwaveJSChannelConfiguration channelConfig = thing.getChannel(channelUID).getConfiguration()
-                .as(ZwaveJSChannelConfiguration.class);
+        Channel channel = thing.getChannel(channelUID);
+        if (channel == null) {
+            logger.debug("Channel {} not found", channelUID);
+            return;
+        }
+        ZwaveJSChannelConfiguration channelConfig = channel.getConfiguration().as(ZwaveJSChannelConfiguration.class);
         NodeSetValueCommand zwaveCommand = new NodeSetValueCommand(config.id, channelConfig);
 
         if (command instanceof OnOffType onOffCommand) {

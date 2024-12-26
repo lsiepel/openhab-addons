@@ -41,7 +41,6 @@ import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.binding.ThingHandlerCallback;
 import org.openhab.core.thing.binding.builder.ThingBuilder;
-import org.openhab.core.thing.type.ChannelType;
 
 /**
  * The {@link ZwaveJSNodeHandlerMock} is responsible for mocking {@link ZwaveJSNodeHandler}
@@ -74,7 +73,6 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         ZwaveJSChannelTypeProvider channelTypeProvider = new ZwaveJSChannelTypeInMemmoryProvider();
         ZwaveJSConfigDescriptionProvider configDescriptionProvider = new ZwaveJSConfigDescriptionProviderImpl();
         ThingRegistry thingRegistry = mock(ThingRegistry.class);
-        doNothing().when(channelTypeProvider).addChannelType(any(ChannelType.class));
 
         ZwaveJSTypeGenerator typeGenerator = new ZwaveJSTypeGeneratorImpl(channelTypeProvider,
                 configDescriptionProvider, thingRegistry);

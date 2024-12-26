@@ -215,9 +215,9 @@ public class MetadataEntry {
                     }
                 } else if (value instanceof Map<?, ?> map && map.containsKey("red") && map.containsKey("green")
                         && map.containsKey("blue")) {
-                    int red = ((Number) map.get("red")).intValue();
-                    int green = ((Number) map.get("green")).intValue();
-                    int blue = ((Number) map.get("blue")).intValue();
+                    int red = ((Number) Objects.requireNonNull(map.get("red"))).intValue();
+                    int green = ((Number) Objects.requireNonNull(map.get("green"))).intValue();
+                    int blue = ((Number) Objects.requireNonNull(map.get("blue"))).intValue();
                     return HSBType.fromRGB(red, green, blue);
                 } else {
                     logger.warn("Node id {}, unexpected value type for color: {}, please file a bug report", nodeId,
@@ -320,7 +320,7 @@ public class MetadataEntry {
         String lastPart = splitted[splitted.length - 1];
         String output = UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart);
 
-        return output != null && !output.isBlank() ? output : null;
+        return !output.isBlank() ? output : null;
     }
 
     private @Nullable StateDescriptionFragment createStatePattern(boolean writeable, @Nullable Integer min,

@@ -177,10 +177,10 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                                 .withConfiguration(
                                         details.writable ? newChannelConfiguration : existingChannelConfiguration)
                                 .build());
-                logger.error("Node {}, channel {} existing channel updated", details.nodeId, details.Id);
+                logger.debug("Node {}, channel {} existing channel updated", details.nodeId, details.Id);
                 return channels;
             } else {
-                logger.error("Node {}, channel {} already exists: ignored", details.nodeId, details.Id);
+                logger.debug("Node {}, channel {} already exists: ignored", details.nodeId, details.Id);
                 return channels;
             }
         }

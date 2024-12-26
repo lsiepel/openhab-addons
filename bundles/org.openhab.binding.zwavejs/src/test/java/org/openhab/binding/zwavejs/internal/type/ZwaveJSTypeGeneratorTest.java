@@ -127,7 +127,7 @@ public class ZwaveJSTypeGeneratorTest {
                     .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
             channels.putAll(results.channels);
             if (node.nodeId == 6) {
-                Channel channel = results.channels.get("meter-reset");
+                Channel channel = Objects.requireNonNull(results.channels.get("meter-reset"));
                 assertEquals("Reset", channel.getLabel());
                 assertNull(channel.getDescription());
             }
@@ -147,7 +147,7 @@ public class ZwaveJSTypeGeneratorTest {
                     .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
             channels.putAll(results.channels);
             if (node.nodeId == 6) {
-                Channel channel = results.channels.get("binary-switch-value");
+                Channel channel = Objects.requireNonNull(results.channels.get("binary-switch-value"));
 
                 assertEquals("targetValue",
                         channel.getConfiguration().get(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
@@ -166,7 +166,7 @@ public class ZwaveJSTypeGeneratorTest {
                     .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
             channels.putAll(results.channels);
             if (node.nodeId == 6) {
-                Channel channel = results.channels.get("meter-value");
+                Channel channel = Objects.requireNonNull(results.channels.get("meter-value"));
                 ChannelType type = channelTypeProvider
                         .getChannelType(Objects.requireNonNull(channel.getChannelTypeUID()), null);
 
