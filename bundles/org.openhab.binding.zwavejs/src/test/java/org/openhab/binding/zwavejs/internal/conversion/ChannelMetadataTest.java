@@ -104,7 +104,7 @@ public class ChannelMetadataTest {
 
         assertEquals("meter-value", details.Id);
         assertEquals("Number:Energy", details.itemType);
-        assertEquals("Value", details.label);
+        assertEquals("Electric Consumption", details.label);
         assertNull(details.description);
         assertEquals(new QuantityType<>(881.95, Units.KILOWATT_HOUR), details.state);
         assertEquals(false, details.writable);
@@ -121,7 +121,7 @@ public class ChannelMetadataTest {
 
         assertEquals("meter-reset", details.Id);
         assertEquals("Switch", details.itemType);
-        assertEquals("Reset", details.label);
+        assertEquals("Reset Accumulated Values", details.label);
         assertNull(details.description);
         assertEquals(UnDefType.NULL, details.state);
         assertEquals(true, details.writable);

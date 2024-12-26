@@ -128,7 +128,7 @@ public class ZwaveJSTypeGeneratorTest {
             channels.putAll(results.channels);
             if (node.nodeId == 6) {
                 Channel channel = Objects.requireNonNull(results.channels.get("meter-reset"));
-                assertEquals("Reset", channel.getLabel());
+                assertEquals("Reset Accumulated Values", channel.getLabel());
                 assertNull(channel.getDescription());
             }
         }
