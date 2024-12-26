@@ -37,7 +37,6 @@ import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ThingRegistry;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.type.ChannelType;
-import org.openhab.core.thing.type.ChannelTypeUID;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -168,8 +167,8 @@ public class ZwaveJSTypeGeneratorTest {
             channels.putAll(results.channels);
             if (node.nodeId == 6) {
                 Channel channel = results.channels.get("meter-value");
-                ChannelTypeUID uid = channel.getChannelTypeUID();
-                ChannelType type = channelTypeProvider.getChannelType(uid, null);
+                ChannelType type = channelTypeProvider
+                        .getChannelType(Objects.requireNonNull(channel.getChannelTypeUID()), null);
 
                 assertNotNull(type);
             }
