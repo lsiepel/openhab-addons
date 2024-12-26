@@ -30,6 +30,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSNodeHandler;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSChannelTypeProvider;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSConfigDescriptionProvider;
+import org.openhab.binding.zwavejs.internal.type.ZwaveJSConfigDescriptionProviderImpl;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorImpl;
 import org.openhab.core.config.core.Configuration;
@@ -70,8 +71,8 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
 
     public static ZwaveJSNodeHandlerMock createAndInitHandler(final ThingHandlerCallback callback, final Thing thing,
             final String filename) {
-        ZwaveJSChannelTypeProvider channelTypeProvider = mock(ZwaveJSChannelTypeProvider.class);
-        ZwaveJSConfigDescriptionProvider configDescriptionProvider = mock(ZwaveJSConfigDescriptionProvider.class);
+        ZwaveJSChannelTypeProvider channelTypeProvider = new ZwaveJSChannelTypeInMemmoryProvider();
+        ZwaveJSConfigDescriptionProvider configDescriptionProvider = new ZwaveJSConfigDescriptionProviderImpl();
         ThingRegistry thingRegistry = mock(ThingRegistry.class);
         doNothing().when(channelTypeProvider).addChannelType(any(ChannelType.class));
 

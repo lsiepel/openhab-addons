@@ -13,6 +13,7 @@
 package org.openhab.binding.zwavejs.internal.type;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.BINDING_ID;
@@ -31,9 +32,12 @@ import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
+import org.openhab.binding.zwavejs.internal.handler.mock.ZwaveJSChannelTypeInMemmoryProvider;
 import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ThingRegistry;
 import org.openhab.core.thing.ThingUID;
+import org.openhab.core.thing.type.ChannelType;
+import org.openhab.core.thing.type.ChannelTypeUID;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -44,11 +48,11 @@ public class ZwaveJSTypeGeneratorTest {
 
     @Nullable
     ZwaveJSTypeGenerator provider;
+    ZwaveJSChannelTypeProvider channelTypeProvider = new ZwaveJSChannelTypeInMemmoryProvider();
+    ZwaveJSConfigDescriptionProvider configDescriptionProvider = new ZwaveJSConfigDescriptionProviderImpl();
 
     @BeforeEach
     public void setup() {
-        ZwaveJSChannelTypeProvider channelTypeProvider = mock(ZwaveJSChannelTypeProviderImpl.class);
-        ZwaveJSConfigDescriptionProvider configDescriptionProvider = mock(ZwaveJSConfigDescriptionProviderImpl.class);
         ThingRegistry thingRegistry = mock(ThingRegistry.class);
         provider = new ZwaveJSTypeGeneratorImpl(channelTypeProvider, configDescriptionProvider, thingRegistry);
     }
@@ -148,6 +152,26 @@ public class ZwaveJSTypeGeneratorTest {
 
                 assertEquals("targetValue",
                         channel.getConfiguration().get(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
+            }
+        }
+        ;
+    }
+
+    @Test
+    public void testGenerateChannelTypeStore1Node6ChannelType() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_1.json", ResultMessage.class);
+        Map<String, Channel> channels = new HashMap<>();
+
+        for (Node node : resultMessage.result.state.nodes) {
+            ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                    .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+            channels.putAll(results.channels);
+            if (node.nodeId == 6) {
+                Channel channel = results.channels.get("meter-value");
+                ChannelTypeUID uid = channel.getChannelTypeUID();
+                ChannelType type = channelTypeProvider.getChannelType(uid, null);
+
+                assertNotNull(type);
             }
         }
         ;
