@@ -87,7 +87,8 @@ public abstract class BaseMetadata {
 
         this.Id = generateChannelId(value);
 
-        this.label = capitalize(value.metadata.label != null ? value.metadata.label.replaceAll("\s\\[.*\\]", "")     : value.propertyName);
+        this.label = capitalize(
+                value.metadata.label != null ? value.metadata.label.replaceAll("\s\\[.*\\]", "") : value.propertyName);
         this.description = value.metadata.description;
         this.unitSymbol = normalizeUnit(value.metadata.unit, value.value);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
