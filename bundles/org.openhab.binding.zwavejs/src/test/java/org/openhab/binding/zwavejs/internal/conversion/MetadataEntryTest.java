@@ -142,7 +142,7 @@ public class MetadataEntryTest {
 
         ChannelMetadata details = new ChannelMetadata(1, node.values.get(66));
 
-        assertEquals("multilevel-sensor-humidity", details.Id);
+        assertEquals("multilevel-sensor-humidity-2", details.Id);
         assertEquals("Number:Dimensionless", details.itemType);
         assertEquals("Humidity", details.label);
         assertNull(details.description);

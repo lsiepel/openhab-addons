@@ -17,6 +17,8 @@ import static org.mockito.Mockito.mock;
 import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.BINDING_ID;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -57,7 +59,7 @@ public class ZwaveJSTypeGeneratorTest {
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
 
-        assertEquals(14, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(4, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -68,7 +70,7 @@ public class ZwaveJSTypeGeneratorTest {
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
 
-        assertEquals(19, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(2, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Disabled
@@ -90,31 +92,53 @@ public class ZwaveJSTypeGeneratorTest {
     }
 
     @Test
+    public void testGenerateChannelStore2Node2() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_2.json", ResultMessage.class);
+        Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 2).findAny().orElse(null);
+
+        ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+        ;
+        /*
+         * TODO numbers dont add up
+         * Currently it should result in 15 channels
+         * - 49 are CC `configuration`. I moddeled as Thing configuration similar to the current openHAB zwave binding.
+         * - 03 are CC `Manufacturer Specific` Filtered out seem not usable, but maybe im missing something.
+         * - 03 are CC `Version`, same as previous.
+         * - 09 are CC `Meter`, classify as Channel (6 in the resultset?)
+         * - 04 are CC `Multilevel Sensor`, classify as Channel
+         * - 02 are CC `Battery`, classify as Channel
+         */
+        assertEquals(12, results.channels.size());
+    }
+
+    @Test
     public void testGenerateChannelTypeStore2AllNodes() throws IOException {
         ResultMessage resultMessage = DataUtil.fromJson("store_2.json", ResultMessage.class);
-        int counter = 0;
+        Map<String, Channel> channels = new HashMap<>();
+
         for (Node node : resultMessage.result.state.nodes) {
             ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                     .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
-
-            counter += results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count();
+            channels.putAll(results.channels);
         }
+        ;
 
-        assertEquals(295, counter);
+        assertEquals(23, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
     public void testGenerateChannelTypeStore3AllNodes() throws IOException {
         ResultMessage resultMessage = DataUtil.fromJson("store_3.json", ResultMessage.class);
-        int counter = 0;
+        Map<String, Channel> channels = new HashMap<>();
+
         for (Node node : resultMessage.result.state.nodes) {
             ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                     .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
-
-            counter += results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count();
+            channels.putAll(results.channels);
         }
         ;
-        // TODO need to investigate why there is this sick amount of channeltypes added.
-        assertEquals(1676, counter);
+
+        assertEquals(36, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 }

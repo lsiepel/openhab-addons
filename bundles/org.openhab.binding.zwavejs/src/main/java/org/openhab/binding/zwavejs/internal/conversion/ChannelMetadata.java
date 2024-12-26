@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.zwavejs.internal.conversion;
 
+import java.util.List;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public class ChannelMetadata extends BaseMetadata {
 
     private static final Logger logger = LoggerFactory.getLogger(ChannelMetadata.class);
+    private static final List<String> IGNORED_COMMANDCLASSES = List.of("Manufacturer Specific", "Version");
 
     public boolean writable;
     public @Nullable State state;
@@ -56,6 +59,13 @@ public class ChannelMetadata extends BaseMetadata {
 
     public ChannelMetadata(int nodeId, Event data) {
         super(nodeId, data);
+    }
+
+    public boolean isIgnoredCommandClass(@Nullable String commandClassName) {
+        if (commandClassName == null) {
+            return false;
+        }
+        return IGNORED_COMMANDCLASSES.contains(commandClassName);
     }
 
     /**

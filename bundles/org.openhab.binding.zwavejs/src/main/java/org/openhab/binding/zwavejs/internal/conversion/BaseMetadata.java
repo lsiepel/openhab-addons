@@ -107,7 +107,7 @@ public abstract class BaseMetadata {
                 .map(word -> StringUtils.capitalize(word)).collect(Collectors.joining(" "));
     }
 
-    private String generateId(String commandClassName, @Nullable String propertyName) {
+    private String generateId(String commandClassName, int endpoint, @Nullable String propertyName) {
         String id = commandClassName.toLowerCase().replaceAll(" ", "-");
         String[] splitted;
         if (propertyName != null && !propertyName.contains("unknown")) {
@@ -118,16 +118,18 @@ public abstract class BaseMetadata {
                 id += "-" + String.join("-", result);
             }
         }
-
+        if (endpoint > 0) {
+            id += "-" + endpoint;
+        }
         return id;
     }
 
     private String generateId(Event event) {
-        return generateId(event.args.commandClassName, event.args.propertyName);
+        return generateId(event.args.commandClassName, event.args.endpoint, event.args.propertyName);
     }
 
     private String generateChannelId(Value value) {
-        return generateId(value.commandClassName, value.propertyName);
+        return generateId(value.commandClassName, value.endpoint, value.propertyName);
     }
 
     protected @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit) {

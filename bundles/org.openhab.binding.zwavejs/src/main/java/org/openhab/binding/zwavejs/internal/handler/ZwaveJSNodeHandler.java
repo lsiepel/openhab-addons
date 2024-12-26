@@ -239,10 +239,11 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                 configuration.put(details.Id, value.value);
                 updateConfiguration(configuration);
             } else {
-                ChannelMetadata details = new ChannelMetadata(getId(), value);
-                State state = details.state;
-                if (isLinked(details.Id) && state != null) {
-                    updateState(details.Id, state);
+                ChannelMetadata metadata = new ChannelMetadata(getId(), value);
+                State state = metadata.state;
+                if (!metadata.isIgnoredCommandClass(metadata.commandClassName) && isLinked(metadata.Id)
+                        && state != null) {
+                    updateState(metadata.Id, state);
                 }
             }
         }
@@ -257,15 +258,15 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         if ("configuration".equals(event.args.commandClassName)) {
             // configDescriptions.add(createConfigDescription(new ConfigMetadata(node.nodeId, value)));
         } else {
-            ChannelMetadata details = new ChannelMetadata(getId(), event);
-            if (isLinked(details.Id)) {
+            ChannelMetadata metadata = new ChannelMetadata(getId(), event);
+            if (!metadata.isIgnoredCommandClass(event.args.commandClassName) && isLinked(metadata.Id)) {
                 @SuppressWarnings("null") // as we checked by isLinked the channel can't be null
-                ZwaveJSChannelConfiguration channelConfig = thing.getChannel(details.Id).getConfiguration()
+                ZwaveJSChannelConfiguration channelConfig = thing.getChannel(metadata.Id).getConfiguration()
                         .as(ZwaveJSChannelConfiguration.class);
 
-                State state = details.setState(event, channelConfig.itemType, channelConfig.incomingUnit);
+                State state = metadata.setState(event, channelConfig.itemType, channelConfig.incomingUnit);
                 if (state != null) {
-                    updateState(details.Id, state);
+                    updateState(metadata.Id, state);
                 }
             }
         }

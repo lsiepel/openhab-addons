@@ -103,10 +103,14 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
         URI uri = getConfigDescriptionURI(thingUID, node);
         for (Value value : node.values) {
-            if ("configuration".equals(value.commandClassName)) {
+            if ("Configuration".equals(value.commandClassName)) {
                 configDescriptions.add(createConfigDescription(new ConfigMetadata(node.nodeId, value)));
             } else {
-                result.channels = createChannel(thingUID, result.channels, new ChannelMetadata(node.nodeId, value));
+                ChannelMetadata metadata = new ChannelMetadata(node.nodeId, value);
+                if (metadata.isIgnoredCommandClass(metadata.commandClassName)) {
+                    continue;
+                }
+                result.channels = createChannel(thingUID, result.channels, metadata);
             }
         }
         if (uri != null) {
@@ -160,10 +164,10 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 channelConfig.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
                 channels.put(details.Id,
                         ChannelBuilder.create(existingChannel).withConfiguration(channelConfig).build());
-                logger.debug("Node {}, channel {} existing channel updated", details.nodeId, details.Id);
+                logger.error("Node {}, channel {} existing channel updated", details.nodeId, details.Id);
                 return channels;
             } else {
-                logger.warn("Node {}, channel {} already exists: ignored", details.nodeId, details.Id);
+                logger.error("Node {}, channel {} already exists: ignored", details.nodeId, details.Id);
                 return channels;
             }
         }
