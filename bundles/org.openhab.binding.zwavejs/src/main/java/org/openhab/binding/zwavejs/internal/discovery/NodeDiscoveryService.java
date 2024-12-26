@@ -112,7 +112,8 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
         logger.debug("Z-Wave addNodeDiscovery id: '{}'", node.nodeId);
 
         if (thingUID != null) {
-            String label = String.format(DISCOVERY_NODE_LABEL_PATTERN, node.nodeId, node.deviceConfig.label);
+            String label = node.deviceConfig != null ? node.deviceConfig.label : "Unknown";
+            String discoveryLabel = String.format(DISCOVERY_NODE_LABEL_PATTERN, node.nodeId, label);
 
             Map<String, Object> properties = new HashMap<>();
 
@@ -129,7 +130,7 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
 
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
                     .withProperties(properties).withBridge(bridgeUID).withRepresentationProperty(CONFIG_NODE_ID)
-                    .withLabel(label).build();
+                    .withLabel(discoveryLabel).build();
 
             thingDiscovered(discoveryResult);
         } else {
