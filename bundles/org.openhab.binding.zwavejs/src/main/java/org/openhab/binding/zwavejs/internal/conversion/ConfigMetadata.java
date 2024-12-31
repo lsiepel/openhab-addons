@@ -40,15 +40,15 @@ public class ConfigMetadata extends BaseMetadata {
         super(nodeId, data);
 
         // confirmed
-        this.configType = configTypeFromMetadata(data.metadata.type, data.value);
+        this.configType = configTypeFromMetadata(data.metadata.type, data.value, data.commandClassName);
 
         // unkown
         // this.state = toState(data.value, itemType, unit);
         // this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
     }
 
-    private Type configTypeFromMetadata(String type, Object value) {
-        type = correctedType(type, value);
+    private Type configTypeFromMetadata(String type, Object value, String commandClassName) {
+        type = correctedType(type, value, commandClassName, null);
         switch (type) {
             case "number":
                 return Type.INTEGER;

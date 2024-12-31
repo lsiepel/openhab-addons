@@ -92,7 +92,8 @@ public abstract class BaseMetadata {
         this.description = value.metadata.description;
         this.unitSymbol = normalizeUnit(value.metadata.unit, value.value);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
-        this.itemType = itemTypeFromMetadata(value.metadata.type, value.value);
+        this.itemType = itemTypeFromMetadata(value.metadata.type, value.value, value.commandClassName,
+                value.metadata.states);
         if (unitSymbol != null && unit == null) {
             logger.warn("Node id {}, unable to parse unitSymbol '{}', please file a bug report", nodeId, unitSymbol);
         }
@@ -212,7 +213,8 @@ public abstract class BaseMetadata {
         }
     }
 
-    protected String correctedType(String type, Object value) {
+    protected String correctedType(String type, Object value, String commandClassName,
+            @Nullable Map<String, String> optionList) {
         switch (type) {
             case "any":
                 // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
@@ -231,13 +233,18 @@ public abstract class BaseMetadata {
                 // Can be anything from plain Number to a complex object with unit and value. So we need to check the
                 // value
                 return "number";
+            case "number":
+                if ("notification".equals(commandClassName) && optionList != null && optionList.size() == 2) {
+                    return "boolean";
+                }
             default:
                 return type;
         }
     }
 
-    protected String itemTypeFromMetadata(String type, Object value) {
-        type = correctedType(type, value);
+    protected String itemTypeFromMetadata(String type, Object value, String commandClassName,
+            @Nullable Map<String, String> optionList) {
+        type = correctedType(type, value, commandClassName, optionList);
 
         switch (type) {
             case "number":
