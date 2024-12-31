@@ -102,7 +102,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(6, node.values.get(3));
 
-        assertEquals("meter-value", details.Id);
+        assertEquals("meter-value-65537", details.Id);
         assertEquals("Number:Energy", details.itemType);
         assertEquals("Electric Consumption", details.label);
         assertNull(details.description);

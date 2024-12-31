@@ -116,37 +116,49 @@ public abstract class BaseMetadata {
             return DEFAULT_LABEL;
         }
 
-        return Arrays.stream(StringUtils.splitByCharacterType(input)).filter(f -> !f.isBlank())
-                .map(word -> StringUtils.capitalize(word)).collect(Collectors.joining(" "));
+        return Objects
+                .requireNonNullElse(
+                        Arrays.stream(StringUtils.splitByCharacterType(input)).filter(f -> !f.isBlank())
+                                .map(word -> StringUtils.capitalize(word)).collect(Collectors.joining(" ")),
+                        DEFAULT_LABEL);
     }
 
-    // TODO check if we need to add propertyKey (and how)
-    // also check if it is added to the event value updated
+    private String normalizeString(@Nullable String input) {
+        return input != null && !input.isBlank()
+                ? "-" + input.trim().toLowerCase().replaceAll(" ", "-").replaceAll("[^a-zA-Z0-9\\-]", "")
+                : "";
+    }
+
     private String generateId(String commandClassName, int endpoint, @Nullable String propertyName,
             @Nullable String propertyKey) {
-        String id = commandClassName.toLowerCase().replaceAll(" ", "-");
+        String id = normalizeString(commandClassName).replaceFirst("-", "");
         String[] splitted;
         if (propertyName != null && !propertyName.contains("unknown")) {
             propertyName = CHANNEL_ID_PROPERTY_NAME_REPLACEMENTS.getOrDefault(propertyName, propertyName);
             splitted = StringUtils.splitByCharacterType(propertyName);
-            List<String> result = Arrays.asList(splitted).stream().filter(s -> s.matches("^[a-zA-Z]+$"))
-                    .map(m -> m.toLowerCase()).toList();
+            List<String> result = Arrays.asList(splitted).stream().filter(s -> s.matches("^[a-zA-Z]+$")).toList();
             if (!result.isEmpty()) {
-                id += "-" + String.join("-", result);
+                id += normalizeString(String.join("-", result));
             }
+        }
+        if (propertyKey != null) {
+            id += normalizeString(propertyKey);
         }
         if (endpoint > 0) {
             id += "-" + endpoint;
+            return id;
         }
+
         return id;
     }
 
     private String generateId(Event event) {
-        return generateId(event.args.commandClassName, event.args.endpoint, event.args.propertyName, null);
+        return generateId(event.args.commandClassName, event.args.endpoint, event.args.propertyName,
+                event.args.propertyKey);
     }
 
     private String generateChannelId(Value value) {
-        return generateId(value.commandClassName, value.endpoint, value.propertyName, null);
+        return generateId(value.commandClassName, value.endpoint, value.propertyName, value.propertyKey);
     }
 
     protected @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit) {

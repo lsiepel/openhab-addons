@@ -64,7 +64,7 @@ public class ZwaveJSTypeGeneratorTest {
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
 
-        assertEquals(5, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(8, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -104,17 +104,8 @@ public class ZwaveJSTypeGeneratorTest {
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
         ;
-        /*
-         * TODO numbers dont add up
-         * Currently it should result in 15 channels
-         * - 49 are CC `configuration`. I moddeled as Thing configuration similar to the current openHAB zwave binding.
-         * - 03 are CC `Manufacturer Specific` Filtered out seem not usable, but maybe im missing something.
-         * - 03 are CC `Version`, same as previous.
-         * - 09 are CC `Meter`, classify as Channel (6 in the resultset?)
-         * - 04 are CC `Multilevel Sensor`, classify as Channel
-         * - 02 are CC `Battery`, classify as Channel
-         */
-        assertEquals(12, results.channels.size());
+
+        assertEquals(15, results.channels.size());
     }
 
     @Test
@@ -134,7 +125,7 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(6, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(8, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -166,7 +157,7 @@ public class ZwaveJSTypeGeneratorTest {
                     .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
             channels.putAll(results.channels);
             if (node.nodeId == 6) {
-                Channel channel = Objects.requireNonNull(results.channels.get("meter-value"));
+                Channel channel = Objects.requireNonNull(results.channels.get("meter-value-65537"));
                 ChannelType type = channelTypeProvider
                         .getChannelType(Objects.requireNonNull(channel.getChannelTypeUID()), null);
 
@@ -188,7 +179,7 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(23, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(27, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -203,6 +194,6 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(36, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(47, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 }
