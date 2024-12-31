@@ -40,8 +40,7 @@
 
 		<properties>
 			<property name="manufacturer"></property>
-			<property name="productId"></property>
-			<property name="productType"></property>
+			<property name="product"></property>
 			<property name="isSecure"></property>
 			<property name="isListening"></property>
 			<property name="isRouting"></property>
