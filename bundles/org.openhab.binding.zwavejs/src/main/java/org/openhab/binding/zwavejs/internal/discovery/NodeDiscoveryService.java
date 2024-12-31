@@ -109,8 +109,9 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
         logger.debug("Z-Wave addNodeDiscovery id: '{}'", node.nodeId);
 
         if (thingUID != null) {
-            String label = node.deviceConfig != null ? node.deviceConfig.label : "Unknown";
-            String discoveryLabel = String.format(DISCOVERY_NODE_LABEL_PATTERN, node.nodeId, label);
+            String manufacturer = node.deviceConfig != null ? node.deviceConfig.manufacturer : "Unknown";
+            String product = node.deviceConfig != null ? node.deviceConfig.label : "";
+            String discoveryLabel = String.format(DISCOVERY_NODE_LABEL_PATTERN, manufacturer, product, node.nodeId);
 
             Map<String, Object> properties = new HashMap<>();
 

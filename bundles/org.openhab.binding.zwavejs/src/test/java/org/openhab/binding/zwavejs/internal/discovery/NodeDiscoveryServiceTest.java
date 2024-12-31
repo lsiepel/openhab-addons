@@ -91,6 +91,6 @@ public class NodeDiscoveryServiceTest {
 
         assertEquals(expectedProperties, result.getProperties());
         assertEquals(bridgeUID, result.getBridgeUID());
-        assertEquals("Z-Wave Node 1 (Test Device)", result.getLabel());
+        assertEquals("Test Manufacturer Test Device (node 1)", result.getLabel());
     }
 }
