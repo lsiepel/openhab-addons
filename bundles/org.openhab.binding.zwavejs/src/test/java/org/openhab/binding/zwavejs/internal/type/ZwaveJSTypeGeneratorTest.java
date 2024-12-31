@@ -64,7 +64,7 @@ public class ZwaveJSTypeGeneratorTest {
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
 
-        assertEquals(8, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(7, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(8, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(7, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -168,6 +168,23 @@ public class ZwaveJSTypeGeneratorTest {
     }
 
     @Test
+    public void testGenerateChannelTypeStore1Node5NotificationType() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_1.json", ResultMessage.class);
+        Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 3).findAny().orElse(null);
+
+        ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+
+        Channel channel = Objects
+                .requireNonNull(results.channels.get("notification-power-management-over-load-status"));
+        ChannelType type = channelTypeProvider.getChannelType(Objects.requireNonNull(channel.getChannelTypeUID()),
+                null);
+
+        assertNotNull(type);
+        assertEquals("Switch", type.getItemType());
+    }
+
+    @Test
     public void testGenerateChannelTypeStore2AllNodes() throws IOException {
         ResultMessage resultMessage = DataUtil.fromJson("store_2.json", ResultMessage.class);
         Map<String, Channel> channels = new HashMap<>();
@@ -179,7 +196,7 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(27, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(22, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -194,6 +211,6 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(47, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(34, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 }

@@ -184,6 +184,9 @@ public abstract class BaseMetadata {
                     return new DecimalType((Number) value);
                 }
             case CoreItemFactory.SWITCH:
+                if (value instanceof Number numberValue) {
+                    return OnOffType.from(numberValue.intValue() > 0);
+                }
                 return OnOffType.from((boolean) value);
             case CoreItemFactory.COLOR:
                 if (value instanceof String colorStr) {
@@ -234,7 +237,7 @@ public abstract class BaseMetadata {
                 // value
                 return "number";
             case "number":
-                if ("notification".equals(commandClassName) && optionList != null && optionList.size() == 2) {
+                if ("Notification".equals(commandClassName) && optionList != null && optionList.size() == 2) {
                     return "boolean";
                 }
             default:
