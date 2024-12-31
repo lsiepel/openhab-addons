@@ -58,6 +58,7 @@ import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.ThingStatusInfo;
 import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.thing.binding.builder.ThingBuilder;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.State;
 import org.openhab.core.types.util.UnitUtils;
@@ -288,7 +289,11 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
         ZwaveJSTypeGeneratorResult result = typeGenerator.generate(thing.getUID(), node);
 
-        updateThing(editThing().withChannels(new ArrayList<Channel>(result.channels.values())).build());
+        ThingBuilder builder = editThing();
+        if (!result.location.isBlank()) {
+            builder.withLocation(result.location);
+        }
+        updateThing(builder.withChannels(new ArrayList<Channel>(result.channels.values())).build());
 
         return true;
     }

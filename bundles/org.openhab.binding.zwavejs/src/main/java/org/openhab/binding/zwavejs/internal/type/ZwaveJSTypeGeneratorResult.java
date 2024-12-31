@@ -30,4 +30,5 @@ import org.openhab.core.thing.Channel;
 public class ZwaveJSTypeGeneratorResult {
 
     public Map<String, Channel> channels = new HashMap<>();
+    public String location = "";
 }
