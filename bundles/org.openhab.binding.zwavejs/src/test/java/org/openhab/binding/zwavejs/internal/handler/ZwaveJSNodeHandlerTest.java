@@ -125,4 +125,24 @@ public class ZwaveJSNodeHandlerTest {
             handler.dispose();
         }
     }
+
+    @Test
+    public void testStore2Node2PowerEventUpdate() throws IOException {
+        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(2);
+        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_2.json");
+
+        EventMessage eventMessage = DataUtil.fromJson("event_node_2_power.json", EventMessage.class);
+        handler.onNodeStateChanged(eventMessage.event);
+
+        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:meter-value-66049-2");
+        try {
+            verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
+            verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
+                    argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
+            verify(callback).stateUpdated(eq(channelid), eq(new QuantityType<Power>(5.16, Units.WATT)));
+        } finally {
+            handler.dispose();
+        }
+    }
 }
