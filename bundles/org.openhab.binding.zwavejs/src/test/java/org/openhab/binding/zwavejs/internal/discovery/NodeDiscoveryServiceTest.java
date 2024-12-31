@@ -31,7 +31,6 @@ import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
 import org.openhab.core.config.discovery.DiscoveryResult;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ThingUID;
-import org.slf4j.Logger;
 
 /**
  * @author Leo Siepel - Initial contribution
