@@ -56,8 +56,6 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
 
     private final Logger logger = LoggerFactory.getLogger(NodeDiscoveryService.class);
 
-    private @Nullable ThingUID bridgeUID;
-
     /**
      * Creates an NodeDiscoveryService with enabled autostart.
      */
@@ -78,7 +76,6 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
 
     @Override
     public void initialize() {
-        bridgeUID = thingHandler.getThing().getUID();
         thingHandler.registerDiscoveryListener(this);
         super.initialize();
     }
@@ -86,7 +83,7 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
     @Override
     public void dispose() {
         super.dispose();
-        removeOlderResults(Instant.now().toEpochMilli(), bridgeUID);
+        removeOlderResults(Instant.now().toEpochMilli(), getBridgeUID());
         thingHandler.unregisterDiscoveryListener();
     }
 
@@ -130,13 +127,18 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
             properties.put(PROPERTY_NODE_FREQ_LISTENING, node.isFrequentListening);
 
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
-                    .withProperties(properties).withBridge(bridgeUID).withRepresentationProperty(CONFIG_NODE_ID)
+                    .withProperties(properties).withBridge(getBridgeUID()).withRepresentationProperty(CONFIG_NODE_ID)
                     .withLabel(discoveryLabel).build();
 
             thingDiscovered(discoveryResult);
         } else {
             logger.warn("Discovered unsupported device, nodeId '{}'", node.nodeId);
         }
+    }
+
+    @Override
+    public void thingDiscovered(DiscoveryResult discoveryResult) {
+        super.thingDiscovered(discoveryResult);
     }
 
     public void removeNodeDiscovery(int nodeId) {
@@ -148,8 +150,12 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
         }
     }
 
+    private @Nullable ThingUID getBridgeUID() {
+        return thingHandler.getThing().getUID();
+    }
+
     private @Nullable ThingUID getThingUID(int nodeId) {
-        ThingUID localBridgeUID = bridgeUID;
+        ThingUID localBridgeUID = getBridgeUID();
         if (localBridgeUID != null) {
             return new ThingUID(ZwaveJSBindingConstants.THING_TYPE_NODE, localBridgeUID, "node" + nodeId);
         }
