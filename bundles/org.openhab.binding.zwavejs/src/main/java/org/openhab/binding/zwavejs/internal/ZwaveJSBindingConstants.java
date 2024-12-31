@@ -54,8 +54,7 @@ public class ZwaveJSBindingConstants {
     public static final String PROPERTY_SCHEMA_MAX = "maxSchemaVersion";
 
     public static final String PROPERTY_NODE_MANUFACTURER = "manufacturer";
-    public static final String PROPERTY_NODE_PRODUCT_ID = "productId";
-    public static final String PROPERTY_NODE_PRODUCT_TYPE = "productType";
+    public static final String PROPERTY_NODE_PRODUCT = "product";
     public static final String PROPERTY_NODE_IS_SECURE = "isSecure";
     public static final String PROPERTY_NODE_IS_LISTENING = "isListening";
     public static final String PROPERTY_NODE_IS_ROUTING = "isRouting";

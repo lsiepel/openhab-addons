@@ -61,8 +61,6 @@ public class NodeDiscoveryServiceTest {
         node.isListening = true;
         node.isRouting = true;
         node.isSecure = true;
-        node.productId = 1234;
-        node.productType = 5678;
         node.lastSeen = Date.from(java.time.Instant.parse("2023-10-01T12:00:00Z"));
         node.isFrequentListening = true;
 
@@ -81,8 +79,7 @@ public class NodeDiscoveryServiceTest {
         expectedProperties.put("isRouting", node.isRouting);
         expectedProperties.put("isSecure", node.isSecure);
         expectedProperties.put("manufacturer", node.deviceConfig.manufacturer);
-        expectedProperties.put("productId", node.productId);
-        expectedProperties.put("productType", node.productType);
+        expectedProperties.put("product", node.deviceConfig.label);
         expectedProperties.put("lastSeen", node.lastSeen);
         expectedProperties.put("isFrequentListening", node.isFrequentListening);
 

@@ -120,10 +120,8 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
             properties.put(PROPERTY_NODE_IS_LISTENING, node.isListening);
             properties.put(PROPERTY_NODE_IS_ROUTING, node.isRouting);
             properties.put(PROPERTY_NODE_IS_SECURE, node.isSecure);
-            properties.put(PROPERTY_NODE_MANUFACTURER,
-                    node.deviceConfig != null ? node.deviceConfig.manufacturer : "Unknown");
-            properties.put(PROPERTY_NODE_PRODUCT_ID, node.productId);
-            properties.put(PROPERTY_NODE_PRODUCT_TYPE, node.productType);
+            properties.put(PROPERTY_NODE_MANUFACTURER, manufacturer);
+            properties.put(PROPERTY_NODE_PRODUCT, product);
             properties.put(PROPERTY_NODE_LASTSEEN, node.lastSeen);
             properties.put(PROPERTY_NODE_FREQ_LISTENING, node.isFrequentListening);
 
