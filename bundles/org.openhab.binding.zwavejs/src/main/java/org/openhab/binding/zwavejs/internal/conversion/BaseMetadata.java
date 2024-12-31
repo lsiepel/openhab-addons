@@ -321,7 +321,7 @@ public abstract class BaseMetadata {
         String lastPart = splitted[splitted.length - 1];
         String output = Objects.requireNonNull(UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart));
 
-        return output != null && !output.isBlank() ? output : null;
+        return !output.isBlank() ? output : null;
     }
 
     @Override

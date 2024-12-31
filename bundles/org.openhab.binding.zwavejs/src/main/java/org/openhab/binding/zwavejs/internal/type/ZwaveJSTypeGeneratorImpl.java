@@ -196,6 +196,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         if (channelType == null) {
             logger.warn("Node {}, channel {}, ChannelType could not be found or generated, this is a bug",
                     details.nodeId, details.Id);
+            return channels;
         }
         ChannelBuilder builder = ChannelBuilder.create(channelUID, details.itemType).withLabel(details.label)
                 .withConfiguration(newChannelConfiguration).withType(channelType.getUID());

@@ -19,10 +19,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.DeviceConfig;
@@ -35,19 +35,17 @@ import org.openhab.core.thing.ThingUID;
 /**
  * @author Leo Siepel - Initial contribution
  */
+@NonNullByDefault
 public class NodeDiscoveryServiceTest {
 
-    @Mock
-    private NodeDiscoveryService nodeDiscoveryService;
-    private ZwaveJSBridgeHandler thingHandler;
-    private Bridge bridge;
+    private NodeDiscoveryService nodeDiscoveryService = spy(new NodeDiscoveryService());
+    private ZwaveJSBridgeHandler thingHandler = mock(ZwaveJSBridgeHandler.class);
+    private Bridge bridge = mock(Bridge.class);
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        nodeDiscoveryService = spy(new NodeDiscoveryService());
-        thingHandler = mock(ZwaveJSBridgeHandler.class);
-        bridge = mock(Bridge.class);
+
         when(bridge.getUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-bridge"));
         when(thingHandler.getThing()).thenReturn(bridge);
         nodeDiscoveryService.setThingHandler(thingHandler);

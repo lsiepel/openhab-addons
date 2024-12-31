@@ -76,7 +76,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSNodeHandler.class);
     private final ZwaveJSTypeGenerator typeGenerator;
-    private @Nullable ZwaveJSNodeConfiguration config;
+    private ZwaveJSNodeConfiguration config = new ZwaveJSNodeConfiguration();
     protected ScheduledExecutorService executorService = scheduler;
 
     public ZwaveJSNodeHandler(final Thing thing, final ZwaveJSTypeGenerator typeGenerator) {
@@ -178,7 +178,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             logger.debug("Stopped internalInitialize as bridge is offline");
             return null;
         }
-        if (bridge != null && bridge.getHandler() instanceof ZwaveJSBridgeHandler handler) {
+        if (bridge.getHandler() instanceof ZwaveJSBridgeHandler handler) {
             return handler;
         }
         return null;

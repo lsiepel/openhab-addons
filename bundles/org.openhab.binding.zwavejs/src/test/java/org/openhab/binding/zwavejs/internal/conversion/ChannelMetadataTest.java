@@ -13,6 +13,7 @@
 package org.openhab.binding.zwavejs.internal.conversion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
@@ -28,6 +29,7 @@ import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
+import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
 import org.openhab.core.types.UnDefType;
 
@@ -159,10 +161,12 @@ public class ChannelMetadataTest {
         assertEquals(new DecimalType(0.0), details.state);
         assertEquals(false, details.writable);
 
-        assertEquals(BigDecimal.valueOf(0), details.statePattern.getMinimum());
-        assertEquals(BigDecimal.valueOf(99), details.statePattern.getMaximum());
-        assertEquals(BigDecimal.valueOf(1), details.statePattern.getStep());
-        assertEquals("%0.d", details.statePattern.getPattern());
+        StateDescriptionFragment statePattern = details.statePattern;
+        assertNotNull(statePattern);
+        assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
+        assertEquals(BigDecimal.valueOf(99), statePattern.getMaximum());
+        assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
+        assertEquals("%0.d", statePattern.getPattern());
 
         assertNull(details.unitSymbol);
     }

@@ -13,10 +13,12 @@
 package org.openhab.binding.zwavejs.internal.conversion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.jupiter.api.Test;
@@ -60,7 +62,12 @@ public class ConfigMetadataTest {
         // assertEquals(new StateOption("1", "Inactive"), details.statePattern.getOptions().get(1));
 
         assertNull(details.unitSymbol);
-        assertEquals(2, details.optionList.size());
-        assertEquals("Inactive", details.optionList.get("1"));
+        assertNotNull(details.optionList);
+        Map<String, String> optionList = details.optionList;
+        if (optionList != null) {
+            assertEquals(2, optionList.size());
+            assertEquals("Activated", optionList.get("0"));
+            assertEquals("Inactive", optionList.get("1"));
+        }
     }
 }
