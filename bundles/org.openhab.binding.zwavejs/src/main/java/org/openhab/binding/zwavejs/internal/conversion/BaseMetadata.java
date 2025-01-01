@@ -87,8 +87,7 @@ public abstract class BaseMetadata {
 
         this.Id = generateChannelId(value);
 
-        this.label = capitalize(
-                value.metadata.label != null ? value.metadata.label.replaceAll("\s\\[.*\\]", "") : value.propertyName);
+        this.label = normalizeLabel(value.metadata.label, value.endpoint, value.propertyName);
         this.description = value.metadata.description;
         this.unitSymbol = normalizeUnit(value.metadata.unit, value.value);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
@@ -110,6 +109,19 @@ public abstract class BaseMetadata {
         this.Id = generateId(data);
 
         this.value = data.args.newValue;
+    }
+
+    private String normalizeLabel(String label, int endpoint, String propertyName) {
+        String output = "";
+        if (label == null || label.isBlank()) {
+            return propertyName;
+        }
+        output = label.replaceAll("\s\\[.*\\]", "");
+        output = capitalize(output);
+        if (endpoint > 0) {
+            output += String.format("EP%s %s", endpoint, output);
+        }
+        return output;
     }
 
     private String capitalize(@Nullable String input) {
