@@ -88,7 +88,7 @@ public abstract class BaseMetadata {
         this.Id = generateChannelId(value);
 
         this.label = normalizeLabel(value.metadata.label, value.endpoint, value.propertyName);
-        this.description = value.metadata.description;
+        this.description = value.metadata.description != null ? value.metadata.description : null;
         this.unitSymbol = normalizeUnit(value.metadata.unit, value.value);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
         this.itemType = itemTypeFromMetadata(value.metadata.type, value.value, value.commandClassName,
@@ -119,7 +119,7 @@ public abstract class BaseMetadata {
         output = label.replaceAll("\s\\[.*\\]", "");
         output = capitalize(output);
         if (endpoint > 0) {
-            output += String.format("EP%s %s", endpoint, output);
+            output = String.format("EP%s %s", endpoint, output);
         }
         return output;
     }

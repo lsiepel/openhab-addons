@@ -139,7 +139,7 @@ public class ChannelMetadataTest {
 
         assertEquals("multilevel-sensor-humidity-2", details.Id);
         assertEquals("Number:Dimensionless", details.itemType);
-        assertEquals("Humidity", details.label);
+        assertEquals("EP2 Humidity", details.label);
         assertNull(details.description);
         assertEquals(new QuantityType<>(17.04, Units.PERCENT), details.state);
         assertEquals(false, details.writable);
