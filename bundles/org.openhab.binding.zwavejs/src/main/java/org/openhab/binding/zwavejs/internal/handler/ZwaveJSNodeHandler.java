@@ -248,7 +248,11 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                 State state = metadata.state;
                 if (!metadata.isIgnoredCommandClass(metadata.commandClassName) && isLinked(metadata.Id)
                         && state != null) {
-                    updateState(metadata.Id, state);
+                    try {
+                        updateState(metadata.Id, state);
+                    } catch (IllegalArgumentException e) {
+                        logger.warn("Error updating state for channel {}. {}", metadata.Id, e.getMessage());
+                    }
                 }
             }
         }
