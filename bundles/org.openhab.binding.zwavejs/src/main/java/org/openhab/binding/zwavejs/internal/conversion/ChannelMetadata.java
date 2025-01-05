@@ -13,6 +13,7 @@
 package org.openhab.binding.zwavejs.internal.conversion;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -20,6 +21,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 import org.openhab.core.config.core.Configuration;
+import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.types.State;
 import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.util.UnitUtils;
@@ -44,14 +46,25 @@ public class ChannelMetadata extends BaseMetadata {
     public ChannelMetadata(int nodeId, Value data) {
         super(nodeId, data);
 
-        // confirmed
-        // should be pulled up from base this.itemType = itemTypeFromMetadata(data.metadata.type, data.value);
         this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
+        this.itemType = channelItemTypeFromMetadata(this.itemType, data.metadata.min, data.metadata.max,
+                data.metadata.states);
         this.state = toState(data.value, itemType, unit);
     }
 
     public ChannelMetadata(int nodeId, Event data) {
         super(nodeId, data);
+    }
+
+    protected String channelItemTypeFromMetadata(String baseItemType, @Nullable Integer min, @Nullable Integer max,
+            @Nullable Map<String, String> optionList) {
+        if (CoreItemFactory.NUMBER.equals(baseItemType) && writable && min != null && max != null) {
+            if (min == 0 && max == 99) {
+                return CoreItemFactory.DIMMER;
+            }
+        }
+
+        return baseItemType;
     }
 
     public static boolean isSameReadWriteChannel(Configuration configA, Configuration configB) {

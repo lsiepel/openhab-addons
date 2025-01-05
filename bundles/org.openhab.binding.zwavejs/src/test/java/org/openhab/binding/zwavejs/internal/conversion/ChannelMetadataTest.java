@@ -135,7 +135,7 @@ public class ChannelMetadataTest {
     public void testChannelDetailsStore2Node2Channel66() throws IOException {
         Node node = getNodeFromStore("store_2.json", 2);
 
-        ChannelMetadata details = new ChannelMetadata(1, node.values.get(66));
+        ChannelMetadata details = new ChannelMetadata(2, node.values.get(66));
 
         assertEquals("multilevel-sensor-humidity-2", details.Id);
         assertEquals("Number:Dimensionless", details.itemType);
@@ -152,14 +152,14 @@ public class ChannelMetadataTest {
     public void testChannelDetailsStore2Node14Channel0() throws IOException {
         Node node = getNodeFromStore("store_2.json", 14);
 
-        ChannelMetadata details = new ChannelMetadata(14, node.values.get(0));
+        ChannelMetadata details = new ChannelMetadata(14, node.values.get(1));
 
         assertEquals("multilevel-switch-value", details.Id);
-        assertEquals("Number", details.itemType);
-        assertEquals("Current Value", details.label);
+        assertEquals("Dimmer", details.itemType);
+        assertEquals("Target Value", details.label);
         assertNull(details.description);
         assertEquals(new DecimalType(0.0), details.state);
-        assertEquals(false, details.writable);
+        assertEquals(true, details.writable);
 
         StateDescriptionFragment statePattern = details.statePattern;
         assertNotNull(statePattern);

@@ -171,12 +171,19 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         if (existingChannel != null) {
             Configuration existingChannelConfiguration = existingChannel.getConfiguration();
             if (ChannelMetadata.isSameReadWriteChannel(existingChannelConfiguration, newChannelConfiguration)) {
+                ChannelTypeUID newChannelTypeUID = generateChannelTypeUID(details);
+                ChannelBuilder builder = ChannelBuilder.create(existingChannel)
+                        .withConfiguration(details.writable ? newChannelConfiguration : existingChannelConfiguration);
 
-                channels.put(details.Id,
-                        ChannelBuilder.create(existingChannel)
-                                .withConfiguration(
-                                        details.writable ? newChannelConfiguration : existingChannelConfiguration)
-                                .build());
+                if (newChannelTypeUID != existingChannel.getChannelTypeUID()) {
+                    ChannelType newChannelType = getOrGenerate(newChannelTypeUID, details);
+                    if (newChannelType != null) {
+                        builder.withType(newChannelType.getUID());
+                    }
+                }
+
+                channels.put(details.Id, builder.build());
+
                 logger.debug("Node {}, channel {} existing channel updated", details.nodeId, details.Id);
                 return channels;
             } else {
@@ -186,6 +193,20 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         }
 
         ChannelTypeUID channelTypeUID = generateChannelTypeUID(details);
+        ChannelType channelType = getOrGenerate(channelTypeUID, details);
+        if (channelType == null) {
+            return channels;
+        }
+
+        ChannelBuilder builder = ChannelBuilder.create(channelUID, details.itemType).withLabel(details.label)
+                .withConfiguration(newChannelConfiguration).withType(channelType.getUID());
+
+        channels.put(details.Id, builder.build());
+
+        return channels;
+    }
+
+    private @Nullable ChannelType getOrGenerate(ChannelTypeUID channelTypeUID, ChannelMetadata details) {
         ChannelType channelType = channelTypeProvider.getChannelType(channelTypeUID, null);
         if (channelType == null) {
             channelType = generateChannelType(details);
@@ -196,14 +217,9 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         if (channelType == null) {
             logger.warn("Node {}, channel {}, ChannelType could not be found or generated, this is a bug",
                     details.nodeId, details.Id);
-            return channels;
+            return null;
         }
-        ChannelBuilder builder = ChannelBuilder.create(channelUID, details.itemType).withLabel(details.label)
-                .withConfiguration(newChannelConfiguration).withType(channelType.getUID());
-
-        channels.put(details.Id, builder.build());
-
-        return channels;
+        return channelType;
     }
 
     private ChannelTypeUID generateChannelTypeUID(ChannelMetadata details) {

@@ -30,6 +30,7 @@ import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.HSBType;
 import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.PercentType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.types.State;
 import org.openhab.core.types.StateDescriptionFragment;
@@ -203,6 +204,10 @@ public abstract class BaseMetadata {
                 } else {
                     return new DecimalType((Number) value);
                 }
+            case CoreItemFactory.DIMMER:
+                if (value instanceof Number numberValue) {
+                    return new PercentType(numberValue.intValue());
+                }
             case CoreItemFactory.SWITCH:
                 if (value instanceof Number numberValue) {
                     return OnOffType.from(numberValue.intValue() > 0);
@@ -278,9 +283,9 @@ public abstract class BaseMetadata {
                         logger.warn("Could not parse '{}' as a unit, fallback to 'Number' itemType", unitSymbol);
                         return CoreItemFactory.NUMBER;
                     }
-
                     return CoreItemFactory.NUMBER + ":" + dimension;
                 }
+
                 return CoreItemFactory.NUMBER;
             case "boolean":
                 // switch (or contact ?)

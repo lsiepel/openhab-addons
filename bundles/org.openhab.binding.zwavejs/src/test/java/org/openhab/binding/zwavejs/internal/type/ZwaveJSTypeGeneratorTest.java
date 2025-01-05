@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.BINDING_ID;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -33,10 +34,12 @@ import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.binding.zwavejs.internal.handler.mock.ZwaveJSChannelTypeInMemmoryProvider;
+import org.openhab.core.config.core.Configuration;
 import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ThingRegistry;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.type.ChannelType;
+import org.openhab.core.types.StateDescription;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -75,7 +78,7 @@ public class ZwaveJSTypeGeneratorTest {
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
 
-        assertEquals(4, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(3, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Disabled
@@ -185,6 +188,31 @@ public class ZwaveJSTypeGeneratorTest {
     }
 
     @Test
+    public void testGenerateChannelTypeStore2Node14MultilevelSwitchType() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_2.json", ResultMessage.class);
+        Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 14).findAny().orElse(null);
+        ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+
+        Channel channel = Objects.requireNonNull(results.channels.get("multilevel-switch-value"));
+        ChannelType type = channelTypeProvider.getChannelType(Objects.requireNonNull(channel.getChannelTypeUID()),
+                null);
+        Configuration configuration = channel.getConfiguration();
+
+        assertEquals("zwavejs::test-thing:multilevel-switch-value", channel.getUID().getAsString());
+        assertEquals("Dimmer", type.getItemType());
+        assertEquals("Current Value", channel.getLabel());
+        assertNotNull(configuration.get(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
+
+        StateDescription statePattern = type.getState();
+        assertNotNull(statePattern);
+        assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
+        assertEquals(BigDecimal.valueOf(99), statePattern.getMaximum());
+        assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
+        assertEquals("%0.d", statePattern.getPattern());
+    }
+
+    @Test
     public void testGenerateChannelTypeStore2AllNodes() throws IOException {
         ResultMessage resultMessage = DataUtil.fromJson("store_2.json", ResultMessage.class);
         Map<String, Channel> channels = new HashMap<>();
@@ -211,6 +239,6 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(36, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(35, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 }
