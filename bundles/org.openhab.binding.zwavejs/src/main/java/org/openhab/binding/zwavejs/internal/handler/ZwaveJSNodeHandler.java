@@ -251,8 +251,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                     try {
                         updateState(metadata.Id, state);
                     } catch (IllegalArgumentException e) {
-                        logger.warn("Error updating state for channel {} with value {}. {}", metadata.Id, state.toFullString(),
-                                e.getMessage());
+                        logger.warn("Error updating state for channel {} with value {}. {}", metadata.Id,
+                                state.toFullString(), e.getMessage());
                     }
                 }
             }
@@ -279,8 +279,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                     try {
                         updateState(metadata.Id, state);
                     } catch (IllegalArgumentException e) {
-                        logger.warn("Error updating state for channel {} with value {}. {}", metadata.Id, state.toFullString(),
-                                e.getMessage());
+                        logger.warn("Error updating state for channel {} with value {}. {}", metadata.Id,
+                                state.toFullString(), e.getMessage());
                     }
                 }
             }
