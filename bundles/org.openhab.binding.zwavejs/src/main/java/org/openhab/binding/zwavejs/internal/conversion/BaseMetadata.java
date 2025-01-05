@@ -62,6 +62,8 @@ public abstract class BaseMetadata {
     private static final Map<String, String> CHANNEL_ID_PROPERTY_NAME_REPLACEMENTS = Map.of("currentValue", "value", //
             "targetValue", "value"); //
 
+    private static final List<Integer> COMMAND_CLASSES_ADVANCED = List.of(44);
+
     public int nodeId;
     public String Id;
     public String label = DEFAULT_LABEL;
@@ -74,6 +76,7 @@ public abstract class BaseMetadata {
     public @Nullable Object writeProperty;
     public @Nullable Map<String, String> optionList;
 
+    public boolean isAdvanced = false;
     public @Nullable String commandClassName;
     public int commandClassId;
     public int endpoint;
@@ -98,6 +101,7 @@ public abstract class BaseMetadata {
         }
         this.optionList = value.metadata.states;
         this.value = value.value;
+        this.isAdvanced = isAdvancedCommandClass();
 
         if (writable) {
             writeProperty = value.property;
@@ -109,6 +113,10 @@ public abstract class BaseMetadata {
         this.Id = generateId(data);
 
         this.value = data.args.newValue;
+    }
+
+    private boolean isAdvancedCommandClass() {
+        return COMMAND_CLASSES_ADVANCED.contains(commandClassId);
     }
 
     private String normalizeLabel(String label, int endpoint, String propertyName) {

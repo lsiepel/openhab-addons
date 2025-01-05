@@ -212,6 +212,8 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         parts.append(details.itemType);
         parts.append(details.unitSymbol);
         parts.append(details.writable);
+        parts.append(details.isAdvanced);
+
         if (details.statePattern != null) {
             parts.append(details.statePattern.hashCode());
         }
@@ -250,7 +252,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             builder.withUnitHint(details.unitSymbol);
         }
 
-        return builder.build();
+        return builder.isAdvanced(details.isAdvanced).build();
     }
 
     private @Nullable URI getConfigDescriptionURI(ThingUID thingUID, Node node) {
