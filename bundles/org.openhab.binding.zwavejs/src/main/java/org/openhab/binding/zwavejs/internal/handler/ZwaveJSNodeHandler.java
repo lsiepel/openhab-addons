@@ -297,7 +297,11 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         if (!result.location.isBlank()) {
             builder.withLocation(result.location);
         }
-        updateThing(builder.withChannels(new ArrayList<Channel>(result.channels.values())).build());
+
+        updateThing(builder
+                .withChannels(new ArrayList<Channel>(result.channels.entrySet().stream()
+                        .sorted(Map.Entry.<String, Channel> comparingByKey()).map(m -> m.getValue()).toList()))
+                .build());
 
         return true;
     }
