@@ -14,7 +14,7 @@ package org.openhab.binding.zwavejs.internal.handler.mock;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.CONFIG_NODE_ID;
+import static org.openhab.binding.zwavejs.internal.BindingConstants.CONFIG_NODE_ID;
 
 import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -24,8 +24,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
+import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.DataUtil;
-import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSNodeHandler;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSChannelTypeProvider;
@@ -61,8 +61,8 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
 
     public static Thing mockThing(int id) {
         final Thing thing = mock(Thing.class);
-        when(thing.getUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-thing"));
-        when(thing.getBridgeUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-bridge"));
+        when(thing.getUID()).thenReturn(new ThingUID(BindingConstants.BINDING_ID, "test-thing"));
+        when(thing.getBridgeUID()).thenReturn(new ThingUID(BindingConstants.BINDING_ID, "test-bridge"));
         when(thing.getConfiguration()).thenReturn(createConfig(id));
 
         return thing;

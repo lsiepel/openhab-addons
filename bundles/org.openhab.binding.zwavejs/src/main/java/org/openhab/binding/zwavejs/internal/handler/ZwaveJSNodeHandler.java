@@ -21,6 +21,7 @@ import javax.measure.Unit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Status;
@@ -235,14 +236,15 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
     @Override
     public boolean onNodeStateChanged(Node node) {
         logger.debug("Z-Wave node id: {} state update", node.nodeId);
+        Configuration configuration = editConfiguration();
+        boolean configChanged = false;
 
         for (Value value : node.values) {
-            if ("configuration".equals(value.commandClassName)) {
+            if (BindingConstants.CC_CONFIGURATION.equals(value.commandClassName)) {
                 ConfigMetadata details = new ConfigMetadata(getId(), value);
-                Configuration configuration = editConfiguration();
-                // TODO value needs to be processed to state ?
                 configuration.put(details.Id, value.value);
-                updateConfiguration(configuration);
+                logger.debug("{}: Updated Configuration {}:{}", thing.getUID(), details.Id, value.value);
+                configChanged = true;
             } else {
                 ChannelMetadata metadata = new ChannelMetadata(getId(), value);
                 State state = metadata.state;
@@ -257,6 +259,9 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                 }
             }
         }
+        if (configChanged) {
+            updateConfiguration(configuration);
+        }
 
         return true;
     }
@@ -265,7 +270,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
     public boolean onNodeStateChanged(Event event) {
         logger.debug("Z-Wave node id: {} state update", config.id);
 
-        if ("configuration".equals(event.args.commandClassName)) {
+        if (BindingConstants.CC_CONFIGURATION.equals(event.args.commandClassName)) {
             // configDescriptions.add(createConfigDescription(new ConfigMetadata(node.nodeId, value)));
         } else {
             ChannelMetadata metadata = new ChannelMetadata(getId(), event);

@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.zwavejs.internal.handler;
 
-import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.*;
+import static org.openhab.binding.zwavejs.internal.BindingConstants.*;
 
 import java.util.Set;
 

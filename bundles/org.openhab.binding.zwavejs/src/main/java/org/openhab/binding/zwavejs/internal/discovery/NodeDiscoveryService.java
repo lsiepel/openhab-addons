@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.zwavejs.internal.discovery;
 
-import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.*;
+import static org.openhab.binding.zwavejs.internal.BindingConstants.*;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
+import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
 import org.openhab.core.config.discovery.AbstractThingHandlerDiscoveryService;
@@ -156,7 +156,7 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
     private @Nullable ThingUID getThingUID(int nodeId) {
         ThingUID localBridgeUID = getBridgeUID();
         if (localBridgeUID != null) {
-            return new ThingUID(ZwaveJSBindingConstants.THING_TYPE_NODE, localBridgeUID, "node" + nodeId);
+            return new ThingUID(BindingConstants.THING_TYPE_NODE, localBridgeUID, "node" + nodeId);
         }
         return null;
     }

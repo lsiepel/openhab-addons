@@ -23,7 +23,7 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
+import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelMetadata;
@@ -103,7 +103,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
         URI uri = getConfigDescriptionURI(thingUID, node);
         for (Value value : node.values) {
-            if ("Configuration".equals(value.commandClassName)) {
+            if (BindingConstants.CC_CONFIGURATION.equals(value.commandClassName)) {
                 configDescriptions.add(createConfigDescription(new ConfigMetadata(node.nodeId, value)));
             } else {
                 ChannelMetadata metadata = new ChannelMetadata(node.nodeId, value);
@@ -156,14 +156,14 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         ChannelUID channelUID = new ChannelUID(thingUID, details.Id);
 
         Configuration newChannelConfiguration = new Configuration();
-        newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_INCOMING_UNIT, details.unitSymbol);
-        newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_ITEM_TYPE, details.itemType);
-        newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_COMMANDCLASS_ID, details.commandClassId);
-        newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_COMMANDCLASS_NAME, details.commandClassName);
-        newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_ENDPOINT, details.endpoint);
+        newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_INCOMING_UNIT, details.unitSymbol);
+        newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_ITEM_TYPE, details.itemType);
+        newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_COMMANDCLASS_ID, details.commandClassId);
+        newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_COMMANDCLASS_NAME, details.commandClassName);
+        newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_ENDPOINT, details.endpoint);
 
         if (details.writable) {
-            newChannelConfiguration.put(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
+            newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
         }
 
         @Nullable
@@ -241,11 +241,11 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             for (int i = 0; i < array.length; ++i) {
                 stringBuilder.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1, 3));
             }
-            return new ChannelTypeUID(ZwaveJSBindingConstants.BINDING_ID, stringBuilder.toString());
+            return new ChannelTypeUID(BindingConstants.BINDING_ID, stringBuilder.toString());
         } catch (NoSuchAlgorithmException e) {
             logger.warn("NoSuchAlgorithmException error when calculating MD5 hash");
         }
-        return new ChannelTypeUID(ZwaveJSBindingConstants.BINDING_ID, "unknown");
+        return new ChannelTypeUID(BindingConstants.BINDING_ID, "unknown");
     }
 
     private @Nullable ChannelType generateChannelType(ChannelMetadata details) {
@@ -284,8 +284,8 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         }
 
         try {
-            return new URI(String.format("thing:%s:node:%s:node%s", ZwaveJSBindingConstants.BINDING_ID,
-                    bridgeUID.getId(), node.nodeId));
+            return new URI(String.format("thing:%s:node:%s:node%s", BindingConstants.BINDING_ID, bridgeUID.getId(),
+                    node.nodeId));
         } catch (URISyntaxException ex) {
             logger.warn("Can't create configDescriptionURI for node {}", node.nodeId);
             return null;

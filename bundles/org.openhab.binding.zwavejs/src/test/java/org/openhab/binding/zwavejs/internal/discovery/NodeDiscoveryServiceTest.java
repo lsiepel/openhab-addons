@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
-import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
+import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.DeviceConfig;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
@@ -46,7 +46,7 @@ public class NodeDiscoveryServiceTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        when(bridge.getUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-bridge"));
+        when(bridge.getUID()).thenReturn(new ThingUID(BindingConstants.BINDING_ID, "test-bridge"));
         when(thingHandler.getThing()).thenReturn(bridge);
         nodeDiscoveryService.setThingHandler(thingHandler);
     }

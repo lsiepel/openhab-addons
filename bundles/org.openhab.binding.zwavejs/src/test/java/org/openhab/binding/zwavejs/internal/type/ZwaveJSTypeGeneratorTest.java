@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
-import static org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants.BINDING_ID;
+import static org.openhab.binding.zwavejs.internal.BindingConstants.BINDING_ID;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -29,8 +29,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.DataUtil;
-import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.binding.zwavejs.internal.handler.mock.ZwaveJSChannelTypeInMemmoryProvider;
@@ -144,7 +144,7 @@ public class ZwaveJSTypeGeneratorTest {
                 Channel channel = Objects.requireNonNull(results.channels.get("binary-switch-value"));
 
                 assertEquals("targetValue",
-                        channel.getConfiguration().get(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
+                        channel.getConfiguration().get(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
             }
         }
         ;
@@ -202,7 +202,7 @@ public class ZwaveJSTypeGeneratorTest {
         assertEquals("zwavejs::test-thing:multilevel-switch-value", channel.getUID().getAsString());
         assertEquals("Dimmer", type.getItemType());
         assertEquals("Current Value", channel.getLabel());
-        assertNotNull(configuration.get(ZwaveJSBindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
+        assertNotNull(configuration.get(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
 
         StateDescription statePattern = type.getState();
         assertNotNull(statePattern);

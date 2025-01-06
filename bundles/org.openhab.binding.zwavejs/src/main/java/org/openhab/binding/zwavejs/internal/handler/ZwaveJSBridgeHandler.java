@@ -23,7 +23,7 @@ import javax.naming.CommunicationException;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
+import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.api.ZWaveJSClient;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.State;
@@ -105,11 +105,11 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
     public void onEvent(BaseMessage message) {
         if (message instanceof VersionMessage event) {
             Map<String, String> properties = new HashMap<>();
-            properties.put(ZwaveJSBindingConstants.PROPERTY_DRIVER_VERSION, event.driverVersion);
-            properties.put(ZwaveJSBindingConstants.PROPERTY_SERVER_VERSION, event.serverVersion);
-            properties.put(ZwaveJSBindingConstants.PROPERTY_SCHEMA_MIN, String.valueOf(event.minSchemaVersion));
-            properties.put(ZwaveJSBindingConstants.PROPERTY_SCHEMA_MAX, String.valueOf(event.maxSchemaVersion));
-            properties.put(ZwaveJSBindingConstants.PROPERTY_HOME_ID, String.valueOf(event.homeId));
+            properties.put(BindingConstants.PROPERTY_DRIVER_VERSION, event.driverVersion);
+            properties.put(BindingConstants.PROPERTY_SERVER_VERSION, event.serverVersion);
+            properties.put(BindingConstants.PROPERTY_SCHEMA_MIN, String.valueOf(event.minSchemaVersion));
+            properties.put(BindingConstants.PROPERTY_SCHEMA_MAX, String.valueOf(event.maxSchemaVersion));
+            properties.put(BindingConstants.PROPERTY_HOME_ID, String.valueOf(event.homeId));
             this.getThing().setProperties(properties);
         } else if (message instanceof ResultMessage result) {
             if (result.result == null || result.result.state == null) {

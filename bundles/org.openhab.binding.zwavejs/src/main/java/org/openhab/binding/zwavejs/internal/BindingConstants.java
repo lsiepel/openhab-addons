@@ -16,13 +16,13 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.core.thing.ThingTypeUID;
 
 /**
- * The {@link ZwaveJSBindingConstants} class defines common constants, which are
+ * The {@link BindingConstants} class defines common constants, which are
  * used across the whole binding.
  *
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
-public class ZwaveJSBindingConstants {
+public class BindingConstants {
 
     public static final String BINDING_ID = "zwavejs";
 
@@ -61,6 +61,7 @@ public class ZwaveJSBindingConstants {
     public static final String PROPERTY_NODE_LASTSEEN = "lastSeen";
     public static final String PROPERTY_NODE_FREQ_LISTENING = "isFrequentListening";
 
+    public static final String CC_CONFIGURATION = "Configuration";
     // List of all Channel ids
     public static final String CHANNEL_1 = "channel1";
 }

@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.openhab.binding.zwavejs.internal.ZwaveJSBindingConstants;
+import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSBridgeConfiguration;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
 import org.openhab.core.config.core.Configuration;
@@ -40,13 +40,13 @@ public class ZwaveJSBridgeHandlerMock extends ZwaveJSBridgeHandler {
 
     private static Configuration createConfig(String hostname) {
         final Configuration config = new Configuration();
-        config.put(ZwaveJSBindingConstants.CONFIG_HOSTNAME, hostname);
+        config.put(BindingConstants.CONFIG_HOSTNAME, hostname);
         return config;
     }
 
     public static Bridge mockBridge(String hostname) {
         final Bridge bridge = mock(Bridge.class);
-        when(bridge.getUID()).thenReturn(new ThingUID(ZwaveJSBindingConstants.BINDING_ID, "test-bridge"));
+        when(bridge.getUID()).thenReturn(new ThingUID(BindingConstants.BINDING_ID, "test-bridge"));
         when(bridge.getConfiguration()).thenReturn(createConfig(hostname));
 
         return bridge;
