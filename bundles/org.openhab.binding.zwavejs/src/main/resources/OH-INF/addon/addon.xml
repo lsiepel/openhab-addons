@@ -5,7 +5,19 @@
 
 	<type>binding</type>
 	<name>Z-Wave JS Binding</name>
-	<description>This is the binding for Z-Wave JS</description>
+	<description>This is the binding for Z-Wave JS.</description>
 	<connection>local</connection>
+    <!-- <countries/> All -->
 
+	<discovery-methods>
+		<discovery-method>
+			<service-type>mdns</service-type>
+			<discovery-parameters>
+				<discovery-parameter>
+					<name>mdnsServiceType</name>
+					<value>_zwave-js-server._tcp.local.</value>
+				</discovery-parameter>
+			</discovery-parameters>
+		</discovery-method>
+	</discovery-methods>
 </addon:addon>
