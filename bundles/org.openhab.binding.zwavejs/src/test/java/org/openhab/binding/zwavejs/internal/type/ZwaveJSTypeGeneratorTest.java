@@ -199,8 +199,9 @@ public class ZwaveJSTypeGeneratorTest {
                 null);
         Configuration configuration = channel.getConfiguration();
 
+        assertNotNull(type);
         assertEquals("zwavejs::test-thing:multilevel-switch-value", channel.getUID().getAsString());
-        assertEquals("Dimmer", type.getItemType());
+        assertEquals("Dimmer", Objects.requireNonNull(type).getItemType());
         assertEquals("Current Value", channel.getLabel());
         assertNotNull(configuration.get(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
 

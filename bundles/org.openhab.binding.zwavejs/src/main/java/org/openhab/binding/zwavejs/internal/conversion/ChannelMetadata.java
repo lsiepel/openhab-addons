@@ -70,10 +70,12 @@ public class ChannelMetadata extends BaseMetadata {
     public static boolean isSameReadWriteChannel(Configuration configA, Configuration configB) {
         ZwaveJSChannelConfiguration cA = configA.as(ZwaveJSChannelConfiguration.class);
         ZwaveJSChannelConfiguration cB = configB.as(ZwaveJSChannelConfiguration.class);
+        String aWriteProperty = cA.writeProperty;
+        String bWriteProperty = cB.writeProperty;
         return cA.endpoint == cB.endpoint //
                 && cA.commandClassId == cB.commandClassId //
-                && ((cA.writeProperty != null && !cA.writeProperty.equals(cB.writeProperty)) //
-                        || (cB.writeProperty != null && !cB.writeProperty.equals(cA.writeProperty)));
+                && ((aWriteProperty != null && !aWriteProperty.equals(bWriteProperty)) //
+                        || (bWriteProperty != null && !bWriteProperty.equals(aWriteProperty)));
     }
 
     public boolean isIgnoredCommandClass(@Nullable String commandClassName) {

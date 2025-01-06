@@ -120,7 +120,7 @@ public abstract class BaseMetadata {
         return COMMAND_CLASSES_ADVANCED.contains(commandClassId);
     }
 
-    private String normalizeLabel(String label, int endpoint, String propertyName) {
+    private String normalizeLabel(@Nullable String label, int endpoint, String propertyName) {
         String output = "";
         if (label == null || label.isBlank()) {
             return propertyName;

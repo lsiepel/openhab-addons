@@ -43,6 +43,7 @@ import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.thing.type.ChannelTypeBuilder;
 import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.thing.type.StateChannelTypeBuilder;
+import org.openhab.core.types.StateDescriptionFragment;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -229,9 +230,9 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         parts.append(details.unitSymbol);
         parts.append(details.writable);
         parts.append(details.isAdvanced);
-
-        if (details.statePattern != null) {
-            parts.append(details.statePattern.hashCode());
+        StateDescriptionFragment statePattern = details.statePattern;
+        if (statePattern != null) {
+            parts.append(statePattern.hashCode());
         }
 
         try {
