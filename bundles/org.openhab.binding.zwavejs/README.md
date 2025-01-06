@@ -20,16 +20,17 @@ The following discovery features are available:
 - Automatic discovery of Z-Wave nodes when they are added to the network.
 - Automatic update of node information when the node is updated in the Z-Wave network.
 
-## Binding Configuration
+## Bridge Configuration
 
 The `zwavejs` binding requires configuration of the bridge to connect to the Z-Wave JS Webservice.
 The configuration options include:
 
-| Name           | Type   | Description                          | Default | Required | Advanced |
-|----------------|--------|--------------------------------------|---------|----------|----------|
-| hostname       | text   | Hostname or IP address of the server | N/A     | yes      | no       |
-| port           | number | Port number to access the service    | 3000    | yes      | no       |
-| maxMessageSize | number | Maximum size of messages in bytes    | 2097152 | no       | yes      |
+| Name                  | Type    | Description                                         | Default | Required | Advanced |
+|-----------------------|---------|-----------------------------------------------------|---------|----------|----------|
+| hostname              | text    | Hostname or IP address of the server                | N/A     | yes      | no       |
+| port                  | number  | Port number to access the service                   | 3000    | yes      | no       |
+| maxMessageSize        | number  | Maximum size of messages in bytes                   | 2097152 | no       | yes      |
+| configurationChannels | boolean | Expose the commandclass 'configuration' as channels | true    | no       | yes      |
 
 ## Thing Configuration
 
@@ -41,7 +42,7 @@ Only the advanced parameter `nodeId` can (optionally) be set in the Thing config
 
 Z-Wave nodes can have multiple channels corresponding to their capabilities.
 The channels can be linked to items in openHAB to control and monitor the device.
-These Channels are dynamically added to the Thign during node initialization and therefore there is no list of possible channels in this documentation.
+These Channels are dynamically added to the Thing during node initialization and therefore there is no list of possible channels in this documentation.
 
 ## Full Example
 

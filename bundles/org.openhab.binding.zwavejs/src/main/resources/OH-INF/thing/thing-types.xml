@@ -20,6 +20,13 @@
 				<description>Port the remote Z-Wave JS server listens on</description>
 				<default>3000</default>
 			</parameter>
+			<parameter name="configurationChannels" type="boolean" required="true">
+				<label>Configuration As Channels</label>
+				<description>When set to `true`, the Z-Wave CommandClass "Configuration" is exposed in openHAB as channels instead
+					of Thing configuration. This allows you to modify the configuration in rules, such as changing codes for locks.</description>
+				<default>false</default>
+				<advanced>true</advanced>
+			</parameter>
 			<parameter name="maxMessageSize" type="integer" required="true" min="1048576" max="33554432" step="262144">
 				<label>Maximum Message Size</label>
 				<description>The maximum size of the message (in bytes) that the ZWave-JS server can send</description>

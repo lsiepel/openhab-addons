@@ -27,6 +27,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Status;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.NodeSetValueCommand;
+import org.openhab.binding.zwavejs.internal.config.ZwaveJSBridgeConfiguration;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSNodeConfiguration;
 import org.openhab.binding.zwavejs.internal.conversion.ChannelMetadata;
@@ -78,6 +79,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSNodeHandler.class);
     private final ZwaveJSTypeGenerator typeGenerator;
     private ZwaveJSNodeConfiguration config = new ZwaveJSNodeConfiguration();
+    private boolean configurationAsChannels = false;
     protected ScheduledExecutorService executorService = scheduler;
 
     public ZwaveJSNodeHandler(final Thing thing, final ZwaveJSTypeGenerator typeGenerator) {
@@ -238,12 +240,10 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         logger.debug("Z-Wave node id: {} state update", node.nodeId);
         Configuration configuration = editConfiguration();
         boolean configChanged = false;
-
         for (Value value : node.values) {
-            if (BindingConstants.CC_CONFIGURATION.equals(value.commandClassName)) {
+            if (!configurationAsChannels && BindingConstants.CC_CONFIGURATION.equals(value.commandClassName)) {
                 ConfigMetadata details = new ConfigMetadata(getId(), value);
                 configuration.put(details.Id, value.value);
-                logger.debug("{}: Updated Configuration {}:{}", thing.getUID(), details.Id, value.value);
                 configChanged = true;
             } else {
                 ChannelMetadata metadata = new ChannelMetadata(getId(), value);
@@ -269,9 +269,11 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
     @Override
     public boolean onNodeStateChanged(Event event) {
         logger.debug("Z-Wave node id: {} state update", config.id);
-
-        if (BindingConstants.CC_CONFIGURATION.equals(event.args.commandClassName)) {
-            // configDescriptions.add(createConfigDescription(new ConfigMetadata(node.nodeId, value)));
+        if (!configurationAsChannels && BindingConstants.CC_CONFIGURATION.equals(event.args.commandClassName)) {
+            ConfigMetadata details = new ConfigMetadata(getId(), event);
+            Configuration configuration = editConfiguration();
+            configuration.put(details.Id, event.args.newValue);
+            updateConfiguration(configuration);
         } else {
             ChannelMetadata metadata = new ChannelMetadata(getId(), event);
             if (!metadata.isIgnoredCommandClass(event.args.commandClassName) && isLinked(metadata.Id)) {
@@ -303,6 +305,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                 node.values.size());
 
         ZwaveJSTypeGeneratorResult result = typeGenerator.generate(thing.getUID(), node);
+        configurationAsChannels = Objects.requireNonNull(getBridge()).getConfiguration()
+                .as(ZwaveJSBridgeConfiguration.class).configurationChannels;
 
         ThingBuilder builder = editThing();
         if (!result.location.isBlank()) {

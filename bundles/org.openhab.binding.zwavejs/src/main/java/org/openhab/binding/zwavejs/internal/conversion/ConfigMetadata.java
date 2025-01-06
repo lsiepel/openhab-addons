@@ -14,6 +14,7 @@ package org.openhab.binding.zwavejs.internal.conversion;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.core.config.core.ConfigDescriptionParameter.Type;
 import org.openhab.core.types.State;
@@ -45,6 +46,10 @@ public class ConfigMetadata extends BaseMetadata {
         // unkown
         // this.state = toState(data.value, itemType, unit);
         // this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
+    }
+
+    public ConfigMetadata(int nodeId, Event data) {
+        super(nodeId, data);
     }
 
     private Type configTypeFromMetadata(String type, Object value, String commandClassName) {

@@ -25,6 +25,7 @@ public class ZwaveJSBridgeConfiguration {
     public String hostname = "";
     public int port = 3000;
     public int maxMessageSize = 2097152;
+    public boolean configurationChannels = false;
 
     public boolean isValid() {
         return port > 0 && !hostname.isBlank();
