@@ -252,7 +252,7 @@ public abstract class BaseMetadata {
                 } else if (value instanceof Boolean) {
                     return "boolean";
                 } else if (value instanceof Map<?, ?> treeMap) {
-                    if (treeMap.size() == 3 || treeMap.size() == 4 ) { // RGB or RGB+White
+                    if (treeMap.size() == 3 || treeMap.size() == 4) { // RGB or RGB+White
                         return "color";
                     }
                 }
