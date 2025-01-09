@@ -137,7 +137,6 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         if (optionList != null) {
             List<ParameterOption> options = new ArrayList<>();
             optionList.forEach((k, v) -> options.add(new ParameterOption(k, v)));
-            logger.debug("Node '{}' adding {} options for Id: {}", details.nodeId, optionList.size(), details.Id);
             parameterBuilder.withLimitToOptions(true);
             parameterBuilder.withMultiple(false);
             parameterBuilder.withOptions(options);

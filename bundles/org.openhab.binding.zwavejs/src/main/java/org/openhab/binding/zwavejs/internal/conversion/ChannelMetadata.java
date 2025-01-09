@@ -114,7 +114,7 @@ public class ChannelMetadata extends BaseMetadata {
         this.unitSymbol = normalizeUnit(unitSymbol, event.args.newValue);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
         if (unitSymbol != null && unit == null) {
-            logger.warn("Node id {}, unable to parse unitSymbol '{}'' from channel config, this is a bug", nodeId,
+            logger.warn("Node {}. Unable to parse unitSymbol '{}' from channel config, this is a bug", nodeId,
                     unitSymbol);
         }
         return this.state = toState(event.args.newValue, itemType, this.unit);

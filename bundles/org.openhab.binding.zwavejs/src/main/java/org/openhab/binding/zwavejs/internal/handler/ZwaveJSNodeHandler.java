@@ -238,7 +238,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
     @Override
     public boolean onNodeStateChanged(Node node) {
-        logger.debug("Z-Wave node id: {} state update", node.nodeId);
+        logger.debug("Node {}. State changed", node.nodeId);
         Configuration configuration = editConfiguration();
         boolean configChanged = false;
         for (Value value : node.values) {
@@ -254,7 +254,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                     try {
                         updateState(metadata.Id, state);
                     } catch (IllegalArgumentException e) {
-                        logger.warn("Error updating state for channel {} with value {}. {}", metadata.Id,
+                        logger.warn("Node {}. Error updating channel {} with value {}. {}", node.nodeId, metadata.Id,
                                 state.toFullString(), e.getMessage());
                     }
                 }
@@ -269,7 +269,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
     @Override
     public boolean onNodeStateChanged(Event event) {
-        logger.debug("Z-Wave node id: {} state update", config.id);
+        logger.debug("Node {}. State changed", config.id);
         if (!configurationAsChannels && BindingConstants.CC_CONFIGURATION.equals(event.args.commandClassName)) {
             ConfigMetadata details = new ConfigMetadata(getId(), event);
             Configuration configuration = editConfiguration();
@@ -287,8 +287,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                     try {
                         updateState(metadata.Id, state);
                     } catch (IllegalArgumentException e) {
-                        logger.warn("Error updating state for channel {} with value {}. {}", metadata.Id,
-                                state.toFullString(), e.getMessage());
+                        logger.warn("Node {}. Error updating state for channel {} with value {}. {}", event.nodeId,
+                                metadata.Id, state.toFullString(), e.getMessage());
                     }
                 }
             }
@@ -302,7 +302,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
     }
 
     private boolean setupThing(Node node) {
-        logger.debug("Building channels and configuration for {}, containing {} values", node.nodeId,
+        logger.debug("Node {}. Building channels and configuration, containing {} values", node.nodeId,
                 node.values.size());
 
         ZwaveJSTypeGeneratorResult result = typeGenerator.generate(thing.getUID(), node);

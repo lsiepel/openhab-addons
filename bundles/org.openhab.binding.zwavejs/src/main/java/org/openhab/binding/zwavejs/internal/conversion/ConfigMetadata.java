@@ -68,8 +68,8 @@ public class ConfigMetadata extends BaseMetadata {
                 return Type.TEXT;
             default:
                 logger.error(
-                        "Could not determine config type based on metadata.type: {}, fallback to 'Text' please file a bug report",
-                        type);
+                        "Node {}. Could not determine config type based on metadata.type: {}, fallback to 'Text' please file a bug report",
+                        this.nodeId, type);
                 return Type.TEXT;
         }
     }
