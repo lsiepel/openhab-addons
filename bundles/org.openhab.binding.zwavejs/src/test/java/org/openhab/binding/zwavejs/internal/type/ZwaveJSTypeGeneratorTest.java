@@ -242,4 +242,19 @@ public class ZwaveJSTypeGeneratorTest {
 
         assertEquals(39, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
+
+    @Test
+    public void testGenerateChannelTypeStore4AllNodes() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_4.json", ResultMessage.class);
+        Map<String, Channel> channels = new HashMap<>();
+
+        for (Node node : resultMessage.result.state.nodes) {
+            ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                    .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+            channels.putAll(results.channels);
+        }
+        ;
+
+        assertEquals(29, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+    }
 }
