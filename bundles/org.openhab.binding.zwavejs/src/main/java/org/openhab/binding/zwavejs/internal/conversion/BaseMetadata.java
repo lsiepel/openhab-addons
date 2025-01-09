@@ -63,7 +63,7 @@ public abstract class BaseMetadata {
     private static final Map<String, String> CHANNEL_ID_PROPERTY_NAME_REPLACEMENTS = Map.of("currentValue", "value", //
             "targetValue", "value"); //
 
-    private static final List<Integer> COMMAND_CLASSES_ADVANCED = List.of(44);
+    private static final List<Integer> COMMAND_CLASSES_ADVANCED = List.of(44, 117);
 
     public int nodeId;
     public String Id;
