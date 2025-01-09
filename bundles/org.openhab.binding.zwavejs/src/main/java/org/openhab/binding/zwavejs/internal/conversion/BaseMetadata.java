@@ -142,7 +142,8 @@ public abstract class BaseMetadata {
                 .requireNonNullElse(
                         Arrays.stream(StringUtils.splitByCharacterType(input)).filter(f -> !f.isBlank())
                                 .map(word -> StringUtils.capitalize(word)).collect(Collectors.joining(" ")),
-                        DEFAULT_LABEL).replace(" - ", "-");
+                        DEFAULT_LABEL)
+                .replace(" - ", "-");
     }
 
     private String normalizeString(@Nullable String input) {

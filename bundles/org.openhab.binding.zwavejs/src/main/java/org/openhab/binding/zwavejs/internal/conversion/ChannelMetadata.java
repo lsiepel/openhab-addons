@@ -47,7 +47,7 @@ public class ChannelMetadata extends BaseMetadata {
             "113-alarmType", //
             "113-alarmLevel", //
             "113-System"); //
-            
+
     public @Nullable State state;
     public @Nullable StateDescriptionFragment statePattern;
 
