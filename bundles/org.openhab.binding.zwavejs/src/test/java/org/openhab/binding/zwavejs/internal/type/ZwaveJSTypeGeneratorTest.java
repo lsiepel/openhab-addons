@@ -225,7 +225,7 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(24, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(26, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -240,6 +240,6 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(35, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(38, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 }
