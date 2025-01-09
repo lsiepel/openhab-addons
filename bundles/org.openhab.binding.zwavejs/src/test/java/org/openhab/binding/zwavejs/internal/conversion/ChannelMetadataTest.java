@@ -15,6 +15,7 @@ package org.openhab.binding.zwavejs.internal.conversion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -169,5 +170,20 @@ public class ChannelMetadataTest {
         assertEquals("%0.d", statePattern.getPattern());
 
         assertNull(details.unitSymbol);
+    }
+
+    @Test
+    public void testChannelDetailsStore4Node10Channel97() throws IOException {
+        Node node = getNodeFromStore("store_4.json", 10);
+
+        ChannelMetadata details = new ChannelMetadata(10, node.values.get(97));
+
+        assertEquals("basic-restore-previous-2", details.Id);
+        assertEquals("Switch", details.itemType);
+        assertEquals("EP2 Restore Previous Value", details.label);
+        assertNull(details.description);
+        assertEquals(UnDefType.NULL, details.state);
+        assertEquals(true, details.writable);
+        assertTrue(details.isAdvanced);
     }
 }

@@ -39,13 +39,13 @@ public class ChannelMetadata extends BaseMetadata {
 
     private static final Logger logger = LoggerFactory.getLogger(ChannelMetadata.class);
     private static final List<String> IGNORED_COMMANDCLASSES = List.of("Manufacturer Specific", "Version");
-    private static final List<String> ADVANCED_CHANNELS = List.of("Basic-restorePrevious", "Basic-duration", //
-            "Multilevel Switch-On", //
-            "Multilevel Switch-Off", //
-            "Multilevel Switch-duration", //
-            "Multilevel Switch-restorePrevious", //
-            "Notification-alarmType", //
-            "Notification-alarmLevel"); //
+    private static final List<String> ADVANCED_CHANNELS = List.of("32-restorePrevious", "32-duration", //
+            "38-On", //
+            "38-Off", //
+            "38-duration", //
+            "38-restorePrevious", //
+            "113-alarmType", //
+            "113-alarmLevel"); //
 
     public @Nullable State state;
     public @Nullable StateDescriptionFragment statePattern;
@@ -75,11 +75,11 @@ public class ChannelMetadata extends BaseMetadata {
     }
 
     @Override
-    protected boolean isAdvanced() {
-        if (super.isAdvanced()) {
+    protected boolean isAdvanced(int commandClassId, String propertyName) {
+        if (super.isAdvanced(commandClassId, propertyName)) {
             return true;
         } else {
-            return ADVANCED_CHANNELS.contains(commandClassName + "-" + writeProperty);
+            return ADVANCED_CHANNELS.contains(commandClassId + "-" + propertyName);
         }
     }
 
