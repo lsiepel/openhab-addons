@@ -169,6 +169,24 @@ public class ZwaveJSNodeHandlerTest {
     }
 
     @Test
+    public void testStore4Node10ChannelsCreation() {
+        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(10);
+        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_4.json");
+
+        try {
+            verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
+            verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
+                    argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
+            handler.getThing().getChannels().forEach(channel -> {
+                System.out.println(channel.getUID());
+            });
+        } finally {
+            handler.dispose();
+        }
+    }
+
+    @Test
     public void testStore4Node44ChannelsCreation() {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(44);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);

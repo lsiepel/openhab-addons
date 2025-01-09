@@ -13,6 +13,7 @@
 package org.openhab.binding.zwavejs.internal.handler;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
@@ -313,10 +314,13 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             builder.withLocation(result.location);
         }
 
-        updateThing(builder
-                .withChannels(new ArrayList<Channel>(result.channels.entrySet().stream()
-                        .sorted(Map.Entry.<String, Channel> comparingByKey()).map(m -> m.getValue()).toList()))
-                .build());
+        List<Channel> channels = new ArrayList<>();
+        if (result.channels.size() > 1) {
+            channels = new ArrayList<Channel>(result.channels.entrySet().stream()
+                    .sorted(Map.Entry.<String, Channel> comparingByKey()).map(m -> m.getValue()).toList());
+        }
+
+        updateThing(builder.withChannels(channels).build());
 
         return true;
     }
