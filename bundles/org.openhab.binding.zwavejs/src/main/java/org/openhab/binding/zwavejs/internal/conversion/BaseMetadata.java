@@ -102,7 +102,7 @@ public abstract class BaseMetadata {
         }
         this.optionList = value.metadata.states;
         this.value = value.value;
-        this.isAdvanced = isAdvancedCommandClass();
+        this.isAdvanced = isAdvanced();
 
         if (writable) {
             writeProperty = value.property;
@@ -116,7 +116,7 @@ public abstract class BaseMetadata {
         this.value = data.args.newValue;
     }
 
-    private boolean isAdvancedCommandClass() {
+    protected boolean isAdvanced() {
         return COMMAND_CLASSES_ADVANCED.contains(commandClassId);
     }
 

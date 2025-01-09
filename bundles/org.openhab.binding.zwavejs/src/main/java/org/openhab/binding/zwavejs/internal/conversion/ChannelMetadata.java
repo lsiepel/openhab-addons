@@ -39,6 +39,13 @@ public class ChannelMetadata extends BaseMetadata {
 
     private static final Logger logger = LoggerFactory.getLogger(ChannelMetadata.class);
     private static final List<String> IGNORED_COMMANDCLASSES = List.of("Manufacturer Specific", "Version");
+    private static final List<String> ADVANCED_CHANNELS = List.of("Basic-restorePrevious", "Basic-duration", //
+            "Multilevel Switch-On", //
+            "Multilevel Switch-Off", //
+            "Multilevel Switch-duration", //
+            "Multilevel Switch-restorePrevious", //
+            "Notification-alarmType", //
+            "Notification-alarmLevel"); //
 
     public @Nullable State state;
     public @Nullable StateDescriptionFragment statePattern;
@@ -65,6 +72,15 @@ public class ChannelMetadata extends BaseMetadata {
         }
 
         return baseItemType;
+    }
+
+    @Override
+    protected boolean isAdvanced() {
+        if (super.isAdvanced()) {
+            return true;
+        } else {
+            return ADVANCED_CHANNELS.contains(commandClassName + "-" + writeProperty);
+        }
     }
 
     public static boolean isSameReadWriteChannel(Configuration configA, Configuration configB) {
