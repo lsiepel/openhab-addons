@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.ToNumberPolicy;
 
 /**
  * Utility class for working with test data in unit tests
@@ -45,7 +47,9 @@ public class DataUtil {
 
     public static <T> T fromJson(String fileName, Type typeOfT) throws IOException {
         try (Reader reader = openDataReader(fileName)) {
-            return new Gson().fromJson(reader, typeOfT);
+            Gson gson = new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
+
+            return gson.fromJson(reader, typeOfT);
         }
     }
 

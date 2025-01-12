@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.ToNumberPolicy;
 import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 
 /**
@@ -88,7 +89,8 @@ public class ZWaveJSClient implements WebSocketListener {
         typeAdapterFactory.registerSubtype(VersionMessage.class, "version")
                 .registerSubtype(ResultMessage.class, "result").registerSubtype(EventMessage.class, "event");
 
-        this.gson = new GsonBuilder().registerTypeAdapterFactory(typeAdapterFactory).create();
+        this.gson = new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+                .registerTypeAdapterFactory(typeAdapterFactory).create();
     }
 
     /**

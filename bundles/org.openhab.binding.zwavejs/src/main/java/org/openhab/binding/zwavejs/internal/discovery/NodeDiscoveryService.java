@@ -106,7 +106,7 @@ public class NodeDiscoveryService extends AbstractThingHandlerDiscoveryService<Z
     public void addNodeDiscovery(Node node) {
         ThingUID thingUID = getThingUID(node.nodeId);
         ThingTypeUID thingTypeUID = THING_TYPE_NODE;
-        logger.debug("Node {}. addNodeDiscovery", node.nodeId);
+        logger.trace("Node {}. addNodeDiscovery", node.nodeId);
 
         if (thingUID != null) {
             String manufacturer = node.deviceConfig != null ? node.deviceConfig.manufacturer : "Unknown";

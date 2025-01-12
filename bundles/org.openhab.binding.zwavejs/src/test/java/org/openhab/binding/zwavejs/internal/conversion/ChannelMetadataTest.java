@@ -13,6 +13,7 @@
 package org.openhab.binding.zwavejs.internal.conversion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -208,5 +209,21 @@ public class ChannelMetadataTest {
         assertEquals(UnDefType.NULL, details.state);
         assertEquals(true, details.writable);
         assertTrue(details.isAdvanced);
+    }
+
+    @Test
+    public void testChannelDetailsStore4Node76Channel97() throws IOException {
+        Node node = getNodeFromStore("store_4.json", 76);
+
+        ChannelMetadata details = new ChannelMetadata(76, node.values.get(98));
+
+        assertEquals("multilevel-switch-value-2", details.Id);
+        assertEquals("Number", details.itemType);
+        assertEquals("EP2 Current Value", details.label);
+        assertNull(details.description);
+        assertTrue(details.value instanceof Long);
+        assertEquals(new DecimalType(50), details.state);
+        assertEquals(false, details.writable);
+        assertFalse(details.isAdvanced);
     }
 }

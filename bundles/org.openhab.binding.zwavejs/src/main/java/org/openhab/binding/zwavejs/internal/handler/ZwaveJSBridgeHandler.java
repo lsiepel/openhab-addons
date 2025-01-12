@@ -143,7 +143,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
                     logger.warn("Node {}. Ignored due to state: {}", nodeId, node.status);
                     continue;
                 }
-                logger.debug("Node {}. No listener, pass to discovery", nodeId);
+                logger.trace("Node {}. No listener, pass to discovery", nodeId);
 
                 if (discovery != null) {
                     discovery.addNodeDiscovery(node);

@@ -101,6 +101,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
+        logger.warn("Processing command {} for channel {}", command, channelUID);
         ZwaveJSBridgeHandler handler = getBridgeHandler();
         if (handler == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED);
@@ -123,7 +124,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                 logger.warn("Could not parse '{}' as a unit, this is a bug.", channelConfig.incomingUnit);
                 return;
             }
-            zwaveCommand.value = Objects.requireNonNull(quantityCommand.toUnit(unit)).doubleValue();
+            zwaveCommand.value = Objects.requireNonNull(quantityCommand.toUnit(unit));
         } else if (command instanceof DecimalType decimalCommand) {
             zwaveCommand.value = decimalCommand.doubleValue();
         } else if (command instanceof DateTimeType dateTimeCommand) {
@@ -131,7 +132,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         } else if (command instanceof HSBType hsbTypeCommand) {
             throw new UnsupportedOperationException();
         } else if (command instanceof PercentType percentTypeCommand) {
-            zwaveCommand.value = percentTypeCommand.doubleValue();
+            zwaveCommand.value = percentTypeCommand.intValue();
         } else if (command instanceof IncreaseDecreaseType increaseDecreaseCommand) {
             throw new UnsupportedOperationException();
         } else if (command instanceof NextPreviousType nextPreviousCommand) {
