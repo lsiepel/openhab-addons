@@ -173,6 +173,29 @@ public class ChannelMetadataTest {
     }
 
     @Test
+    public void testChannelDetailsStore4Node10Channel80() throws IOException {
+        Node node = getNodeFromStore("store_4.json", 10);
+
+        ChannelMetadata details = new ChannelMetadata(10, node.values.get(84));
+
+        assertEquals("multilevel-switch-value-1", details.Id);
+        assertEquals("Dimmer", details.itemType);
+        assertEquals("EP1 Target Value", details.label);
+        assertNull(details.description);
+        assertEquals(new DecimalType(50), details.state);
+        assertEquals(true, details.writable);
+
+        StateDescriptionFragment statePattern = details.statePattern;
+        assertNotNull(statePattern);
+        assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
+        assertEquals(BigDecimal.valueOf(99), statePattern.getMaximum());
+        assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
+        assertEquals("%0.d", statePattern.getPattern());
+
+        assertNull(details.unitSymbol);
+    }
+
+    @Test
     public void testChannelDetailsStore4Node10Channel97() throws IOException {
         Node node = getNodeFromStore("store_4.json", 10);
 

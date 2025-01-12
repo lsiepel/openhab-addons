@@ -243,6 +243,10 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         boolean configChanged = false;
         for (Value value : node.values) {
             if (!configurationAsChannels && BindingConstants.CC_CONFIGURATION.equals(value.commandClassName)) {
+                if (value.value == null && value.metadata != null && value.metadata.defaultValue == null) {
+                    logger.debug("Node {}. Configuration value not set, both vlaue and default are null.", node.nodeId);
+                    continue;
+                }
                 ConfigMetadata details = new ConfigMetadata(getId(), value);
                 configuration.put(details.Id, value.value);
                 configChanged = true;
@@ -254,8 +258,9 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                     try {
                         updateState(metadata.Id, state);
                     } catch (IllegalArgumentException e) {
-                        logger.warn("Node {}. Error updating channel {} with value {}. {}", node.nodeId, metadata.Id,
-                                state.toFullString(), e.getMessage());
+                        logger.warn("Node {}. Error updating channel {} with state {} from value {} instanceof {}. {}",
+                                node.nodeId, metadata.Id, state.toFullString(), value.value, value.value.getClass(),
+                                e.getMessage());
                     }
                 }
             }
@@ -271,6 +276,10 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
     public boolean onNodeStateChanged(Event event) {
         logger.debug("Node {}. State changed", config.id);
         if (!configurationAsChannels && BindingConstants.CC_CONFIGURATION.equals(event.args.commandClassName)) {
+            if (event.args.newValue == null) {
+                logger.debug("Node {}. Configuration value not set, because it is null.", config.id);
+                return false;
+            }
             ConfigMetadata details = new ConfigMetadata(getId(), event);
             Configuration configuration = editConfiguration();
             configuration.put(details.Id, event.args.newValue);
@@ -305,22 +314,26 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         logger.debug("Node {}. Building channels and configuration, containing {} values", node.nodeId,
                 node.values.size());
 
-        ZwaveJSTypeGeneratorResult result = typeGenerator.generate(thing.getUID(), node);
-        configurationAsChannels = Objects.requireNonNull(getBridge()).getConfiguration()
-                .as(ZwaveJSBridgeConfiguration.class).configurationChannels;
+        try {
+            ZwaveJSTypeGeneratorResult result = typeGenerator.generate(thing.getUID(), node);
+            configurationAsChannels = Objects.requireNonNull(getBridge()).getConfiguration()
+                    .as(ZwaveJSBridgeConfiguration.class).configurationChannels;
 
-        ThingBuilder builder = editThing();
-        if (!result.location.isBlank()) {
-            builder.withLocation(result.location);
+            ThingBuilder builder = editThing();
+            if (!result.location.isBlank()) {
+                builder.withLocation(result.location);
+            }
+
+            List<Channel> channels = new ArrayList<>();
+            if (result.channels.size() > 1) {
+                channels = new ArrayList<Channel>(result.channels.entrySet().stream()
+                        .sorted(Map.Entry.<String, Channel> comparingByKey()).map(m -> m.getValue()).toList());
+                builder.withChannels(channels);
+            }
+            updateThing(builder.build());
+        } catch (Exception e) {
+            logger.error("Node {}. Error building channels and configuration", node.nodeId, e);
         }
-
-        List<Channel> channels = new ArrayList<>();
-        if (result.channels.size() > 1) {
-            channels = new ArrayList<Channel>(result.channels.entrySet().stream()
-                    .sorted(Map.Entry.<String, Channel> comparingByKey()).map(m -> m.getValue()).toList());
-        }
-
-        updateThing(builder.withChannels(channels).build());
 
         return true;
     }

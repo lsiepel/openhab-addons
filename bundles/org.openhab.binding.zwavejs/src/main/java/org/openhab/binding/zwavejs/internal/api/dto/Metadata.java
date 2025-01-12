@@ -33,7 +33,7 @@ public class Metadata {
     public String unit;
     public Map<String, String> states;
     @SerializedName("default")
-    public int myDefault;
+    public Object defaultValue;
     public Integer min;
     public Integer max;
     public int valueSize;
