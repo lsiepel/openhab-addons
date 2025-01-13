@@ -244,6 +244,42 @@ public class ZwaveJSTypeGeneratorTest {
     }
 
     @Test
+    public void testGenerateChannelTypeStore4Node07MultilevelSwitchType() throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson("store_4.json", ResultMessage.class);
+        Map<String, Channel> channels = new HashMap<>();
+        Channel channel = null;
+        for (Node node : resultMessage.result.state.nodes) {
+            ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                    .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+            channels.putAll(results.channels);
+            if (node.nodeId == 7) {
+                channel = Objects.requireNonNull(results.channels.get("multilevel-switch-value-1"));
+            }
+        }
+        ;
+
+        ChannelType type = channelTypeProvider.getChannelType(Objects.requireNonNull(channel.getChannelTypeUID()),
+                null);
+        Configuration configuration = channel.getConfiguration();
+
+        assertNotNull(type);
+        assertEquals("zwavejs::test-thing:multilevel-switch-value-1", channel.getUID().getAsString());
+        assertEquals("Dimmer", Objects.requireNonNull(type).getItemType());
+        assertEquals("EP1 Current Value", channel.getLabel());
+        assertNotNull(configuration.get(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
+
+        StateDescription statePattern = type.getState();
+        assertNotNull(statePattern);
+        assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
+        assertEquals(BigDecimal.valueOf(99), statePattern.getMaximum());
+        assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
+        assertEquals("%0.d", statePattern.getPattern());
+
+        assertNotNull(type);
+        assertEquals("Dimmer", type.getItemType());
+    }
+
+    @Test
     public void testGenerateChannelTypeStore4AllNodes() throws IOException {
         ResultMessage resultMessage = DataUtil.fromJson("store_4.json", ResultMessage.class);
         Map<String, Channel> channels = new HashMap<>();

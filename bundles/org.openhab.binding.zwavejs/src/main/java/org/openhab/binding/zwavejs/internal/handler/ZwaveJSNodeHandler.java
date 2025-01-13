@@ -249,7 +249,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                     continue;
                 }
                 ConfigMetadata details = new ConfigMetadata(getId(), value);
-                configuration.put(details.Id, value.value);
+                configuration.put(details.Id, value.value != null ? value.value : value.metadata.defaultValue);
                 configChanged = true;
             } else {
                 ChannelMetadata metadata = new ChannelMetadata(getId(), value);
