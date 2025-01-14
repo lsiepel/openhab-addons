@@ -55,8 +55,11 @@ public abstract class BaseMetadata {
     private static final String DEFAULT_LABEL = "Unknown Label";
     private static final Map<String, String> UNIT_REPLACEMENTS = Map.of("lux", "lx", //
             "Lux", "lx", //
+            "KwH", "kWh", //
             "minutes", "min", //
+            "Minutes", "min", //
             "seconds", "s", //
+            "Seconds", "s", //
             "°(C/F)", "", // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
             "°F/C", ""); // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
 
