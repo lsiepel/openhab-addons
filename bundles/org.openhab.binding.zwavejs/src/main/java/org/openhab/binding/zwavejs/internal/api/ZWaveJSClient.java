@@ -155,7 +155,13 @@ public class ZWaveJSClient implements WebSocketListener {
     public void onWebSocketClose(int statusCode, @NonNullByDefault({}) String reason) {
         logger.debug("onClose({}, '{}')", statusCode, reason);
 
-        // Event should be going up to the BridgeHandler to set the status
+        try {
+            for (ZwaveEventListener listener : listeners) {
+                listener.onConnectionError(String.format("Connection closed: %d, %s", statusCode, reason));
+            }
+        } catch (Exception e) {
+            logger.warn("Error invoking event listener", e);
+        }
 
         session = null;
         sessionFuture = null;
