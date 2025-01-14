@@ -38,6 +38,7 @@ import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.config.core.validation.ConfigValidationException;
+import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.HSBType;
@@ -118,7 +119,11 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         NodeSetValueCommand zwaveCommand = new NodeSetValueCommand(config.id, channelConfig);
 
         if (command instanceof OnOffType onOffCommand) {
-            zwaveCommand.value = OnOffType.ON.equals(onOffCommand);
+            if (channelConfig.itemType == CoreItemFactory.DIMMER) {
+                zwaveCommand.value = OnOffType.ON.equals(onOffCommand) ? 255 : 0;
+            } else {
+                zwaveCommand.value = OnOffType.ON.equals(onOffCommand);
+            }
         } else if (command instanceof QuantityType<?> quantityCommand) {
             Unit<?> unit = UnitUtils.parseUnit(channelConfig.incomingUnit);
             if (unit == null) {
