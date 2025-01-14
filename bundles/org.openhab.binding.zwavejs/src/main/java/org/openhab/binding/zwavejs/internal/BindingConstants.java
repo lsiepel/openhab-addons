@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.zwavejs.internal;
 
+import java.util.List;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.core.thing.ThingTypeUID;
 
@@ -62,6 +64,9 @@ public class BindingConstants {
     public static final String PROPERTY_NODE_FREQ_LISTENING = "isFrequentListening";
 
     public static final String CC_CONFIGURATION = "Configuration";
+    public static final String CC_WAKE_UP = "Wake Up";
+
+    public static final List<String> CONFIGURATION_COMMAND_CLASSES = List.of(CC_CONFIGURATION, CC_WAKE_UP);
     // List of all Channel ids
     public static final String CHANNEL_1 = "channel1";
 }

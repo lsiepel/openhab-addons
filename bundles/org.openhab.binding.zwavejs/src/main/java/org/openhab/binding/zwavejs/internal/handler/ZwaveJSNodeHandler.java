@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.zwavejs.internal.handler;
 
+import static org.openhab.binding.zwavejs.internal.BindingConstants.CONFIGURATION_COMMAND_CLASSES;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,6 @@ import javax.measure.Unit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Status;
@@ -243,7 +244,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         Configuration configuration = editConfiguration();
         boolean configChanged = false;
         for (Value value : node.values) {
-            if (!configurationAsChannels && BindingConstants.CC_CONFIGURATION.equals(value.commandClassName)) {
+            if (!configurationAsChannels && CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 if (value.value == null && value.metadata != null && value.metadata.defaultValue == null) {
                     logger.debug("Node {}. Configuration value not set, both vlaue and default are null.", node.nodeId);
                     continue;
@@ -276,7 +277,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
     @Override
     public boolean onNodeStateChanged(Event event) {
         logger.debug("Node {}. State changed", config.id);
-        if (!configurationAsChannels && BindingConstants.CC_CONFIGURATION.equals(event.args.commandClassName)) {
+        if (!configurationAsChannels && CONFIGURATION_COMMAND_CLASSES.contains(event.args.commandClassName)) {
             if (event.args.newValue == null) {
                 logger.debug("Node {}. Configuration value not set, because it is null.", config.id);
                 return false;

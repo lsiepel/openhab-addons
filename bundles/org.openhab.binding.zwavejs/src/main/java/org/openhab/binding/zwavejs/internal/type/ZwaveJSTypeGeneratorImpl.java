@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.zwavejs.internal.type;
 
+import static org.openhab.binding.zwavejs.internal.BindingConstants.CONFIGURATION_COMMAND_CLASSES;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
@@ -104,7 +106,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
         URI uri = getConfigDescriptionURI(thingUID, node);
         for (Value value : node.values) {
-            if (BindingConstants.CC_CONFIGURATION.equals(value.commandClassName)) {
+            if (CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 ConfigMetadata metadata = new ConfigMetadata(node.nodeId, value);
                 configDescriptions.add(createConfigDescription(metadata));
             } else {
