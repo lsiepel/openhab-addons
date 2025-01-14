@@ -179,7 +179,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 if (!newChannelTypeUID.equals(existingChannel.getChannelTypeUID())) {
                     ChannelType newChannelType = getOrGenerate(newChannelTypeUID, details);
                     if (newChannelType != null) {
-                        builder.withType(newChannelType.getUID());
+                        builder.withAcceptedItemType(newChannelType.getItemType()).withType(newChannelType.getUID());
                     }
                 }
 

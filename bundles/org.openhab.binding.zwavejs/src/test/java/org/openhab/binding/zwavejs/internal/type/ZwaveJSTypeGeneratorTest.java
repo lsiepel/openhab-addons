@@ -246,17 +246,15 @@ public class ZwaveJSTypeGeneratorTest {
     @Test
     public void testGenerateChannelTypeStore4Node07MultilevelSwitchType() throws IOException {
         ResultMessage resultMessage = DataUtil.fromJson("store_4.json", ResultMessage.class);
+        Node node = resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == 7).findAny().orElse(null);
+
         Map<String, Channel> channels = new HashMap<>();
-        Channel channel = null;
-        for (Node node : resultMessage.result.state.nodes) {
-            ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
-                    .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
-            channels.putAll(results.channels);
-            if (node.nodeId == 7) {
-                channel = Objects.requireNonNull(results.channels.get("multilevel-switch-value-1"));
-            }
-        }
-        ;
+
+        ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
+        channels.putAll(results.channels);
+
+        Channel channel = Objects.requireNonNull(results.channels.get("multilevel-switch-value-1"));
 
         ChannelType type = channelTypeProvider.getChannelType(Objects.requireNonNull(channel.getChannelTypeUID()),
                 null);
