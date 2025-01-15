@@ -213,7 +213,7 @@ public abstract class BaseMetadata {
                     try {
                         return new PercentType(numberValue.intValue());
                     } catch (IllegalArgumentException e) {
-                        logger.warn("Node id {}, invalid PercentType value provided: {}", nodeId, numberValue, e);
+                        logger.warn("Node {}, invalid PercentType value provided: {}", nodeId, numberValue);
                         return UnDefType.UNDEF;
                     }
                 }
