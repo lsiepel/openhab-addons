@@ -81,6 +81,7 @@ public class ZWaveJSClient implements WebSocketListener {
     private final Set<ZwaveEventListener> listeners = new CopyOnWriteArraySet<>();
     private @Nullable Future<?> sessionFuture;
     private final Gson gson;
+    private final Object sendLock = new Object();
 
     public ZWaveJSClient(WebSocketClient wsClient) {
         this.wsClient = wsClient;
@@ -270,7 +271,9 @@ public class ZWaveJSClient implements WebSocketListener {
             }
             logger.debug("Sending command: {}.", command.getClass().getSimpleName());
             logger.trace("DATA >> {}", commandAsJson);
-            endpoint.sendString(commandAsJson);
+            synchronized (sendLock) {
+                endpoint.sendString(commandAsJson);
+            }
         } catch (IOException e) {
             logger.warn("IOException while sending command: {}. Error {}", command.getClass().getSimpleName(),
                     e.getMessage());
