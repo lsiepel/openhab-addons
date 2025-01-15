@@ -210,7 +210,12 @@ public abstract class BaseMetadata {
                 }
             case CoreItemFactory.DIMMER:
                 if (value instanceof Number numberValue) {
-                    return new PercentType(numberValue.intValue());
+                    try {
+                        return new PercentType(numberValue.intValue());
+                    } catch (IllegalArgumentException e) {
+                        logger.warn("Node id {}, invalid PercentType value provided: {}", nodeId, numberValue, e);
+                        return UnDefType.UNDEF;
+                    }
                 }
             case CoreItemFactory.SWITCH:
                 if (value instanceof Number numberValue) {
