@@ -187,10 +187,10 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
 
                 channels.put(details.Id, builder.build());
 
-                logger.debug("Node {}, channel {} existing channel updated", details.nodeId, details.Id);
+                logger.debug("Node {} Channel {} existing channel updated", details.nodeId, details.Id);
                 return channels;
             } else {
-                logger.debug("Node {}, channel {} already exists: ignored", details.nodeId, details.Id);
+                logger.debug("Node {} Channel {} already exists: ignored", details.nodeId, details.Id);
                 return channels;
             }
         }
@@ -218,7 +218,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             }
         }
         if (channelType == null) {
-            logger.warn("Node {}, channel {}, ChannelType could not be found or generated, this is a bug",
+            logger.warn("Node {} Channel {}, ChannelType could not be found or generated, this is a bug",
                     details.nodeId, details.Id);
             return null;
         }
