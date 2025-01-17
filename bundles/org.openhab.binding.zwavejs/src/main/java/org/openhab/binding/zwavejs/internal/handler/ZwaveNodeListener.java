@@ -34,14 +34,6 @@ public interface ZwaveNodeListener {
     Integer getId();
 
     /**
-     * This method is called when the state of a Z-Wave node changes.
-     *
-     * @param node the Z-Wave node whose state has changed
-     * @return true if the state change was handled successfully, false otherwise
-     */
-    boolean onNodeStateChanged(Node node);
-
-    /**
      * This method is called when the state of a node changes.
      *
      * @param event the event that contains information about the state change

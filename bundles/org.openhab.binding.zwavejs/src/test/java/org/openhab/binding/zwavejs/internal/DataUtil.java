@@ -21,9 +21,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.binding.zwavejs.internal.api.dto.Node;
+import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -58,5 +61,11 @@ public class DataUtil {
         try (Reader reader = openDataReader(fileName)) {
             return new BufferedReader(reader).lines().parallel().collect(Collectors.joining("\n"));
         }
+    }
+
+    public static Node getNodeFromStore(String storeFileName, int nodeId) throws IOException {
+        ResultMessage resultMessage = DataUtil.fromJson(storeFileName, ResultMessage.class);
+        return Objects.requireNonNull(
+                resultMessage.result.state.nodes.stream().filter(f -> f.nodeId == nodeId).findAny().orElse(null));
     }
 }

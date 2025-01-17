@@ -151,9 +151,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
 
                 lastNodeStates.put(nodeId, node);
             } else {
-                if (nodeListener.onNodeStateChanged(node)) {
-                    lastNodeStates.put(nodeId, node);
-                }
+                lastNodeStates.put(nodeId, node);
             }
             lastNodeStatesCopy.remove(nodeId);
         }
@@ -202,11 +200,6 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
         if (!nodeListeners.containsKey(id)) {
             logger.debug("Node {}. Registering listener", id);
             nodeListeners.put(id, nodeListener);
-            final Node node = lastNodeStates.get(id);
-            if (node != null) {
-                nodeListener.onNodeAdded(node);
-            }
-
             return true;
         }
         return false;

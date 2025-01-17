@@ -187,7 +187,8 @@ public abstract class BaseMetadata {
         return generateId(value.commandClassName, value.endpoint, value.propertyName, value.propertyKey);
     }
 
-    protected @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit) {
+    protected @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit,
+            boolean inverted) {
         if (value == null) {
             return UnDefType.NULL;
         } else if (value instanceof Map<?, ?> treeMap) {
@@ -211,7 +212,7 @@ public abstract class BaseMetadata {
             case CoreItemFactory.DIMMER:
                 if (value instanceof Number numberValue) {
                     try {
-                        return new PercentType(numberValue.intValue());
+                        return new PercentType(inverted ? 100 - numberValue.intValue() : numberValue.intValue());
                     } catch (IllegalArgumentException e) {
                         logger.warn("Node {}, invalid PercentType value provided: {}", nodeId, numberValue);
                         return UnDefType.UNDEF;
@@ -219,7 +220,7 @@ public abstract class BaseMetadata {
                 }
             case CoreItemFactory.SWITCH:
                 if (value instanceof Number numberValue) {
-                    return OnOffType.from(numberValue.intValue() > 0);
+                    return OnOffType.from(inverted ? numberValue.intValue() < 1 : numberValue.intValue() > 0);
                 }
                 return OnOffType.from((boolean) value);
             case CoreItemFactory.COLOR:
@@ -313,16 +314,20 @@ public abstract class BaseMetadata {
     }
 
     protected @Nullable StateDescriptionFragment createStatePattern(boolean writeable, @Nullable Integer min,
-            @Nullable Integer max, @Nullable Integer step) {
+            @Nullable Integer max, @Nullable Integer step, @Nullable Object value) {
         String pattern = "";
         String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {
             case CoreItemFactory.NUMBER:
+                String numberFormat = "%1d";
+                if (value instanceof Double) {
+                    // TODO how to properly determine the decimals?
+                    numberFormat = "%.2f";
+                }
                 if (itemTypeSplitted.length > 1) {
-                    // TODO how to determine the decimals
-                    pattern = "%0.f %unit%";
+                    pattern = numberFormat + " %unit%";
                 } else {
-                    pattern = "%0.d";
+                    pattern = numberFormat;
                 }
                 break;
             case CoreItemFactory.STRING:

@@ -27,7 +27,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.Status;
-import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.NodeSetValueCommand;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSBridgeConfiguration;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
@@ -122,7 +121,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             if (channelConfig.itemType == CoreItemFactory.DIMMER) {
                 zwaveCommand.value = OnOffType.ON.equals(onOffCommand) ? 255 : 0;
             } else {
-                zwaveCommand.value = OnOffType.ON.equals(onOffCommand);
+                zwaveCommand.value = onOffCommand.equals(channelConfig.inverted ? OnOffType.OFF : OnOffType.ON);
             }
         } else if (command instanceof QuantityType<?> quantityCommand) {
             Unit<?> unit = UnitUtils.parseUnit(channelConfig.incomingUnit);
@@ -138,13 +137,15 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         } else if (command instanceof HSBType hsbTypeCommand) {
             throw new UnsupportedOperationException();
         } else if (command instanceof PercentType percentTypeCommand) {
-            zwaveCommand.value = percentTypeCommand.intValue();
+            zwaveCommand.value = channelConfig.inverted ? 100 - percentTypeCommand.intValue()
+                    : percentTypeCommand.intValue();
         } else if (command instanceof IncreaseDecreaseType increaseDecreaseCommand) {
             throw new UnsupportedOperationException();
         } else if (command instanceof NextPreviousType nextPreviousCommand) {
             throw new UnsupportedOperationException();
         } else if (command instanceof OpenClosedType openClosedCommand) {
-            zwaveCommand.value = OpenClosedType.OPEN.equals(openClosedCommand);
+            zwaveCommand.value = openClosedCommand
+                    .equals(channelConfig.inverted ? OpenClosedType.CLOSED : OpenClosedType.OPEN);
         } else if (command instanceof PlayPauseType stringCommand) {
             throw new UnsupportedOperationException();
         } else if (command instanceof PointType pointCommand) {
@@ -240,44 +241,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
     @Override
     public void onNodeAdded(Node node) {
-        onNodeStateChanged(node);
-    }
-
-    @Override
-    public boolean onNodeStateChanged(Node node) {
-        logger.debug("Node {}. State changed", node.nodeId);
-        Configuration configuration = editConfiguration();
-        boolean configChanged = false;
-        for (Value value : node.values) {
-            if (!configurationAsChannels && CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
-                if (value.value == null && value.metadata != null && value.metadata.defaultValue == null) {
-                    logger.debug("Node {}. Configuration value not set, both vlaue and default are null.", node.nodeId);
-                    continue;
-                }
-                ConfigMetadata details = new ConfigMetadata(getId(), value);
-                configuration.put(details.Id, value.value != null ? value.value : value.metadata.defaultValue);
-                configChanged = true;
-            } else {
-                ChannelMetadata metadata = new ChannelMetadata(getId(), value);
-                State state = metadata.state;
-                if (!metadata.isIgnoredCommandClass(metadata.commandClassName) && isLinked(metadata.Id)
-                        && state != null) {
-                    try {
-                        updateState(metadata.Id, state);
-                    } catch (IllegalArgumentException e) {
-                        logger.warn(
-                                "Node {}. Error updating channel {} with state {} instanceof {} from value {} instanceof {}. {}",
-                                node.nodeId, metadata.Id, state.toFullString(), state.getClass(), value.value,
-                                value.value.getClass(), e.getMessage());
-                    }
-                }
-            }
-        }
-        if (configChanged) {
-            updateConfiguration(configuration);
-        }
-
-        return true;
+        // onNodeStateChanged(node);
     }
 
     @Override
@@ -299,7 +263,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                 ZwaveJSChannelConfiguration channelConfig = thing.getChannel(metadata.Id).getConfiguration()
                         .as(ZwaveJSChannelConfiguration.class);
 
-                State state = metadata.setState(event, channelConfig.itemType, channelConfig.incomingUnit);
+                State state = metadata.setState(event.args.newValue, channelConfig.itemType, channelConfig.incomingUnit,
+                        channelConfig.inverted);
                 if (state != null) {
                     try {
                         updateState(metadata.Id, state);
@@ -339,6 +304,28 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                 builder.withChannels(channels);
             }
             updateThing(builder.build());
+
+            for (Channel channel : channels) {
+                if (result.values.containsKey(channel.getUID().getId()) && isLinked(channel.getUID())) {
+                    ChannelMetadata dummy = new ChannelMetadata(getId(), node.values.get(0));
+                    ZwaveJSChannelConfiguration channelConfig = channel.getConfiguration()
+                            .as(ZwaveJSChannelConfiguration.class);
+                    State state = dummy.setState(Objects.requireNonNull(result.values.get(channel.getUID().getId())),
+                            channelConfig.itemType, channelConfig.incomingUnit, channelConfig.inverted);
+                    if (state != null) {
+                        updateState(channel.getUID(), state);
+                    }
+                }
+            }
+            if (!configurationAsChannels) {
+                Configuration configuration = editConfiguration();
+                for (String key : configuration.keySet()) {
+                    if (result.values.containsKey(key)) {
+                        configuration.put(key, result.values.get(key));
+                    }
+                }
+                updateConfiguration(configuration);
+            }
         } catch (Exception e) {
             logger.error("Node {}. Error building channels and configuration", node.nodeId, e);
         }

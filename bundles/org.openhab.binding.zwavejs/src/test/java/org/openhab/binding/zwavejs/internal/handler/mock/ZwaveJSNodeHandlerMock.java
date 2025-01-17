@@ -35,6 +35,7 @@ import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorImpl;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingRegistry;
 import org.openhab.core.thing.ThingStatus;
@@ -99,6 +100,10 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
             ((Runnable) invocation.getArguments()[0]).run();
             return null;
         }).when(executorService).execute(any(Runnable.class));
+    }
+
+    public boolean isLinked(ChannelUID channelUID) {
+        return true;
     }
 
     public boolean isLinked(String channelId) {

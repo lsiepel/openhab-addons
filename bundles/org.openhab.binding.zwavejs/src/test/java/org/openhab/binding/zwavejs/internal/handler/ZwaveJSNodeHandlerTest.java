@@ -12,9 +12,12 @@
  */
 package org.openhab.binding.zwavejs.internal.handler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
@@ -28,8 +31,10 @@ import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
 import org.openhab.binding.zwavejs.internal.handler.mock.ZwaveJSNodeHandlerMock;
 import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.PercentType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
+import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
@@ -162,7 +167,7 @@ public class ZwaveJSNodeHandlerTest {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
                     argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
-            verify(callback).stateUpdated(eq(channelid), eq(new QuantityType<Power>(5.16, Units.WATT)));
+            verify(callback, times(1)).stateUpdated(eq(channelid), eq(new QuantityType<Power>(2.16, Units.WATT)));
         } finally {
             handler.dispose();
         }
@@ -184,6 +189,32 @@ public class ZwaveJSNodeHandlerTest {
         } finally {
             handler.dispose();
         }
+    }
+
+    @Test
+    public void testStore4Node40ChannelsCreation() {
+        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(40);
+        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
+        final ZwaveJSNodeHandlerMock handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing,
+                "store_4.json");
+
+        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:multilevel-switch-value-2");
+
+        try {
+            verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
+            verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
+                    argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
+            verify(callback).stateUpdated(eq(channelid), eq(new PercentType(94)));
+        } finally {
+            handler.dispose();
+        }
+
+        Channel channel = handler.getThing().getChannels().stream()
+                .filter(f -> "multilevel-switch-value-2".equals(f.getUID().getId())).findFirst().orElse(null);
+
+        assertNotNull(channel);
+        assertEquals("Dimmer", channel.getAcceptedItemType());
+        assertEquals("EP2 Current Value", channel.getLabel());
     }
 
     @Test

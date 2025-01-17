@@ -109,9 +109,16 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             if (CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 ConfigMetadata metadata = new ConfigMetadata(node.nodeId, value);
                 configDescriptions.add(createConfigDescription(metadata));
+
+                if (!result.values.containsKey(metadata.Id) && value.value != null) {
+                    result.values.put(metadata.Id, value.value);
+                }
             } else {
                 ChannelMetadata metadata = new ChannelMetadata(node.nodeId, value);
                 result.channels = createChannel(thingUID, result.channels, metadata);
+                if (!result.values.containsKey(metadata.Id) && value.value != null) {
+                    result.values.put(metadata.Id, value.value);
+                }
             }
         }
         if (uri != null && configDescriptions.size() > 0) {
@@ -164,6 +171,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_COMMANDCLASS_ID, details.commandClassId);
         newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_COMMANDCLASS_NAME, details.commandClassName);
         newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_ENDPOINT, details.endpoint);
+        newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_INVERTED, false);
 
         if (details.writable) {
             newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);

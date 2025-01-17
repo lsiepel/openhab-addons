@@ -27,4 +27,5 @@ public class ZwaveJSChannelConfiguration {
     public int commandClassId;
     public int endpoint;
     public @Nullable String writeProperty;
+    public boolean inverted = false;
 }

@@ -54,10 +54,11 @@ public class ChannelMetadata extends BaseMetadata {
     public ChannelMetadata(int nodeId, Value data) {
         super(nodeId, data);
 
-        this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
+        this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1,
+                data.value);
         this.itemType = channelItemTypeFromMetadata(this.itemType, data.metadata.min, data.metadata.max,
                 data.metadata.states);
-        this.state = toState(data.value, itemType, unit);
+        this.state = toState(data.value, itemType, unit, false);
     }
 
     public ChannelMetadata(int nodeId, Event data) {
@@ -110,14 +111,14 @@ public class ChannelMetadata extends BaseMetadata {
      * @param unitSymbol The unit symbol to be used for the state, can be null.
      * @return The new state after setting it based on the event's new value.
      */
-    public @Nullable State setState(Event event, String itemType, @Nullable String unitSymbol) {
-        this.unitSymbol = normalizeUnit(unitSymbol, event.args.newValue);
+    public @Nullable State setState(Object value, String itemType, @Nullable String unitSymbol, boolean inverted) {
+        this.unitSymbol = normalizeUnit(unitSymbol, value);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
         if (unitSymbol != null && unit == null) {
             logger.warn("Node {}. Unable to parse unitSymbol '{}' from channel config, this is a bug", nodeId,
                     unitSymbol);
         }
-        return this.state = toState(event.args.newValue, itemType, this.unit);
+        return this.state = toState(value, itemType, this.unit, inverted);
     }
 
     @Override
