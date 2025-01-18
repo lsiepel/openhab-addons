@@ -24,6 +24,7 @@ import javax.naming.CommunicationException;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.BindingConstants;
+import org.openhab.binding.zwavejs.internal.action.ZwaveJSActions;
 import org.openhab.binding.zwavejs.internal.api.ZWaveJSClient;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.State;
@@ -237,7 +238,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
 
     @Override
     public Collection<Class<? extends ThingHandlerService>> getServices() {
-        return Set.of(NodeDiscoveryService.class);
+        return Set.of(NodeDiscoveryService.class, ZwaveJSActions.class);
     }
 
     @Override
