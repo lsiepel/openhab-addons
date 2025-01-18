@@ -15,9 +15,9 @@ package org.openhab.binding.zwavejs.internal.api.dto.commands;
 /**
  * @author Leo Siepel - Initial contribution
  */
-public class StatisticsCommand extends BaseCommand {
+public class ControllerInclusionCommand extends BaseCommand {
 
-    public StatisticsCommand(boolean enable) {
-        command = enable ? "driver.enable_statistics" : "driver.disable_statistics";
+    public ControllerInclusionCommand() {
+        command = "controller.begin_inclusion";
     }
 }

@@ -12,18 +12,14 @@
  */
 package org.openhab.binding.zwavejs.internal.api.dto.commands;
 
-import org.osgi.framework.FrameworkUtil;
-
 /**
  * @author Leo Siepel - Initial contribution
  */
-public class InitializeCommand extends BaseCommand {
-    public int schemaVersion;
-    public String additionalUserAgentComponents;
+public class NodeRefreshCommand extends BaseCommand {
+    public int nodeId;
 
-    public InitializeCommand() {
-        command = "initialize";
-        schemaVersion = 40;
-        additionalUserAgentComponents = "openHAB/" + FrameworkUtil.getBundle(this.getClass()).getVersion().toString();
+    public NodeRefreshCommand(int nodeId) {
+        command = "node.refresh_info";
+        this.nodeId = nodeId;
     }
 }

@@ -32,8 +32,8 @@ import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.BaseCommand;
-import org.openhab.binding.zwavejs.internal.api.dto.commands.InitializeCommand;
-import org.openhab.binding.zwavejs.internal.api.dto.commands.ListeningCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.ServerInitializeCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.ServerListeningCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
@@ -247,9 +247,9 @@ public class ZWaveJSClient implements WebSocketListener {
         if (baseEvent instanceof VersionMessage) {
             // the binding is starting up, perform schema version handshake
             // also start listening to events
-            sendCommand(new InitializeCommand());
+            sendCommand(new ServerInitializeCommand());
             // sendCommand(new StatisticsCommand(false));
-            sendCommand(new ListeningCommand());
+            sendCommand(new ServerListeningCommand());
         }
     }
 

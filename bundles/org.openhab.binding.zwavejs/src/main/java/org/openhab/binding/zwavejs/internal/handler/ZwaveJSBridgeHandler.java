@@ -29,7 +29,9 @@ import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.State;
 import org.openhab.binding.zwavejs.internal.api.dto.Status;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.BaseCommand;
-import org.openhab.binding.zwavejs.internal.api.dto.commands.ListeningCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.ControllerExclusionCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.ControllerInclusionCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.ServerListeningCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
@@ -178,7 +180,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
      */
     public void getFullState() {
         if (getThing().getStatus().equals(ThingStatus.ONLINE)) {
-            client.sendCommand(new ListeningCommand());
+            client.sendCommand(new ServerListeningCommand());
         }
     }
 
@@ -247,5 +249,13 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
     @Override
     public void onConnectionError(String message) {
         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, message);
+    }
+
+    public void startInclusion() {
+        sendCommand(new ControllerInclusionCommand());
+    }
+
+    public void startExclusion() {
+        sendCommand(new ControllerExclusionCommand());
     }
 }

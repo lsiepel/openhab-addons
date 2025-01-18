@@ -12,11 +12,18 @@
  */
 package org.openhab.binding.zwavejs.internal.api.dto.commands;
 
+import org.osgi.framework.FrameworkUtil;
+
 /**
  * @author Leo Siepel - Initial contribution
  */
-public class ListeningCommand extends BaseCommand {
-    public ListeningCommand() {
-        command = "start_listening";
+public class ServerInitializeCommand extends BaseCommand {
+    public int schemaVersion;
+    public String additionalUserAgentComponents;
+
+    public ServerInitializeCommand() {
+        command = "initialize";
+        schemaVersion = 40;
+        additionalUserAgentComponents = "openHAB/" + FrameworkUtil.getBundle(this.getClass()).getVersion().toString();
     }
 }
