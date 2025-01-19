@@ -294,7 +294,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
             ThingBuilder builder = editThing();
 
-            if (getThing().getLocation() != result.location && !result.location.isBlank()) {
+            if (!result.location.equals(getThing().getLocation()) && !result.location.isBlank()) {
                 builder.withLocation(result.location);
             }
 

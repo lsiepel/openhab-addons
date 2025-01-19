@@ -124,7 +124,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 }
             }
         }
-        if (uri != null && configDescriptions.size() > 0) {
+        if (uri != null && !configDescriptions.isEmpty()) {
             configDescriptionProvider.addConfigDescription(
                     ConfigDescriptionBuilder.create(uri).withParameters(configDescriptions).build());
         }
