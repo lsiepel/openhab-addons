@@ -200,7 +200,7 @@ public abstract class BaseMetadata {
         String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {
             case CoreItemFactory.NUMBER:
-                if (!(value instanceof Number numberValue)) {
+                if (!(value instanceof Number numberVal)) {
                     logger.warn("Node {}, unexpected value type for number: {}, please file a bug report", nodeId,
                             value.getClass().getSimpleName());
                     return UnDefType.UNDEF;
@@ -209,11 +209,11 @@ public abstract class BaseMetadata {
                 if (itemTypeSplitted.length > 1) {
                     if (unit == null) {
                         logger.warn("Node id {}, the unit is unexpectedly null, please file a bug report", nodeId);
-                        return new DecimalType(numberValue);
+                        return new DecimalType(numberVal);
                     }
-                    return new QuantityType<>(numberValue, unit);
+                    return new QuantityType<>(numberVal, unit);
                 } else {
-                    return new DecimalType(numberValue);
+                    return new DecimalType(numberVal);
                 }
             case CoreItemFactory.DIMMER:
                 if (value instanceof Number numberValue) {
