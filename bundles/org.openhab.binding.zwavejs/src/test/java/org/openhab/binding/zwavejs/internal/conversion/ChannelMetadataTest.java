@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import javax.measure.quantity.Time;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
@@ -171,6 +173,29 @@ public class ChannelMetadataTest {
         assertEquals("%1d", statePattern.getPattern());
 
         assertNull(details.unitSymbol);
+    }
+
+    @Test
+    public void testChannelDetailsStore3Node35Channel5() throws IOException {
+        Node node = getNodeFromStore("store_3.json", 35);
+
+        ChannelMetadata details = new ChannelMetadata(35, node.values.get(5));
+
+        assertEquals("configuration-transmission-retry-wait-time-255", details.Id);
+        assertEquals("Number:Time", details.itemType);
+        assertEquals("Transmission Retry Wait Time", details.label);
+        assertNull(details.description);
+        assertEquals(new QuantityType<Time>("1400 ms"), details.state);
+        assertEquals(true, details.writable);
+
+        StateDescriptionFragment statePattern = details.statePattern;
+        assertNotNull(statePattern);
+        assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
+        assertEquals(BigDecimal.valueOf(255), statePattern.getMaximum());
+        assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
+        assertEquals("%1d %unit%", statePattern.getPattern());
+
+        assertEquals("ms", details.unitSymbol);
     }
 
     @Test

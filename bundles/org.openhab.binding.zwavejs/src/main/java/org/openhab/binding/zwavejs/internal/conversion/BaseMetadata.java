@@ -84,6 +84,7 @@ public abstract class BaseMetadata {
     public @Nullable String commandClassName;
     public int commandClassId;
     public int endpoint;
+    public Double factor = 1.0;
 
     protected BaseMetadata(int nodeId, Value value) {
         this.nodeId = nodeId;
@@ -97,6 +98,7 @@ public abstract class BaseMetadata {
         this.label = normalizeLabel(value.metadata.label, value.endpoint, value.propertyName);
         this.description = value.metadata.description != null ? value.metadata.description : null;
         this.unitSymbol = normalizeUnit(value.metadata.unit, value.value);
+        this.factor = determineFactor(value.metadata.unit);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
         this.itemType = itemTypeFromMetadata(value.metadata.type, value.value, value.commandClassName,
                 value.metadata.states);
@@ -117,6 +119,24 @@ public abstract class BaseMetadata {
         this.Id = generateId(data);
 
         this.value = data.args.newValue;
+    }
+
+    protected Double determineFactor(@Nullable String unitString) {
+        if (unitString == null && value instanceof Map<?, ?> treeMap) {
+            if (treeMap.containsKey("unit")) {
+                unitString = (String) treeMap.get("unit");
+            }
+        }
+        if (unitString == null) {
+            return 1.0;
+        }
+        String[] splitted = unitString.split(" ");
+        String firstPart = splitted[0];
+        try {
+            return Double.parseDouble(firstPart);
+        } catch (NumberFormatException e) {
+            return 1.0;
+        }
     }
 
     protected boolean isAdvanced(int commandClassId, String propertyName) {
@@ -187,8 +207,8 @@ public abstract class BaseMetadata {
         return generateId(value.commandClassName, value.endpoint, value.propertyName, value.propertyKey);
     }
 
-    protected @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit,
-            boolean inverted) {
+    protected @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit, boolean inverted,
+            Double factor) {
         if (value == null) {
             return UnDefType.NULL;
         } else if (value instanceof Map<?, ?> treeMap) {
@@ -205,7 +225,7 @@ public abstract class BaseMetadata {
                             value.getClass().getSimpleName());
                     return UnDefType.UNDEF;
                 }
-
+                numberVal = factor == 1.0 ? numberVal : numberVal.doubleValue() * factor;
                 if (itemTypeSplitted.length > 1) {
                     if (unit == null) {
                         logger.warn("Node id {}, the unit is unexpectedly null, please file a bug report", nodeId);

@@ -48,6 +48,7 @@ public class BindingConstants {
     public static final String CONFIG_CHANNEL_ENDPOINT = "endpoint";
     public static final String CONFIG_CHANNEL_WRITE_PROPERTY = "writeProperty";
     public static final String CONFIG_CHANNEL_INVERTED = "inverted";
+    public static final String CONFIG_CHANNEL_FACTOR = "factor";
 
     // List of all Thing Properties
     public static final String PROPERTY_HOME_ID = "homeId";

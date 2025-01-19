@@ -14,6 +14,7 @@ package org.openhab.binding.zwavejs.internal.handler;
 
 import static org.openhab.binding.zwavejs.internal.BindingConstants.CONFIGURATION_COMMAND_CLASSES;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +131,11 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                 logger.warn("Could not parse '{}' as a unit, this is a bug.", channelConfig.incomingUnit);
                 return;
             }
-            zwaveCommand.value = Objects.requireNonNull(quantityCommand.toUnit(unit));
+            QuantityType<?> resultValue = Objects.requireNonNull(quantityCommand.toUnit(unit));
+            if (channelConfig.factor != 1.0) {
+                resultValue = resultValue.divide(new BigDecimal(channelConfig.factor));
+            }
+            zwaveCommand.value = resultValue;
         } else if (command instanceof PercentType percentTypeCommand) {
             logger.trace("command recognized as PercentType");
             zwaveCommand.value = channelConfig.inverted ? 100 - percentTypeCommand.intValue()
