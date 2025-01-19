@@ -293,19 +293,31 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                     .as(ZwaveJSBridgeConfiguration.class).configurationChannels;
 
             ThingBuilder builder = editThing();
-            if (!result.location.isBlank()) {
+
+            if (getThing().getLocation() != result.location && !result.location.isBlank()) {
                 builder.withLocation(result.location);
             }
 
-            List<Channel> channels = new ArrayList<>();
-            if (result.channels.size() > 1) {
-                channels = new ArrayList<Channel>(result.channels.entrySet().stream()
+            List<Channel> channelsToRemove = new ArrayList<>();
+            for (Channel channel : thing.getChannels()) {
+                if (!result.channels.containsKey(channel.getUID().getId())) {
+                    channelsToRemove.add(channel);
+                } else {
+                    result.channels.remove(channel.getUID().getId());
+                }
+            }
+            if (!channelsToRemove.isEmpty()) {
+                builder.withoutChannels(channelsToRemove);
+            }
+            if (!result.channels.isEmpty()) {
+                List<Channel> channels = new ArrayList<Channel>(result.channels.entrySet().stream()
                         .sorted(Map.Entry.<String, Channel> comparingByKey()).map(m -> m.getValue()).toList());
                 builder.withChannels(channels);
             }
+
             updateThing(builder.build());
 
-            for (Channel channel : channels) {
+            for (Channel channel : thing.getChannels()) {
                 if (result.values.containsKey(channel.getUID().getId()) && isLinked(channel.getUID())) {
                     ChannelMetadata dummy = new ChannelMetadata(getId(), node.values.get(0));
                     ZwaveJSChannelConfiguration channelConfig = channel.getConfiguration()
