@@ -200,14 +200,20 @@ public abstract class BaseMetadata {
         String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {
             case CoreItemFactory.NUMBER:
+                if (!(value instanceof Number numberValue)) {
+                    logger.warn("Node {}, unexpected value type for number: {}, please file a bug report", nodeId,
+                            value.getClass().getSimpleName());
+                    return UnDefType.UNDEF;
+                }
+
                 if (itemTypeSplitted.length > 1) {
                     if (unit == null) {
                         logger.warn("Node id {}, the unit is unexpectedly null, please file a bug report", nodeId);
-                        return new DecimalType((Number) value);
+                        return new DecimalType(numberValue);
                     }
-                    return new QuantityType<>((Number) value, unit);
+                    return new QuantityType<>(numberValue, unit);
                 } else {
-                    return new DecimalType((Number) value);
+                    return new DecimalType(numberValue);
                 }
             case CoreItemFactory.DIMMER:
                 if (value instanceof Number numberValue) {
