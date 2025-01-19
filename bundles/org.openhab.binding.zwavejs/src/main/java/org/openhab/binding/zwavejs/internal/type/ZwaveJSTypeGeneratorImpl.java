@@ -68,6 +68,9 @@ import org.slf4j.LoggerFactory;
 @Component
 @NonNullByDefault
 public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
+
+    private static final Object CHANNEL_TYPE_VERSION = "2"; // when static configuration is changed, the version must be
+                                                            // changed as well to force a new channel type generation
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSTypeGeneratorImpl.class);
 
     private final ThingRegistry thingRegistry;
@@ -115,7 +118,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 }
             } else {
                 ChannelMetadata metadata = new ChannelMetadata(node.nodeId, value);
-                result.channels = createChannel(thingUID, result.channels, metadata);
+                result.channels = createChannel(thingUID, result.channels, metadata, configDescriptionProvider);
                 if (!result.values.containsKey(metadata.Id) && value.value != null) {
                     result.values.put(metadata.Id, value.value);
                 }
@@ -156,7 +159,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     }
 
     private Map<String, Channel> createChannel(ThingUID thingUID, Map<String, Channel> channels,
-            ChannelMetadata details) {
+            ChannelMetadata details, ZwaveJSConfigDescriptionProvider configDescriptionProvider) {
         if (details.isIgnoredCommandClass(details.commandClassName)) {
             return channels;
         }
@@ -213,7 +216,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 .withConfiguration(newChannelConfiguration).withType(channelType.getUID());
 
         channels.put(details.Id, builder.build());
-
+        // configDescriptionProvider.addConfigDescription(createConfigDescription(details));
         return channels;
     }
 
@@ -235,7 +238,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
 
     private ChannelTypeUID generateChannelTypeUID(ChannelMetadata details) {
         StringBuilder parts = new StringBuilder();
-
+        parts.append(CHANNEL_TYPE_VERSION);
         parts.append(details.itemType);
         parts.append(details.unitSymbol);
         parts.append(details.writable);
@@ -277,6 +280,12 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
 
         if (details.unitSymbol != null) {
             builder.withUnitHint(details.unitSymbol);
+        }
+
+        if (details.isInvertible()) {
+            builder.withConfigDescriptionURI(URI.create("channel-type:zwavejs:invertible-channel"));
+        } else {
+            builder.withConfigDescriptionURI(URI.create("channel-type:zwavejs:base-channel"));
         }
 
         return builder.isAdvanced(details.isAdvanced).build();
