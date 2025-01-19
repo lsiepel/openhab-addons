@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.measure.Unit;
@@ -131,10 +133,17 @@ public abstract class BaseMetadata {
         if (unitString == null) {
             return 1.0;
         }
-        String[] splitted = unitString.split(" ");
-        String firstPart = splitted[0];
+
+        Pattern pattern = Pattern.compile("[0-9]*\\.?[0-9]+|[^0-9]+");
+        Matcher matcher = pattern.matcher(unitString);
+
+        String[] splitted = matcher.results().map(m -> m.group()).toArray(String[]::new);
+        if (splitted.length < 2) {
+            return 1.0;
+        }
+
         try {
-            return Double.parseDouble(firstPart);
+            return Double.parseDouble(splitted[0]);
         } catch (NumberFormatException e) {
             return 1.0;
         }
@@ -400,8 +409,10 @@ public abstract class BaseMetadata {
         if (unitString == null) {
             return null;
         }
-        String[] splitted = unitString.split(" ");
-        String lastPart = splitted[splitted.length - 1];
+        Pattern pattern = Pattern.compile("[0-9]*\\.?[0-9]+|[^0-9]+");
+        Matcher matcher = pattern.matcher(unitString);
+        String[] splitted = matcher.results().map(m -> m.group()).toArray(String[]::new);
+        String lastPart = splitted.length > 0 ? splitted[splitted.length - 1] : unitString;
         String output = Objects.requireNonNull(UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart));
 
         return !output.isBlank() ? output : null;
