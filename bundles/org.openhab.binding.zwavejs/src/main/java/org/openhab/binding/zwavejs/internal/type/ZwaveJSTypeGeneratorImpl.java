@@ -163,7 +163,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         if (details.isIgnoredCommandClass(details.commandClassName)) {
             return channels;
         }
-        logger.debug("Node {} createChannel with Id: {}", details.nodeId, details.Id);
+        logger.trace("Node {} building channel with Id: {}", details.nodeId, details.Id);
         logger.trace(" >> {}", details);
 
         ChannelUID channelUID = new ChannelUID(thingUID, details.Id);
@@ -201,7 +201,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 logger.debug("Node {} Channel {} existing channel updated", details.nodeId, details.Id);
                 return channels;
             } else {
-                logger.debug("Node {} Channel {} already exists: ignored", details.nodeId, details.Id);
+                logger.debug("Node {} Channel {} exists: ignored", details.nodeId, details.Id);
                 return channels;
             }
         }
@@ -216,7 +216,6 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 .withConfiguration(newChannelConfiguration).withType(channelType.getUID());
 
         channels.put(details.Id, builder.build());
-        // configDescriptionProvider.addConfigDescription(createConfigDescription(details));
         return channels;
     }
 
@@ -229,7 +228,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             }
         }
         if (channelType == null) {
-            logger.warn("Node {} Channel {}, ChannelType could not be found or generated, this is a bug",
+            logger.warn("Node {} Channel {}, ChannelType could not be found or generated, please report, this is a bug",
                     details.nodeId, details.Id);
             return null;
         }

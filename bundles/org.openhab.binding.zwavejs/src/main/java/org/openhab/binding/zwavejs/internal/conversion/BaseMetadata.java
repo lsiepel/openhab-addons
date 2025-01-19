@@ -330,6 +330,9 @@ public abstract class BaseMetadata {
                     pattern = numberFormat;
                 }
                 break;
+            case CoreItemFactory.DIMMER:
+                pattern = "%1d %%";
+                break;
             case CoreItemFactory.STRING:
             case CoreItemFactory.SWITCH:
             default:

@@ -102,7 +102,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        logger.warn("Processing command {} for channel {}", command, channelUID);
+        logger.debug("Processing command {} type {} for channel {}", command, command.getClass().getSimpleName(),
+                channelUID);
         ZwaveJSBridgeHandler handler = getBridgeHandler();
         if (handler == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED);
@@ -130,15 +131,17 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                 return;
             }
             zwaveCommand.value = Objects.requireNonNull(quantityCommand.toUnit(unit));
+        } else if (command instanceof PercentType percentTypeCommand) {
+            logger.trace("command recognized as PercentType");
+            zwaveCommand.value = channelConfig.inverted ? 100 - percentTypeCommand.intValue()
+                    : percentTypeCommand.intValue();
         } else if (command instanceof DecimalType decimalCommand) {
+            logger.trace("command recognized as DecimalType");
             zwaveCommand.value = decimalCommand.doubleValue();
         } else if (command instanceof DateTimeType dateTimeCommand) {
             throw new UnsupportedOperationException();
         } else if (command instanceof HSBType hsbTypeCommand) {
             throw new UnsupportedOperationException();
-        } else if (command instanceof PercentType percentTypeCommand) {
-            zwaveCommand.value = channelConfig.inverted ? 100 - percentTypeCommand.intValue()
-                    : percentTypeCommand.intValue();
         } else if (command instanceof IncreaseDecreaseType increaseDecreaseCommand) {
             throw new UnsupportedOperationException();
         } else if (command instanceof NextPreviousType nextPreviousCommand) {
@@ -187,7 +190,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         Bridge bridge = getBridge();
         if (bridge == null || !bridge.getStatus().equals(ThingStatus.ONLINE)) {
             // when bridge is offline, stop and wait for it to become online
-            logger.debug("Stopped internalInitialize as bridge is offline");
+            logger.trace("Node {}. Prevented initialisation as bridge is offline", config.id);
             return null;
         }
         if (bridge.getHandler() instanceof ZwaveJSBridgeHandler handler) {
