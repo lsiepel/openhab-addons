@@ -27,7 +27,6 @@ import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.types.StringType;
 import org.openhab.core.library.unit.Units;
 import org.openhab.core.thing.Thing;
-import org.openhab.core.types.State;
 import org.openhab.core.types.UnDefType;
 
 /**
@@ -61,7 +60,7 @@ public class ConfigurationHelper {
         states.put(CHANNEL_NOX_LEARNING_OFFSET, toQuantityType(configuration.noxLearningOffset, Units.ONE));
         states.put(CHANNEL_MQTT_BROKER_URL, toStringType(configuration.mqttBrokerUrl));
         states.put(CHANNEL_TEMPERATURE_UNIT, toStringType(configuration.temperatureUnit));
-        states.put(CHANNEL_CONFIGURATION_CONTROL, toStringType(configuration.configurationControl));
+        states.put(CHANNEL_CONFIGURATION_CONTROL, (configuration.configurationControl));
         states.put(CHANNEL_LED_BAR_BRIGHTNESS, toQuantityType(configuration.ledBarBrightness, Units.ONE));
         states.put(CHANNEL_DISPLAY_BRIGHTNESS, toQuantityType(configuration.displayBrightness, Units.ONE));
         states.put(CHANNEL_POST_TO_CLOUD, toOnOffType(configuration.postDataToAirGradient));

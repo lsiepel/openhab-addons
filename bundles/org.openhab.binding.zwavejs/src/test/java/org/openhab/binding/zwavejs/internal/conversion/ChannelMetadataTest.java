@@ -32,6 +32,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
+import org.openhab.core.library.types.StringType;
 import org.openhab.core.library.unit.Units;
 import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
@@ -150,6 +151,21 @@ public class ChannelMetadataTest {
         assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%.2f %unit%").withReadOnly(true)
                 .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
         assertEquals("%", details.unitSymbol);
+    }
+
+    @Test
+    public void testChannelDetailsStore2Node62Channel7() throws IOException {
+        Node node = getNodeFromStore("store_2.json", 62);
+
+        ChannelMetadata details = new ChannelMetadata(62, node.values.get(7));
+
+        assertEquals("thermostat-setpoint-setpoint-types-interpretation", details.Id);
+        assertEquals("String", details.itemType);
+        assertEquals("setpointTypesInterpretation", details.label);
+        assertNull(details.description);
+        assertEquals(new StringType("B"), details.state);
+        assertEquals(true, details.writable);
+        assertNull(details.statePattern);
     }
 
     @Test

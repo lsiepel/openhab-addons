@@ -32,6 +32,7 @@ import org.openhab.core.library.types.HSBType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.PercentType;
 import org.openhab.core.library.types.QuantityType;
+import org.openhab.core.library.types.StringType;
 import org.openhab.core.types.State;
 import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
@@ -272,6 +273,8 @@ public abstract class BaseMetadata {
                             value.getClass().getName());
                     return UnDefType.UNDEF;
                 }
+            case CoreItemFactory.STRING:
+                return StringType.valueOf(value.toString());
             default:
                 return UnDefType.UNDEF;
         }
@@ -291,6 +294,8 @@ public abstract class BaseMetadata {
                     if (treeMap.size() == 3 || treeMap.size() == 4) { // RGB or RGB+White
                         return "color";
                     }
+                } else if (value instanceof String) {
+                    return "string";
                 }
             case "duration":
                 // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
