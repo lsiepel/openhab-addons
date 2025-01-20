@@ -132,7 +132,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     }
 
     private ConfigDescriptionParameter createConfigDescription(ConfigMetadata details) {
-        logger.debug("Node {} createConfigDescriptions with Id: {}", details.nodeId, details.Id);
+        logger.debug("Node {}. createConfigDescriptions with Id: {}", details.nodeId, details.Id);
 
         ConfigDescriptionParameterBuilder parameterBuilder = ConfigDescriptionParameterBuilder
                 .create(details.Id, details.configType) //
@@ -199,10 +199,10 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
 
                 channels.put(details.Id, builder.build());
 
-                logger.debug("Node {} Channel {} existing channel updated", details.nodeId, details.Id);
+                logger.debug("Node {}. Channel {} existing channel updated", details.nodeId, details.Id);
                 return channels;
             } else {
-                logger.debug("Node {} Channel {} exists: ignored", details.nodeId, details.Id);
+                logger.debug("Node {}. Channel {} exists: ignored", details.nodeId, details.Id);
                 return channels;
             }
         }

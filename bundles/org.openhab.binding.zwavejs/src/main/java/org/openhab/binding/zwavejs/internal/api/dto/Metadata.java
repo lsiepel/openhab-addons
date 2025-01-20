@@ -22,7 +22,7 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Metadata {
     public Object comments;
-    public String type;
+    public MetadataType type;
     public boolean readable;
     public boolean writeable;
     public String label;

@@ -26,7 +26,9 @@ import javax.measure.Unit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
+import org.openhab.binding.zwavejs.internal.api.dto.MetadataType;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DecimalType;
@@ -135,7 +137,7 @@ public abstract class BaseMetadata {
         }
 
         Pattern pattern = Pattern.compile("[0-9]*\\.?[0-9]+|[^0-9]+");
-        Matcher matcher = pattern.matcher(unitString);
+        Matcher matcher = pattern.matcher(unitString.trim());
 
         String[] splitted = matcher.results().map(m -> m.group()).toArray(String[]::new);
         if (splitted.length < 2) {
@@ -289,66 +291,68 @@ public abstract class BaseMetadata {
         }
     }
 
-    protected String correctedType(String type, Object value, String commandClassName,
+    protected MetadataType correctedType(MetadataType type, Object value, String commandClassName,
             @Nullable Map<String, String> optionList) {
         switch (type) {
-            case "any":
+            case ANY:
                 // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
                 // Can be anything from boolean, string or complex object like RGB. So we need to check the value
                 if (value instanceof Number) {
-                    return "number";
+                    return MetadataType.NUMBER;
                 } else if (value instanceof Boolean) {
-                    return "boolean";
+                    return MetadataType.BOOLEAN;
                 } else if (value instanceof Map<?, ?> treeMap) {
                     if (treeMap.size() == 3 || treeMap.size() == 4) { // RGB or RGB+White
-                        return "color";
+                        return MetadataType.COLOR;
                     }
                 } else if (value instanceof String) {
-                    return "string";
+                    return MetadataType.STRING;
                 }
-            case "duration":
+            case DURATION:
                 // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
                 // Can be anything from plain Number to a complex object with unit and value. So we need to check the
                 // value
-                return "number";
-            case "number":
-                if ("Notification".equals(commandClassName) && optionList != null && optionList.size() == 2) {
-                    return "boolean";
+                return MetadataType.NUMBER;
+            case NUMBER:
+                if (BindingConstants.CC_NOTIFICATION.equals(commandClassName) && optionList != null
+                        && optionList.size() == 2) {
+                    return MetadataType.BOOLEAN;
                 }
             default:
                 return type;
         }
     }
 
-    protected String itemTypeFromMetadata(String type, Object value, String commandClassName,
+    protected String itemTypeFromMetadata(MetadataType type, Object value, String commandClassName,
             @Nullable Map<String, String> optionList) {
         type = correctedType(type, value, commandClassName, optionList);
 
         switch (type) {
-            case "number":
+            case NUMBER:
                 Unit<?> unit = this.unit;
                 if (unit != null) {
                     String dimension = UnitUtils.getDimensionName(unit);
                     if (dimension == null) {
-                        logger.warn("Could not parse '{}' as a unit, fallback to 'Number' itemType", unitSymbol);
+                        logger.warn("Node {}. Could not parse '{}' as a unit, fallback to 'Number' itemType", nodeId,
+                                unitSymbol);
                         return CoreItemFactory.NUMBER;
                     }
                     return CoreItemFactory.NUMBER + ":" + dimension;
                 }
 
                 return CoreItemFactory.NUMBER;
-            case "boolean":
+            case BOOLEAN:
                 // switch (or contact ?)
                 return CoreItemFactory.SWITCH;
-            case "color":
+            case COLOR:
                 return CoreItemFactory.COLOR;
-            case "string":
-            case "string[]":
+            case STRING:
+            case STRING_ARRAY:
                 return CoreItemFactory.STRING;
             default:
                 logger.error(
-                        "Could not determine item type based on metadata.type: {}, fallback to 'String' please file a bug report",
-                        type);
+                        "Node {}. Unable to determine item type based on metadata.type: {}, fallback to 'String' please file a bug report",
+                        nodeId, type);
                 return CoreItemFactory.STRING;
         }
     }
@@ -409,11 +413,13 @@ public abstract class BaseMetadata {
         if (unitString == null) {
             return null;
         }
+        unitString = unitString.trim();
         Pattern pattern = Pattern.compile("[0-9]*\\.?[0-9]+|[^0-9]+");
         Matcher matcher = pattern.matcher(unitString);
         String[] splitted = matcher.results().map(m -> m.group()).toArray(String[]::new);
         String lastPart = splitted.length > 0 ? splitted[splitted.length - 1] : unitString;
-        String output = Objects.requireNonNull(UNIT_REPLACEMENTS.getOrDefault(lastPart, lastPart));
+        String output = Objects
+                .requireNonNull(UNIT_REPLACEMENTS.getOrDefault(lastPart, Objects.requireNonNull(lastPart)));
 
         return !output.isBlank() ? output : null;
     }

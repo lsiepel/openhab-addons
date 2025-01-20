@@ -67,6 +67,7 @@ public class BindingConstants {
 
     public static final String CC_CONFIGURATION = "Configuration";
     public static final String CC_WAKE_UP = "Wake Up";
+    public static final String CC_NOTIFICATION = "Notification";
 
     public static final List<String> CONFIGURATION_COMMAND_CLASSES = List.of(CC_CONFIGURATION, CC_WAKE_UP);
     // List of all Channel ids

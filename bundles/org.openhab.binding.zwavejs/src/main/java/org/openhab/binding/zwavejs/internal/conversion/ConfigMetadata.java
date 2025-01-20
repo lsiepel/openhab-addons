@@ -15,6 +15,7 @@ package org.openhab.binding.zwavejs.internal.conversion;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
+import org.openhab.binding.zwavejs.internal.api.dto.MetadataType;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.core.config.core.ConfigDescriptionParameter.Type;
 import org.openhab.core.types.State;
@@ -52,19 +53,19 @@ public class ConfigMetadata extends BaseMetadata {
         super(nodeId, data);
     }
 
-    private Type configTypeFromMetadata(String type, Object value, String commandClassName) {
+    private Type configTypeFromMetadata(MetadataType type, Object value, String commandClassName) {
         type = correctedType(type, value, commandClassName, null);
         switch (type) {
-            case "number":
+            case NUMBER:
                 return Type.INTEGER;
             // return Type.DECIMAL; // depends on scale?
-            case "color":
+            case COLOR:
                 return Type.TEXT;
-            case "boolean":
+            case BOOLEAN:
                 // switch (or contact ?)
                 return Type.BOOLEAN;
-            case "string":
-            case "string[]":
+            case STRING:
+            case STRING_ARRAY:
                 return Type.TEXT;
             default:
                 logger.error(
