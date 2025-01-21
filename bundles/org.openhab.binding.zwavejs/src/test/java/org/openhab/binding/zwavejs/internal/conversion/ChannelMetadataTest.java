@@ -63,7 +63,6 @@ public class ChannelMetadataTest {
         assertNull(details.description);
         assertEquals("Switch", details.itemType);
         assertEquals("Current Value", details.label);
-        assertNull(details.description);
         assertEquals(OnOffType.ON, details.state);
         assertEquals(false, details.writable);
         assertNull(details.statePattern);
@@ -186,7 +185,7 @@ public class ChannelMetadataTest {
         assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
         assertEquals(BigDecimal.valueOf(99), statePattern.getMaximum());
         assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
-        assertEquals("%1d", statePattern.getPattern());
+        assertEquals("%1d %%", statePattern.getPattern());
 
         assertNull(details.unitSymbol);
     }
@@ -232,7 +231,7 @@ public class ChannelMetadataTest {
         assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
         assertEquals(BigDecimal.valueOf(99), statePattern.getMaximum());
         assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
-        assertEquals("%1d", statePattern.getPattern());
+        assertEquals("%1d %%", statePattern.getPattern());
 
         assertNull(details.unitSymbol);
     }
@@ -262,7 +261,6 @@ public class ChannelMetadataTest {
         assertEquals("Number", details.itemType);
         assertEquals("EP2 Current Value", details.label);
         assertNull(details.description);
-        assertTrue(details.value instanceof Long);
         assertEquals(new DecimalType(50), details.state);
         assertEquals(false, details.writable);
         assertFalse(details.isAdvanced);

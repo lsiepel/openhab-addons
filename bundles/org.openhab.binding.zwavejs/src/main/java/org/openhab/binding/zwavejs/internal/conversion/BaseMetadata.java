@@ -73,23 +73,25 @@ public abstract class BaseMetadata {
 
     private static final List<Integer> COMMAND_CLASSES_ADVANCED = List.of(44, 117);
 
-    public int nodeId;
-    public String Id;
-    public String label = DEFAULT_LABEL;
+    public final int nodeId;
+    public final String Id;
+    public final String label;
     public @Nullable String description;
     public @Nullable String unitSymbol;
     protected @Nullable Unit<?> unit;
-    protected Object value;
-    public boolean writable;
-    public String itemType = CoreItemFactory.STRING;
+    protected final Object value;
+    public final boolean writable;
+    public final String itemType;
     public @Nullable Object writeProperty;
     public @Nullable Map<String, String> optionList;
-
-    public boolean isAdvanced = false;
+    public final boolean isAdvanced;
     public @Nullable String commandClassName;
-    public int commandClassId;
-    public int endpoint;
-    public Double factor = 1.0;
+    public final int commandClassId;
+    public final int endpoint;
+    public final Double factor;
+
+    protected final @Nullable Integer min;
+    protected final @Nullable Integer max;
 
     protected BaseMetadata(int nodeId, Value value) {
         this.nodeId = nodeId;
@@ -97,7 +99,8 @@ public abstract class BaseMetadata {
         this.commandClassId = value.commandClass;
         this.endpoint = value.endpoint;
         this.writable = value.metadata.writeable;
-
+        this.min = value.metadata.min;
+        this.max = value.metadata.max;
         this.Id = generateChannelId(value);
 
         this.label = normalizeLabel(value.metadata.label, value.endpoint, value.propertyName);
@@ -115,17 +118,32 @@ public abstract class BaseMetadata {
         this.isAdvanced = isAdvanced(value.commandClass, value.propertyName);
 
         if (writable) {
-            writeProperty = value.property;
+            this.writeProperty = value.property;
         }
     }
 
     public BaseMetadata(int nodeId, Event data) {
         this.nodeId = nodeId;
         this.Id = generateId(data);
-
         this.value = data.args.newValue;
+
+        this.min = null;
+        this.max = null;
+        this.commandClassId = 0;
+        this.endpoint = 0;
+        this.writable = false;
+        this.label = DEFAULT_LABEL;
+        this.itemType = CoreItemFactory.STRING;
+        this.isAdvanced = false;
+        this.factor = 1.0;
     }
 
+    /**
+     * Determines the factor based on the unit string.
+     *
+     * @param unitString the unit string
+     * @return the factor
+     */
     protected Double determineFactor(@Nullable String unitString) {
         if (unitString == null && value instanceof Map<?, ?> treeMap) {
             if (treeMap.containsKey("unit")) {
@@ -155,6 +173,14 @@ public abstract class BaseMetadata {
         return COMMAND_CLASSES_ADVANCED.contains(commandClassId);
     }
 
+    /**
+     * Normalizes the label based on the provided parameters.
+     *
+     * @param label the label
+     * @param endpoint the endpoint
+     * @param propertyName the property name
+     * @return the normalized label
+     */
     private String normalizeLabel(@Nullable String label, int endpoint, String propertyName) {
         String output = "";
         if (label == null || label.isBlank()) {
@@ -168,6 +194,12 @@ public abstract class BaseMetadata {
         return output;
     }
 
+    /**
+     * Capitalizes the input string by splitting camelCase words.
+     *
+     * @param input the input string
+     * @return the capitalized string
+     */
     private String capitalize(@Nullable String input) {
         if (input == null || input.isBlank()) {
             return DEFAULT_LABEL;
@@ -219,11 +251,23 @@ public abstract class BaseMetadata {
         return generateId(value.commandClassName, value.endpoint, value.propertyName, value.propertyKey);
     }
 
+    /**
+     * Converts the given value to a State object based on the item type and unit.
+     *
+     * @param value the value to convert
+     * @param itemType the item type
+     * @param unit the unit of the value
+     * @param inverted whether the value should be inverted
+     * @param factor the factor to apply to the value
+     * @return the converted State object, or UnDefType.NULL if the value is null
+     */
     protected @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit, boolean inverted,
             Double factor) {
         if (value == null) {
             return UnDefType.NULL;
-        } else if (value instanceof Map<?, ?> treeMap) {
+        }
+
+        if (value instanceof Map<?, ?> treeMap) {
             if (treeMap.containsKey("value")) {
                 value = Objects.requireNonNull(treeMap.get("value"));
             }
@@ -232,86 +276,100 @@ public abstract class BaseMetadata {
         String itemTypeSplitted[] = itemType.split(":");
         switch (itemTypeSplitted[0]) {
             case CoreItemFactory.NUMBER:
-                if (!(value instanceof Number numberVal)) {
-                    logger.warn("Node {}, unexpected value type for number: {}, please file a bug report", nodeId,
-                            value.getClass().getSimpleName());
-                    return UnDefType.UNDEF;
-                }
-                numberVal = factor == 1.0 ? numberVal : numberVal.doubleValue() * factor;
-                if (itemTypeSplitted.length > 1) {
-                    if (unit == null) {
-                        logger.warn("Node id {}, the unit is unexpectedly null, please file a bug report", nodeId);
-                        return new DecimalType(numberVal);
-                    }
-                    return new QuantityType<>(numberVal, unit);
-                } else {
-                    return new DecimalType(numberVal);
-                }
+                return handleNumberType(value, unit, factor);
             case CoreItemFactory.DIMMER:
-                if (value instanceof Number numberValue) {
-                    try {
-                        return new PercentType(inverted ? 100 - numberValue.intValue() : numberValue.intValue());
-                    } catch (IllegalArgumentException e) {
-                        logger.warn("Node {}, invalid PercentType value provided: {}", nodeId, numberValue);
-                        return UnDefType.UNDEF;
-                    }
-                }
+                return handleDimmerType(value, inverted);
             case CoreItemFactory.SWITCH:
-                if (value instanceof Number numberValue) {
-                    return OnOffType.from(inverted ? numberValue.intValue() < 1 : numberValue.intValue() > 0);
-                }
-                return OnOffType.from((boolean) value);
+                return handleSwitchType(value, inverted);
             case CoreItemFactory.COLOR:
-                if (value instanceof String colorStr) {
-                    try {
-                        colorStr = colorStr.startsWith("#") ? colorStr : "#" + colorStr;
-                        int red = Integer.valueOf(colorStr.substring(1, 3), 16);
-                        int green = Integer.valueOf(colorStr.substring(3, 5), 16);
-                        int blue = Integer.valueOf(colorStr.substring(5, 7), 16);
-                        return HSBType.fromRGB(red, green, blue);
-                    } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                        logger.warn("Node id {}, invalid color string provided: {}", nodeId, colorStr, e);
-                        return UnDefType.UNDEF;
-                    }
-                } else if (value instanceof Map<?, ?> map && map.containsKey("red") && map.containsKey("green")
-                        && map.containsKey("blue")) {
-                    int red = ((Number) Objects.requireNonNull(map.get("red"))).intValue();
-                    int green = ((Number) Objects.requireNonNull(map.get("green"))).intValue();
-                    int blue = ((Number) Objects.requireNonNull(map.get("blue"))).intValue();
-                    return HSBType.fromRGB(red, green, blue);
-                } else {
-                    logger.warn("Node id {}, unexpected value type for color: {}, please file a bug report", nodeId,
-                            value.getClass().getName());
-                    return UnDefType.UNDEF;
-                }
+                return handleColorType(value);
             case CoreItemFactory.STRING:
-                return StringType.valueOf(value.toString());
+                return StringType.valueOf(Objects.requireNonNull(value).toString());
             default:
+                logger.warn("Node {}, unexpected item type: {}, please file a bug report", nodeId, itemType);
                 return UnDefType.UNDEF;
         }
     }
 
-    protected MetadataType correctedType(MetadataType type, Object value, String commandClassName,
+    private @Nullable State handleNumberType(Object value, @Nullable Unit<?> unit, Double factor) {
+        if (!(value instanceof Number numberVal)) {
+            logger.warn("Node {}, unexpected value type for number: {}, please file a bug report", nodeId,
+                    value.getClass().getName());
+            return UnDefType.UNDEF;
+        }
+
+        numberVal = factor == 1.0 ? numberVal : numberVal.doubleValue() * factor;
+        if (unit != null) {
+            return new QuantityType<>(numberVal, unit);
+        } else {
+            return new DecimalType(numberVal);
+        }
+    }
+
+    private @Nullable State handleDimmerType(Object value, boolean inverted) {
+        if (value instanceof Number numberValue) {
+            try {
+                return new PercentType(inverted ? 100 - numberValue.intValue() : numberValue.intValue());
+            } catch (IllegalArgumentException e) {
+                logger.warn("Node {}, invalid PercentType value provided: {}", nodeId, numberValue);
+                return UnDefType.UNDEF;
+            }
+        } else {
+            logger.warn("Node {}, unexpected value type for dimmer: {}, please file a bug report", nodeId,
+                    value.getClass().getName());
+            return UnDefType.UNDEF;
+        }
+    }
+
+    private @Nullable State handleSwitchType(Object value, boolean inverted) {
+        if (!(value instanceof Boolean boolVal)) {
+            logger.warn("Node {}, unexpected value type for switch: {}, please file a bug report", nodeId,
+                    value.getClass().getName());
+            return UnDefType.UNDEF;
+        }
+
+        return inverted ? OnOffType.from(!boolVal) : OnOffType.from(boolVal);
+    }
+
+    private @Nullable State handleColorType(Object value) {
+        if (value instanceof String colorStr) {
+            try {
+                colorStr = colorStr.startsWith("#") ? colorStr : "#" + colorStr;
+                int red = Integer.valueOf(colorStr.substring(1, 3), 16);
+                int green = Integer.valueOf(colorStr.substring(3, 5), 16);
+                int blue = Integer.valueOf(colorStr.substring(5, 7), 16);
+                return HSBType.fromRGB(red, green, blue);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                logger.warn("Node {}, invalid color string provided: {}", nodeId, colorStr, e);
+                return UnDefType.UNDEF;
+            }
+        } else if (value instanceof Map<?, ?> map && isRGBMap(map)) {
+            int red = ((Number) map.get("red")).intValue();
+            int green = ((Number) map.get("green")).intValue();
+            int blue = ((Number) map.get("blue")).intValue();
+            return HSBType.fromRGB(red, green, blue);
+        } else {
+            logger.warn("Node {}, unexpected value type for color: {}, please file a bug report", nodeId,
+                    value.getClass().getName());
+            return UnDefType.UNDEF;
+        }
+    }
+
+    /**
+     * Corrects the metadata type based on the provided value, command class name, and optional list of options.
+     *
+     * @param type The original metadata type.
+     * @param value The value to determine the type from if the original type is ANY.
+     * @param commandClassName The name of the command class.
+     * @param optionList An optional list of options that may influence the type correction.
+     * @return The corrected metadata type.
+     */
+    protected MetadataType correctedType(MetadataType type, @Nullable Object value, String commandClassName,
             @Nullable Map<String, String> optionList) {
         switch (type) {
             case ANY:
-                // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
-                // Can be anything from boolean, string or complex object like RGB. So we need to check the value
-                if (value instanceof Number) {
-                    return MetadataType.NUMBER;
-                } else if (value instanceof Boolean) {
-                    return MetadataType.BOOLEAN;
-                } else if (value instanceof Map<?, ?> treeMap) {
-                    if (treeMap.size() == 3 || treeMap.size() == 4) { // RGB or RGB+White
-                        return MetadataType.COLOR;
-                    }
-                } else if (value instanceof String) {
-                    return MetadataType.STRING;
-                }
+                return determineTypeFromValue(value, commandClassName);
             case DURATION:
-                // Z-Wave JS not being consistent with this, so overwrite it based on our own logic
-                // Can be anything from plain Number to a complex object with unit and value. So we need to check the
-                // value
                 return MetadataType.NUMBER;
             case NUMBER:
                 if (BindingConstants.CC_NOTIFICATION.equals(commandClassName) && optionList != null
@@ -323,7 +381,46 @@ public abstract class BaseMetadata {
         }
     }
 
-    protected String itemTypeFromMetadata(MetadataType type, Object value, String commandClassName,
+    /**
+     * Determines the metadata type from the given value.
+     *
+     * @param value The value to determine the metadata type from.
+     * @param commandClassName The name of the command class associated with the value.
+     * @return The determined metadata type.
+     */
+    private MetadataType determineTypeFromValue(Object value, String commandClassName) {
+        if (value instanceof Number) {
+            return MetadataType.NUMBER;
+        } else if (value instanceof Boolean) {
+            return MetadataType.BOOLEAN;
+        } else if (value instanceof Map<?, ?> treeMap) {
+            if (isRGBMap(treeMap)) {
+                return MetadataType.COLOR;
+            } else if (treeMap.containsKey("value")) {
+                return determineTypeFromValue(treeMap.get("value"), commandClassName);
+            }
+        } else if (value instanceof String) {
+            return MetadataType.STRING;
+        }
+
+        logger.warn("Node {}, unexpected value type: {}, please file a bug report", nodeId,
+                value != null ? value.getClass().getName() : "null");
+        return MetadataType.STRING;
+    }
+
+    /**
+     * Checks if the given map represents an RGB color map.
+     * An RGB color map should have either 3 or 4 entries and must contain the keys "red", "green", and "blue".
+     *
+     * @param map the map to check
+     * @return true if the map represents an RGB color map, false otherwise
+     */
+    private boolean isRGBMap(Map<?, ?> map) {
+        return map.size() == 3
+                || map.size() == 4 && map.containsKey("red") && map.containsKey("green") && map.containsKey("blue");
+    }
+
+    protected String itemTypeFromMetadata(MetadataType type, @Nullable Object value, String commandClassName,
             @Nullable Map<String, String> optionList) {
         type = correctedType(type, value, commandClassName, optionList);
 

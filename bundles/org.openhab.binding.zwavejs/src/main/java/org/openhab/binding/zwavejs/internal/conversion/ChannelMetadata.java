@@ -18,6 +18,7 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.api.dto.Event;
+import org.openhab.binding.zwavejs.internal.api.dto.MetadataType;
 import org.openhab.binding.zwavejs.internal.api.dto.Value;
 import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
 import org.openhab.core.config.core.Configuration;
@@ -59,8 +60,8 @@ public class ChannelMetadata extends BaseMetadata {
 
         this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1,
                 data.value);
-        this.itemType = channelItemTypeFromMetadata(itemType, data.metadata.min, data.metadata.max,
-                data.metadata.states);
+        // this.itemType = channelItemTypeFromMetadata(itemType, data.metadata.min, data.metadata.max,
+        // data.metadata.states);
         this.state = toState(data.value, itemType, unit, false, factor);
     }
 
@@ -68,8 +69,9 @@ public class ChannelMetadata extends BaseMetadata {
         super(nodeId, data);
     }
 
-    protected String channelItemTypeFromMetadata(String baseItemType, @Nullable Integer min, @Nullable Integer max,
+    protected String itemTypeFromMetadata(MetadataType type, Object value, String commandClassName,
             @Nullable Map<String, String> optionList) {
+        String baseItemType = super.itemTypeFromMetadata(type, value, commandClassName, optionList);
         if (CoreItemFactory.NUMBER.equals(baseItemType) && writable && min != null && max != null) {
             if (min == 0 && max == 99) {
                 return CoreItemFactory.DIMMER;
@@ -120,13 +122,13 @@ public class ChannelMetadata extends BaseMetadata {
      */
     public @Nullable State setState(Object value, String itemType, @Nullable String unitSymbol, boolean inverted) {
         this.unitSymbol = normalizeUnit(unitSymbol, value);
-        this.factor = determineFactor(unitSymbol);
+        Double factor = determineFactor(unitSymbol);
         this.unit = UnitUtils.parseUnit(this.unitSymbol);
         if (unitSymbol != null && this.unit == null) {
             logger.warn("Node {}. Unable to parse unitSymbol '{}' from channel config, this is a bug", nodeId,
                     unitSymbol);
         }
-        return this.state = toState(value, itemType, this.unit, inverted, this.factor);
+        return this.state = toState(value, itemType, this.unit, inverted, factor);
     }
 
     @Override

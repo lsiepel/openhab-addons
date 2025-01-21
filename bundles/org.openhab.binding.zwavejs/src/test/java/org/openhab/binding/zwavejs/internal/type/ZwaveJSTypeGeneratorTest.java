@@ -192,7 +192,7 @@ public class ZwaveJSTypeGeneratorTest {
         assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
         assertEquals(BigDecimal.valueOf(99), statePattern.getMaximum());
         assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
-        assertEquals("%1d", statePattern.getPattern());
+        assertEquals("%1d %%", statePattern.getPattern());
     }
 
     @Test
@@ -275,7 +275,7 @@ public class ZwaveJSTypeGeneratorTest {
         assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
         assertEquals(BigDecimal.valueOf(99), statePattern.getMaximum());
         assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
-        assertEquals("%1d", statePattern.getPattern());
+        assertEquals("%1d %%", statePattern.getPattern());
 
         assertNotNull(type);
         assertEquals("Dimmer", type.getItemType());
