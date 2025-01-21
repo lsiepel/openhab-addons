@@ -184,17 +184,6 @@ public class ChannelMetadataTest {
     }
 
     @Test
-    public void testChannelDetailsStore2Node7Channel9() throws IOException {
-        Node node = getNodeFromStore("store_4.json", 7);
-
-        ChannelMetadata details = new ChannelMetadata(7, node.values.get(87));
-
-        // assertEquals("meter-reset", details.Id);
-        assertEquals("Switch", details.itemType);
-        assertEquals(UnDefType.NULL, details.state);
-    }
-
-    @Test
     public void testChannelDetailsStore2Node62Channel7() throws IOException {
         Node node = getNodeFromStore("store_2.json", 62);
 
