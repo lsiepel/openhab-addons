@@ -151,6 +151,23 @@ public class ChannelMetadataTest {
     }
 
     @Test
+    public void testChannelDetailsStore2Node2Channel66() throws IOException {
+        Node node = getNodeFromStore("store_2.json", 2);
+
+        ChannelMetadata details = new ChannelMetadata(2, node.values.get(66));
+
+        assertEquals("multilevel-sensor-humidity-2", details.Id);
+        assertEquals("Number:Dimensionless", details.itemType);
+        assertEquals("EP2 Humidity", details.label);
+        assertNull(details.description);
+        assertEquals(new QuantityType<>(17.04, Units.PERCENT), details.state);
+        assertEquals(false, details.writable);
+        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%.2f %unit%").withReadOnly(true)
+                .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
+        assertEquals("%", details.unitSymbol);
+    }
+
+    @Test
     public void testChannelDetailsStore2Node6Channel1() throws IOException {
         Node node = getNodeFromStore("store_2.json", 4);
 
@@ -167,20 +184,14 @@ public class ChannelMetadataTest {
     }
 
     @Test
-    public void testChannelDetailsStore2Node2Channel66() throws IOException {
-        Node node = getNodeFromStore("store_2.json", 2);
+    public void testChannelDetailsStore2Node7Channel9() throws IOException {
+        Node node = getNodeFromStore("store_4.json", 7);
 
-        ChannelMetadata details = new ChannelMetadata(2, node.values.get(66));
+        ChannelMetadata details = new ChannelMetadata(7, node.values.get(87));
 
-        assertEquals("multilevel-sensor-humidity-2", details.Id);
-        assertEquals("Number:Dimensionless", details.itemType);
-        assertEquals("EP2 Humidity", details.label);
-        assertNull(details.description);
-        assertEquals(new QuantityType<>(17.04, Units.PERCENT), details.state);
-        assertEquals(false, details.writable);
-        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%.2f %unit%").withReadOnly(true)
-                .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
-        assertEquals("%", details.unitSymbol);
+        // assertEquals("meter-reset", details.Id);
+        assertEquals("Switch", details.itemType);
+        assertEquals(UnDefType.NULL, details.state);
     }
 
     @Test

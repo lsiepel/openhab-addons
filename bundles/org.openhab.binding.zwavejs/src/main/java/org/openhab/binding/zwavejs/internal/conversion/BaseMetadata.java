@@ -87,7 +87,7 @@ public abstract class BaseMetadata {
     public @Nullable Object writeProperty;
     public @Nullable Map<String, String> optionList;
     public @Nullable String commandClassName;
-    
+
     protected final Object value;
     protected final @Nullable Integer min;
     protected final @Nullable Integer max;
@@ -321,6 +321,9 @@ public abstract class BaseMetadata {
     }
 
     private @Nullable State handleSwitchType(Object value, boolean inverted) {
+        if (value instanceof Number numberValue) {
+            return OnOffType.from(inverted ? numberValue.intValue() < 1 : numberValue.intValue() > 0);
+        }
         if (!(value instanceof Boolean boolVal)) {
             logger.warn("Node {}, unexpected value type for switch: {}, please file a bug report", nodeId,
                     value.getClass().getName());
@@ -343,9 +346,9 @@ public abstract class BaseMetadata {
                 return UnDefType.UNDEF;
             }
         } else if (value instanceof Map<?, ?> map && isRGBMap(map)) {
-            int red = ((Number) map.get("red")).intValue();
-            int green = ((Number) map.get("green")).intValue();
-            int blue = ((Number) map.get("blue")).intValue();
+            int red = ((Number) Objects.requireNonNull(map.get("red"))).intValue();
+            int green = ((Number) Objects.requireNonNull(map.get("green"))).intValue();
+            int blue = ((Number) Objects.requireNonNull(map.get("blue"))).intValue();
             return HSBType.fromRGB(red, green, blue);
         } else {
             logger.warn("Node {}, unexpected value type for color: {}, please file a bug report", nodeId,
@@ -387,7 +390,7 @@ public abstract class BaseMetadata {
      * @param commandClassName The name of the command class associated with the value.
      * @return The determined metadata type.
      */
-    private MetadataType determineTypeFromValue(Object value, String commandClassName) {
+    private MetadataType determineTypeFromValue(@Nullable Object value, String commandClassName) {
         if (value instanceof Number) {
             return MetadataType.NUMBER;
         } else if (value instanceof Boolean) {
@@ -513,7 +516,7 @@ public abstract class BaseMetadata {
         Pattern pattern = Pattern.compile("[0-9]*\\.?[0-9]+|[^0-9]+");
         Matcher matcher = pattern.matcher(unitString);
         String[] splitted = matcher.results().map(m -> m.group()).toArray(String[]::new);
-        String lastPart = splitted.length > 0 ? splitted[splitted.length - 1] : unitString;
+        String lastPart = splitted.length > 0 ? splitted[splitted.length - 1].trim() : unitString;
         String output = Objects
                 .requireNonNull(UNIT_REPLACEMENTS.getOrDefault(lastPart, Objects.requireNonNull(lastPart)));
 

@@ -66,7 +66,7 @@ public class ChannelMetadata extends BaseMetadata {
         super(nodeId, data);
     }
 
-    protected String itemTypeFromMetadata(MetadataType type, Object value, String commandClassName,
+    protected String itemTypeFromMetadata(MetadataType type, @Nullable Object value, String commandClassName,
             @Nullable Map<String, String> optionList) {
         String baseItemType = super.itemTypeFromMetadata(type, value, commandClassName, optionList);
         if (CoreItemFactory.NUMBER.equals(baseItemType) && writable && min != null && max != null) {
