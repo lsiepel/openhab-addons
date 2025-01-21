@@ -48,7 +48,6 @@ public class ChannelMetadata extends BaseMetadata {
             "113-alarmType", //
             "113-alarmLevel", //
             "113-System"); //
-
     private static final List<String> INVERTIBLE_ITEM_TYPES = List.of(CoreItemFactory.DIMMER, CoreItemFactory.CONTACT,
             CoreItemFactory.SWITCH);
 
@@ -60,8 +59,6 @@ public class ChannelMetadata extends BaseMetadata {
 
         this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1,
                 data.value);
-        // this.itemType = channelItemTypeFromMetadata(itemType, data.metadata.min, data.metadata.max,
-        // data.metadata.states);
         this.state = toState(data.value, itemType, unit, false, factor);
     }
 

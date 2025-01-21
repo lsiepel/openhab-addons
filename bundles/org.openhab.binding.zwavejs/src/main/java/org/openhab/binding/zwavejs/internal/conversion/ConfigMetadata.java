@@ -35,18 +35,13 @@ public class ConfigMetadata extends BaseMetadata {
     private static final Logger logger = LoggerFactory.getLogger(ConfigMetadata.class);
 
     public @Nullable State state;
-    public Type configType = Type.TEXT;
     public @Nullable StateDescriptionFragment statePattern;
+    public Type configType = Type.TEXT;
 
     public ConfigMetadata(int nodeId, Value data) {
         super(nodeId, data);
 
-        // confirmed
         this.configType = configTypeFromMetadata(data.metadata.type, data.value, data.commandClassName);
-
-        // unkown
-        // this.state = toState(data.value, itemType, unit);
-        // this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1);
     }
 
     public ConfigMetadata(int nodeId, Event data) {

@@ -67,29 +67,28 @@ public abstract class BaseMetadata {
             "Seconds", "s", //
             "°(C/F)", "", // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
             "°F/C", ""); // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
-
     private static final Map<String, String> CHANNEL_ID_PROPERTY_NAME_REPLACEMENTS = Map.of("currentValue", "value", //
             "targetValue", "value"); //
-
     private static final List<Integer> COMMAND_CLASSES_ADVANCED = List.of(44, 117);
 
     public final int nodeId;
     public final String Id;
     public final String label;
-    public @Nullable String description;
-    public @Nullable String unitSymbol;
-    protected @Nullable Unit<?> unit;
-    protected final Object value;
     public final boolean writable;
     public final String itemType;
-    public @Nullable Object writeProperty;
-    public @Nullable Map<String, String> optionList;
     public final boolean isAdvanced;
-    public @Nullable String commandClassName;
     public final int commandClassId;
     public final int endpoint;
     public final Double factor;
 
+    public @Nullable String description;
+    public @Nullable String unitSymbol;
+    public @Nullable Unit<?> unit;
+    public @Nullable Object writeProperty;
+    public @Nullable Map<String, String> optionList;
+    public @Nullable String commandClassName;
+    
+    protected final Object value;
     protected final @Nullable Integer min;
     protected final @Nullable Integer max;
 
