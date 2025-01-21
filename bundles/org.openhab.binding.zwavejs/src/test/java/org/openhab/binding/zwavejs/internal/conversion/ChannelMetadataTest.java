@@ -136,6 +136,37 @@ public class ChannelMetadataTest {
     }
 
     @Test
+    public void testChannelDetailsStore1Node6Channel6() throws IOException {
+        Node node = getNodeFromStore("store_1.json", 6);
+
+        ChannelMetadata details = new ChannelMetadata(6, node.values.get(4));
+
+        assertEquals("meter-value-66049", details.Id);
+        assertEquals("Number:Power", details.itemType);
+        assertEquals("Electric Consumption", details.label);
+        assertNull(details.description);
+        assertEquals(new QuantityType<>(0, Units.WATT), details.state);
+        assertEquals(false, details.writable);
+        assertEquals("W", details.unitSymbol);
+    }
+
+    @Test
+    public void testChannelDetailsStore2Node6Channel1() throws IOException {
+        Node node = getNodeFromStore("store_2.json", 4);
+
+        ChannelMetadata details = new ChannelMetadata(4, node.values.get(1));
+
+        assertEquals("configuration-total-alarm-duration", details.Id);
+        assertEquals("Number:Time", details.itemType);
+        assertEquals("Total Alarm Duration", details.label);
+        assertEquals("Total time the Leak Sensor will beep and light its LED in the event of a leak",
+                details.description);
+        assertEquals(new QuantityType<>(120, Units.MINUTE), details.state);
+        assertEquals(true, details.writable);
+        assertEquals("min", details.unitSymbol);
+    }
+
+    @Test
     public void testChannelDetailsStore2Node2Channel66() throws IOException {
         Node node = getNodeFromStore("store_2.json", 2);
 

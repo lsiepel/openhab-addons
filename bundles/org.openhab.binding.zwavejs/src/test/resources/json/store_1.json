@@ -1637,7 +1637,7 @@
                                     "scale": 2,
                                     "rateType": 1
                                 },
-                                "unit": "W",
+                                "unit": " W",
                                 "stateful": true,
                                 "secret": false
                             },

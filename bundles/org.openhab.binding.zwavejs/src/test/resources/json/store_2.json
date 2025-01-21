@@ -4421,7 +4421,7 @@
                                 "default": 120,
                                 "min": 0,
                                 "max": 255,
-                                "unit": "minutes",
+                                "unit": " minutes",
                                 "valueSize": 1,
                                 "format": 1,
                                 "allowManualEntry": true,

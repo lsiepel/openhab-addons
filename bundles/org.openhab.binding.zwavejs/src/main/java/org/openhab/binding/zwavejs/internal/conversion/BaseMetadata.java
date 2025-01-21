@@ -110,7 +110,7 @@ public abstract class BaseMetadata {
         this.itemType = itemTypeFromMetadata(value.metadata.type, value.value, value.commandClassName,
                 value.metadata.states);
         if (unitSymbol != null && unit == null) {
-            logger.warn("Node id {}, unable to parse unitSymbol '{}', please file a bug report", nodeId, unitSymbol);
+            logger.warn("Node {}, unable to parse unitSymbol '{}', please file a bug report", nodeId, unitSymbol);
         }
         this.optionList = value.metadata.states;
         this.value = value.value;
