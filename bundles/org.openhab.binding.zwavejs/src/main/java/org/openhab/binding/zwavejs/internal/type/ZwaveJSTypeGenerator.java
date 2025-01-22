@@ -25,11 +25,12 @@ import org.openhab.core.thing.ThingUID;
 public interface ZwaveJSTypeGenerator {
 
     /**
-     * Generates a {@link ZwaveJSTypeGeneratorResult} based on the provided ThingUID and Node.
+     * Generates a ZwaveJSTypeGeneratorResult based on the provided ThingUID, Node, and configurationAsChannels flag.
      *
      * @param thingUID the unique identifier of the thing
      * @param node the node for which the type is being generated
+     * @param configurationAsChannels a flag indicating whether the configuration should be treated as channels
      * @return a ZwaveJSTypeGeneratorResult containing the generated type information
      */
-    ZwaveJSTypeGeneratorResult generate(ThingUID thingUID, Node node);
+    ZwaveJSTypeGeneratorResult generate(ThingUID thingUID, Node node, boolean configurationAsChannels);
 }

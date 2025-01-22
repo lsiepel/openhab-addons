@@ -203,9 +203,8 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
         if (!nodeListeners.containsKey(id)) {
             logger.debug("Node {}. Registering listener", id);
             nodeListeners.put(id, nodeListener);
-            return true;
         }
-        return false;
+        return true;
     }
 
     @Override

@@ -97,19 +97,20 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     }
 
     /**
-     * Generates Z-Wave JS types based on the provided Thing UID and Node.
+     * Generates a ZwaveJSTypeGeneratorResult for the given ThingUID and Node.
      *
-     * @param thingUID the UID of the Thing
-     * @param node the Node containing Z-Wave JS data
-     * @return the result containing generated types
+     * @param thingUID the ThingUID of the device
+     * @param node the Node containing the values to be processed
+     * @param configurationAsChannels flag indicating whether to treat configuration as channels
+     * @return a ZwaveJSTypeGeneratorResult containing the generated channels and configuration descriptions
      */
     @Override
-    public ZwaveJSTypeGeneratorResult generate(ThingUID thingUID, Node node) {
+    public ZwaveJSTypeGeneratorResult generate(ThingUID thingUID, Node node, boolean configurationAsChannels) {
         ZwaveJSTypeGeneratorResult result = new ZwaveJSTypeGeneratorResult();
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
         URI uri = getConfigDescriptionURI(thingUID, node);
         for (Value value : node.values) {
-            if (CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
+            if (!configurationAsChannels && CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 ConfigMetadata metadata = new ConfigMetadata(node.nodeId, value);
                 configDescriptions.add(createConfigDescription(metadata));
 

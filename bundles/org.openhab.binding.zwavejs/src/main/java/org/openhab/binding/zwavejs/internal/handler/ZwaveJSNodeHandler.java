@@ -206,32 +206,31 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
     private void internalInitialize() {
         ZwaveJSBridgeHandler handler = getBridgeHandler();
-        if (handler != null) {
-            if (handler.registerNodeListener(this)) {
-                Node nodeDetails = handler.requestNodeDetails(config.id);
-                if (nodeDetails == null) {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                            "Could not obtain node details");
-                    return;
-                }
-                if (Status.DEAD.equals(nodeDetails.status)) {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                            String.format("The Z-Wave JS state of this node is: {}", nodeDetails.status));
-                    return;
-                }
-                if (!setupThing(nodeDetails)) {
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                            "Initialization failed, could not build channels");
-                    return;
-                }
-                updateStatus(ThingStatus.ONLINE);
-            } else {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED,
-                        "Could not register node listener");
-            }
-        } else {
+        if (handler == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED);
+            return;
         }
+        if (!handler.registerNodeListener(this)) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED,
+                    "Could not register node listener");
+            return;
+        }
+        Node nodeDetails = handler.requestNodeDetails(config.id);
+        if (nodeDetails == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Could not obtain node details");
+            return;
+        }
+        if (Status.DEAD.equals(nodeDetails.status)) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
+                    String.format("The Z-Wave JS state of this node is: {}", nodeDetails.status));
+            return;
+        }
+        if (!setupThing(nodeDetails)) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "Initialization failed, could not build channels");
+            return;
+        }
+        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override
@@ -295,10 +294,10 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         logger.debug("Node {}. Building channels and configuration, containing {} values", node.nodeId,
                 node.values.size());
 
+        configurationAsChannels = Objects.requireNonNull(getBridge()).getConfiguration()
+                .as(ZwaveJSBridgeConfiguration.class).configurationChannels;
         try {
-            ZwaveJSTypeGeneratorResult result = typeGenerator.generate(thing.getUID(), node);
-            configurationAsChannels = Objects.requireNonNull(getBridge()).getConfiguration()
-                    .as(ZwaveJSBridgeConfiguration.class).configurationChannels;
+            ZwaveJSTypeGeneratorResult result = typeGenerator.generate(thing.getUID(), node, configurationAsChannels);
 
             ThingBuilder builder = editThing();
 
@@ -337,6 +336,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
                     }
                 }
             }
+
             if (!configurationAsChannels) {
                 Configuration configuration = editConfiguration();
                 for (String key : configuration.keySet()) {
