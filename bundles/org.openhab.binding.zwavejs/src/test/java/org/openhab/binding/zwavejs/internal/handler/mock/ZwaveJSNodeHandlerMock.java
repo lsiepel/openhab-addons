@@ -14,7 +14,7 @@ package org.openhab.binding.zwavejs.internal.handler.mock;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.openhab.binding.zwavejs.internal.BindingConstants.CONFIG_NODE_ID;
+import static org.openhab.binding.zwavejs.internal.BindingConstants.*;
 
 import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -51,12 +51,19 @@ import org.openhab.core.thing.binding.builder.ThingBuilder;
 @NonNullByDefault
 public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
     private String filename = "";
+    public boolean configAsChannel = false;
 
     public static Configuration createConfig(int id) {
         final Configuration config = new Configuration();
         if (id > 0) {
             config.put(CONFIG_NODE_ID, id);
         }
+        return config;
+    }
+
+    public static Configuration createBridgeConfig(boolean configurationAsChannel) {
+        final Configuration config = new Configuration();
+        config.put(CONFIG_CONFIG_AS_CHANNEL, configurationAsChannel);
         return config;
     }
 
@@ -71,6 +78,11 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
 
     public static ZwaveJSNodeHandlerMock createAndInitHandler(final ThingHandlerCallback callback, final Thing thing,
             final String filename) {
+        return createAndInitHandler(callback, thing, filename, false);
+    }
+
+    public static ZwaveJSNodeHandlerMock createAndInitHandler(final ThingHandlerCallback callback, final Thing thing,
+            final String filename, boolean configAsChannel) {
         ZwaveJSChannelTypeProvider channelTypeProvider = new ZwaveJSChannelTypeInMemmoryProvider();
         ZwaveJSConfigDescriptionProvider configDescriptionProvider = new ZwaveJSConfigDescriptionProviderImpl();
         ThingRegistry thingRegistry = mock(ThingRegistry.class);
@@ -78,7 +90,8 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         ZwaveJSTypeGenerator typeGenerator = new ZwaveJSTypeGeneratorImpl(channelTypeProvider,
                 configDescriptionProvider, thingRegistry);
 
-        final ZwaveJSNodeHandlerMock handler = spy(new ZwaveJSNodeHandlerMock(thing, typeGenerator, filename));
+        final ZwaveJSNodeHandlerMock handler = spy(
+                new ZwaveJSNodeHandlerMock(thing, typeGenerator, filename, configAsChannel));
 
         handler.setCallback(callback);
         handler.initialize();
@@ -86,10 +99,11 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         return handler;
     }
 
-    public ZwaveJSNodeHandlerMock(Thing thing, ZwaveJSTypeGenerator typeGenerator, String filename) {
+    public ZwaveJSNodeHandlerMock(Thing thing, ZwaveJSTypeGenerator typeGenerator, String filename,
+            boolean configAsChannel) {
         super(thing, typeGenerator);
         this.filename = filename;
-
+        this.configAsChannel = configAsChannel;
         executorService = Mockito.mock(ScheduledExecutorService.class);
         doAnswer((InvocationOnMock invocation) -> {
             ((Runnable) invocation.getArguments()[0]).run();
@@ -135,6 +149,7 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         }).when(handler).requestNodeDetails(anyInt());
         when(bridge.getStatus()).thenReturn(ThingStatus.ONLINE);
         when(bridge.getHandler()).thenReturn(handler);
+        when(bridge.getConfiguration()).thenReturn(createBridgeConfig(configAsChannel));
         when(handler.registerNodeListener(any())).thenReturn(true);
         return bridge;
     }

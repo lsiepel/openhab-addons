@@ -39,6 +39,7 @@ public class BindingConstants {
     public static final String CONFIG_HOSTNAME = "hostname";
     public static final String CONFIG_PORT = "port";
     public static final String CONFIG_NODE_ID = "id";
+    public static final String CONFIG_CONFIG_AS_CHANNEL = "configurationChannels";
 
     // List of all Channel Configuration Parameters
     public static final String CONFIG_CHANNEL_INCOMING_UNIT = "incomingUnit";
@@ -70,6 +71,4 @@ public class BindingConstants {
     public static final String CC_NOTIFICATION = "Notification";
 
     public static final List<String> CONFIGURATION_COMMAND_CLASSES = List.of(CC_CONFIGURATION, CC_WAKE_UP);
-    // List of all Channel ids
-    public static final String CHANNEL_1 = "channel1";
 }

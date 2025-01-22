@@ -92,6 +92,14 @@ public class ZwaveJSTypeGeneratorTest {
     }
 
     @Test
+    public void testGenerateChannelTypeStore4Node7ConfigWriteProperty() throws IOException {
+        Channel channel = getChannel("store_4.json", 7,
+                "configuration-key-s-1-associations-send-on-with-single-click-1", true);
+
+        assertEquals("24", channel.getConfiguration().get(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
+    }
+
+    @Test
     public void testGenerateChannelTypeNode6() throws IOException {
         Node node = DataUtil.getNodeFromStore("store_1.json", 6);
 

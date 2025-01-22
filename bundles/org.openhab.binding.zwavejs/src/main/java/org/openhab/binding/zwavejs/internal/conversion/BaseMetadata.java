@@ -225,7 +225,7 @@ public abstract class BaseMetadata {
         if (propertyName != null && !propertyName.contains("unknown")) {
             propertyName = CHANNEL_ID_PROPERTY_NAME_REPLACEMENTS.getOrDefault(propertyName, propertyName);
             splitted = StringUtils.splitByCharacterType(propertyName);
-            List<String> result = Arrays.asList(splitted).stream().filter(s -> s.matches("^[a-zA-Z]+$")).toList();
+            List<String> result = Arrays.asList(splitted).stream().filter(s -> s.matches("^[a-zA-Z0-9]+$")).toList();
             if (!result.isEmpty()) {
                 id += normalizeString(String.join("-", result));
             }

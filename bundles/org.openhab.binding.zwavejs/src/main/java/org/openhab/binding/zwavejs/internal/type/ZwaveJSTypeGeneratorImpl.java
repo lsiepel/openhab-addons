@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
 
-    private static final Object CHANNEL_TYPE_VERSION = "2"; // when static configuration is changed, the version must be
+    private static final Object CHANNEL_TYPE_VERSION = "3"; // when static configuration is changed, the version must be
                                                             // changed as well to force a new channel type generation
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSTypeGeneratorImpl.class);
 
@@ -179,7 +179,8 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_INVERTED, false);
 
         if (details.writable) {
-            newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY, details.writeProperty);
+            newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY,
+                    String.valueOf(details.writeProperty));
         }
 
         @Nullable
