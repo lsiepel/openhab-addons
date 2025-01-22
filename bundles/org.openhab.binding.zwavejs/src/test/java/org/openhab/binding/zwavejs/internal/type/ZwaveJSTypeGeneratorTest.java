@@ -114,8 +114,7 @@ public class ZwaveJSTypeGeneratorTest {
         Node node = DataUtil.getNodeFromStore("store_2.json", 2);
 
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
-                .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node));
-        ;
+                .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node), false);
 
         assertEquals(15, results.channels.size());
     }
