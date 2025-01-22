@@ -57,8 +57,7 @@ public class ChannelMetadata extends BaseMetadata {
     public ChannelMetadata(int nodeId, Value data) {
         super(nodeId, data);
 
-        this.statePattern = createStatePattern(data.metadata.writeable, min, max, data.metadata.steps,
-                data.value);
+        this.statePattern = createStatePattern(data.metadata.writeable, min, max, data.metadata.steps, data.value);
         this.state = toState(data.value, itemType, unit, false, factor);
     }
 
