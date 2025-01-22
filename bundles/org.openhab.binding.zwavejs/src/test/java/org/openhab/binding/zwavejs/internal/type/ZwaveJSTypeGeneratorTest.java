@@ -82,6 +82,16 @@ public class ZwaveJSTypeGeneratorTest {
     }
 
     @Test
+    public void testGenerateChannelTypeForNode3AsChannels() throws IOException {
+        Node node = DataUtil.getNodeFromStore("store_1.json", 3);
+
+        ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
+                .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node), true);
+
+        assertEquals(13, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+    }
+
+    @Test
     public void testGenerateChannelTypeNode6() throws IOException {
         Node node = DataUtil.getNodeFromStore("store_1.json", 6);
 
