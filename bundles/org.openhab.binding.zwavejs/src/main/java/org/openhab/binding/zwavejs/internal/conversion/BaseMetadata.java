@@ -90,7 +90,7 @@ public abstract class BaseMetadata {
 
     protected final Object value;
     protected final @Nullable Integer min;
-    protected final @Nullable Integer max;
+    protected @Nullable Integer max;
 
     protected BaseMetadata(int nodeId, Value value) {
         this.nodeId = nodeId;
@@ -497,7 +497,7 @@ public abstract class BaseMetadata {
             optionList.forEach((k, v) -> options.add(new StateOption(k, v)));
             fragment.withOptions(options);
         }
-        if (step != null) {
+        if (step != null && step > 0) {
             fragment.withStep(BigDecimal.valueOf(step));
         }
         return fragment.build();

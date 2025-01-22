@@ -137,11 +137,15 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             }
             zwaveCommand.value = resultValue;
         } else if (command instanceof PercentType percentTypeCommand) {
-            logger.trace("command recognized as PercentType");
-            zwaveCommand.value = channelConfig.inverted ? 100 - percentTypeCommand.intValue()
-                    : percentTypeCommand.intValue();
+            int newValue = percentTypeCommand.intValue();
+            if (channelConfig.inverted) {
+                newValue = 100 - newValue;
+            }
+            if (channelConfig.itemType == CoreItemFactory.DIMMER && newValue == 100) {
+                newValue = 99;
+            }
+            zwaveCommand.value = newValue;
         } else if (command instanceof DecimalType decimalCommand) {
-            logger.trace("command recognized as DecimalType");
             zwaveCommand.value = decimalCommand.doubleValue();
         } else if (command instanceof DateTimeType dateTimeCommand) {
             throw new UnsupportedOperationException();

@@ -57,7 +57,7 @@ public class ChannelMetadata extends BaseMetadata {
     public ChannelMetadata(int nodeId, Value data) {
         super(nodeId, data);
 
-        this.statePattern = createStatePattern(data.metadata.writeable, data.metadata.min, data.metadata.max, 1,
+        this.statePattern = createStatePattern(data.metadata.writeable, min, max, data.metadata.steps,
                 data.value);
         this.state = toState(data.value, itemType, unit, false, factor);
     }
@@ -71,6 +71,7 @@ public class ChannelMetadata extends BaseMetadata {
         String baseItemType = super.itemTypeFromMetadata(type, value, commandClassName, optionList);
         if (CoreItemFactory.NUMBER.equals(baseItemType) && writable && min != null && max != null) {
             if (min == 0 && max == 99) {
+                this.max = 100; // ZUI uses 0-99, but openHAB uses 0-100
                 return CoreItemFactory.DIMMER;
             }
         }
@@ -124,6 +125,9 @@ public class ChannelMetadata extends BaseMetadata {
         if (unitSymbol != null && this.unit == null) {
             logger.warn("Node {}. Unable to parse unitSymbol '{}' from channel config, this is a bug", nodeId,
                     unitSymbol);
+        }
+        if (CoreItemFactory.DIMMER.equals(itemType) && value instanceof Number numberValue) {
+            value = numberValue.intValue() >= 99 ? 100 : value;
         }
         return this.state = toState(value, itemType, this.unit, inverted, factor);
     }

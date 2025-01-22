@@ -36,6 +36,7 @@ public class Metadata {
     public Object defaultValue;
     public Integer min;
     public Integer max;
+    public Integer steps;
     public int valueSize;
     public int format;
     public boolean allowManualEntry;
