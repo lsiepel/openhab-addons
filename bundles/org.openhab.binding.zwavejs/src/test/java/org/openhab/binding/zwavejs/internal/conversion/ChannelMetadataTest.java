@@ -97,8 +97,8 @@ public class ChannelMetadataTest {
         assertNull(details.description);
         assertEquals(new QuantityType<>(0, Units.WATT), details.state);
         assertEquals(false, details.writable);
-        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%1d %unit%").withReadOnly(true)
-                .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
+        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%1d %unit%").withReadOnly(true).build(),
+                details.statePattern);
         assertEquals("W", details.unitSymbol);
     }
 
@@ -114,8 +114,8 @@ public class ChannelMetadataTest {
         assertNull(details.description);
         assertEquals(new QuantityType<>(881.95, Units.KILOWATT_HOUR), details.state);
         assertEquals(false, details.writable);
-        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%.2f %unit%").withReadOnly(true)
-                .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
+        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%.2f %unit%").withReadOnly(true).build(),
+                details.statePattern);
         assertEquals("kWh", details.unitSymbol);
     }
 
@@ -162,8 +162,8 @@ public class ChannelMetadataTest {
         assertNull(details.description);
         assertEquals(new QuantityType<>(17.04, Units.PERCENT), details.state);
         assertEquals(false, details.writable);
-        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%.2f %unit%").withReadOnly(true)
-                .withStep(BigDecimal.valueOf(1)).build(), details.statePattern);
+        assertEquals(StateDescriptionFragmentBuilder.create().withPattern("%.2f %unit%").withReadOnly(true).build(),
+                details.statePattern);
         assertEquals("%", details.unitSymbol);
     }
 
@@ -214,8 +214,8 @@ public class ChannelMetadataTest {
         StateDescriptionFragment statePattern = details.statePattern;
         assertNotNull(statePattern);
         assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
-        assertEquals(BigDecimal.valueOf(99), statePattern.getMaximum());
-        assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
+        assertEquals(BigDecimal.valueOf(100), statePattern.getMaximum());
+        assertNull(statePattern.getStep());
         assertEquals("%1d %%", statePattern.getPattern());
 
         assertNull(details.unitSymbol);
@@ -238,7 +238,7 @@ public class ChannelMetadataTest {
         assertNotNull(statePattern);
         assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
         assertEquals(BigDecimal.valueOf(255), statePattern.getMaximum());
-        assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
+        assertNull(statePattern.getStep());
         assertEquals("%1d %unit%", statePattern.getPattern());
 
         assertEquals("ms", details.unitSymbol);
@@ -260,8 +260,8 @@ public class ChannelMetadataTest {
         StateDescriptionFragment statePattern = details.statePattern;
         assertNotNull(statePattern);
         assertEquals(BigDecimal.valueOf(0), statePattern.getMinimum());
-        assertEquals(BigDecimal.valueOf(99), statePattern.getMaximum());
-        assertEquals(BigDecimal.valueOf(1), statePattern.getStep());
+        assertEquals(BigDecimal.valueOf(100), statePattern.getMaximum());
+        assertNull(statePattern.getStep());
         assertEquals("%1d %%", statePattern.getPattern());
 
         assertNull(details.unitSymbol);
