@@ -82,8 +82,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSNodeHandler.class);
     private final ZwaveJSTypeGenerator typeGenerator;
     private ZwaveJSNodeConfiguration config = new ZwaveJSNodeConfiguration();
-    private boolean 
-    configurationAsChannels = false;
+    private boolean configurationAsChannels = false;
     protected ScheduledExecutorService executorService = scheduler;
 
     public ZwaveJSNodeHandler(final Thing thing, final ZwaveJSTypeGenerator typeGenerator) {
