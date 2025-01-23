@@ -109,20 +109,19 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         ZwaveJSTypeGeneratorResult result = new ZwaveJSTypeGeneratorResult();
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
         URI uri = getConfigDescriptionURI(thingUID, node);
+        String id = "";
         for (Value value : node.values) {
             if (!configurationAsChannels && CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 ConfigMetadata metadata = new ConfigMetadata(node.nodeId, value);
+                id = metadata.Id;
                 configDescriptions.add(createConfigDescription(metadata));
-
-                if (!result.values.containsKey(metadata.Id) && value.value != null) {
-                    result.values.put(metadata.Id, value.value);
-                }
             } else {
                 ChannelMetadata metadata = new ChannelMetadata(node.nodeId, value);
+                id = metadata.Id;
                 result.channels = createChannel(thingUID, result.channels, metadata, configDescriptionProvider);
-                if (!result.values.containsKey(metadata.Id) && value.value != null) {
-                    result.values.put(metadata.Id, value.value);
-                }
+            }
+            if (!result.values.containsKey(id) && value.value != null) {
+                result.values.put(id, value.value);
             }
         }
         if (uri != null && !configDescriptions.isEmpty()) {
