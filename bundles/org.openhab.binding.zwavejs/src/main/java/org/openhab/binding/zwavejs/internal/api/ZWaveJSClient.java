@@ -232,7 +232,7 @@ public class ZWaveJSClient implements WebSocketListener {
                 logger.trace("DATA >> {}", message);
             }
         } else if (baseEvent instanceof EventMessage eventMessage) {
-            logger.trace("onWebSocketText received EventMessage type: {}, event type: {}", eventMessage.event);
+            logger.trace("onWebSocketText received EventMessage, type: {}", eventMessage.event);
             logger.trace("DATA >> {}", message);
         } else {
             logger.trace("onWebSocketText received message class type: {}, event type: {}",

@@ -69,7 +69,7 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
 
     public static Thing mockThing(int id) {
         final Thing thing = mock(Thing.class);
-        when(thing.getUID()).thenReturn(new ThingUID(BindingConstants.BINDING_ID, "test-thing"));
+        when(thing.getUID()).thenReturn(new ThingUID(BindingConstants.BINDING_ID, "test-bridge", "test-thing"));
         when(thing.getBridgeUID()).thenReturn(new ThingUID(BindingConstants.BINDING_ID, "test-bridge"));
         when(thing.getConfiguration()).thenReturn(createConfig(id));
 
@@ -86,7 +86,7 @@ public class ZwaveJSNodeHandlerMock extends ZwaveJSNodeHandler {
         ZwaveJSChannelTypeProvider channelTypeProvider = new ZwaveJSChannelTypeInMemmoryProvider();
         ZwaveJSConfigDescriptionProvider configDescriptionProvider = new ZwaveJSConfigDescriptionProviderImpl();
         ThingRegistry thingRegistry = mock(ThingRegistry.class);
-
+        when(thingRegistry.get(any())).thenReturn(thing);
         ZwaveJSTypeGenerator typeGenerator = new ZwaveJSTypeGeneratorImpl(channelTypeProvider,
                 configDescriptionProvider, thingRegistry);
 

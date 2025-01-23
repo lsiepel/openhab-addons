@@ -108,26 +108,23 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     public ZwaveJSTypeGeneratorResult generate(ThingUID thingUID, Node node, boolean configurationAsChannels) {
         ZwaveJSTypeGeneratorResult result = new ZwaveJSTypeGeneratorResult();
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<>();
-        URI uri = getConfigDescriptionURI(thingUID, node);
-        String id = "";
+        URI uri = Objects.requireNonNull(getConfigDescriptionURI(thingUID, node));
         for (Value value : node.values) {
             if (!configurationAsChannels && CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 ConfigMetadata metadata = new ConfigMetadata(node.nodeId, value);
-                id = metadata.Id;
                 configDescriptions.add(createConfigDescription(metadata));
-            } else {
-                ChannelMetadata metadata = new ChannelMetadata(node.nodeId, value);
-                id = metadata.Id;
+            }
+            ChannelMetadata metadata = new ChannelMetadata(node.nodeId, value);
+            if (configurationAsChannels || !CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 result.channels = createChannel(thingUID, result.channels, metadata, configDescriptionProvider);
             }
-            if (!result.values.containsKey(id) && value.value != null) {
-                result.values.put(id, value.value);
+            if (!result.values.containsKey(metadata.Id) && value.value != null) {
+                result.values.put(metadata.Id, value.value);
             }
         }
-        if (uri != null && !configDescriptions.isEmpty()) {
-            configDescriptionProvider.addConfigDescription(
-                    ConfigDescriptionBuilder.create(uri).withParameters(configDescriptions).build());
-        }
+        configDescriptionProvider
+                .addConfigDescription(ConfigDescriptionBuilder.create(uri).withParameters(configDescriptions).build());
+
         return result;
     }
 

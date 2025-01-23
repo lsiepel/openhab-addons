@@ -15,7 +15,9 @@ package org.openhab.binding.zwavejs.internal.type;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.openhab.binding.zwavejs.internal.BindingConstants.BINDING_ID;
 
 import java.io.IOException;
@@ -36,6 +38,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.binding.zwavejs.internal.handler.mock.ZwaveJSChannelTypeInMemmoryProvider;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.thing.Channel;
+import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingRegistry;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.type.ChannelType;
@@ -56,6 +59,10 @@ public class ZwaveJSTypeGeneratorTest {
     @BeforeEach
     public void setup() {
         ThingRegistry thingRegistry = mock(ThingRegistry.class);
+        Thing thing = mock(Thing.class);
+        when(thing.getUID()).thenReturn(new ThingUID(BindingConstants.BINDING_ID, "test-thing"));
+        when(thing.getBridgeUID()).thenReturn(new ThingUID(BindingConstants.BINDING_ID, "test-bridge"));
+        when(thingRegistry.get(any())).thenReturn(thing);
         provider = new ZwaveJSTypeGeneratorImpl(channelTypeProvider, configDescriptionProvider, thingRegistry);
     }
 
@@ -67,7 +74,8 @@ public class ZwaveJSTypeGeneratorTest {
             throws IOException {
         Node node = DataUtil.getNodeFromStore(store, nodeId);
         ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider).generate(
-                new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node), configurationAsChannels);
+                new ThingUID(BINDING_ID, "test-bridge", "test-thing"), Objects.requireNonNull(node),
+                configurationAsChannels);
         return Objects.requireNonNull(results.channels.get(channelId));
     }
 
@@ -179,7 +187,7 @@ public class ZwaveJSTypeGeneratorTest {
         Configuration configuration = channel.getConfiguration();
 
         assertNotNull(type);
-        assertEquals("zwavejs::test-thing:multilevel-switch-value", channel.getUID().getAsString());
+        assertEquals("zwavejs:test-bridge:test-thing:multilevel-switch-value", channel.getUID().getAsString());
         assertEquals("Dimmer", Objects.requireNonNull(type).getItemType());
         assertEquals("Current Value", channel.getLabel());
         assertNotNull(configuration.get(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
@@ -229,7 +237,7 @@ public class ZwaveJSTypeGeneratorTest {
                 null);
 
         assertNotNull(type);
-        assertEquals("zwavejs::test-thing:binary-sensor-any", channel.getUID().getAsString());
+        assertEquals("zwavejs:test-bridge:test-thing:binary-sensor-any", channel.getUID().getAsString());
         assertEquals("Switch", Objects.requireNonNull(type).getItemType());
         assertEquals("Sensor State (Any)", channel.getLabel());
 
@@ -244,7 +252,7 @@ public class ZwaveJSTypeGeneratorTest {
         Configuration configuration = channel.getConfiguration();
 
         assertNotNull(type);
-        assertEquals("zwavejs::test-thing:multilevel-switch-value-1", channel.getUID().getAsString());
+        assertEquals("zwavejs:test-bridge:test-thing:multilevel-switch-value-1", channel.getUID().getAsString());
         assertEquals("Dimmer", Objects.requireNonNull(type).getItemType());
         assertEquals("EP1 Current Value", channel.getLabel());
         assertNotNull(configuration.get(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));

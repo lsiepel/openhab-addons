@@ -101,7 +101,7 @@ public class ZwaveJSNodeHandlerTest {
         EventMessage eventMessage = DataUtil.fromJson("event_node_6_switch.json", EventMessage.class);
         handler.onNodeStateChanged(eventMessage.event);
 
-        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:binary-switch-value");
+        ChannelUID channelid = new ChannelUID("zwavejs:test-bridge:test-thing:binary-switch-value");
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
@@ -122,7 +122,7 @@ public class ZwaveJSNodeHandlerTest {
         EventMessage eventMessage = DataUtil.fromJson("event_node_11_switch.json", EventMessage.class);
         handler.onNodeStateChanged(eventMessage.event);
 
-        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:binary-switch-value");
+        ChannelUID channelid = new ChannelUID("zwavejs:test-bridge:test-thing:binary-switch-value");
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
@@ -142,7 +142,7 @@ public class ZwaveJSNodeHandlerTest {
         EventMessage eventMessage = DataUtil.fromJson("event_node_6_power.json", EventMessage.class);
         handler.onNodeStateChanged(eventMessage.event);
 
-        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:multilevel-sensor-power");
+        ChannelUID channelid = new ChannelUID("zwavejs:test-bridge:test-thing:multilevel-sensor-power");
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
@@ -162,7 +162,7 @@ public class ZwaveJSNodeHandlerTest {
         EventMessage eventMessage = DataUtil.fromJson("event_node_2_power.json", EventMessage.class);
         handler.onNodeStateChanged(eventMessage.event);
 
-        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:meter-value-66049-2");
+        ChannelUID channelid = new ChannelUID("zwavejs:test-bridge:test-thing:meter-value-66049-2");
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
@@ -217,7 +217,7 @@ public class ZwaveJSNodeHandlerTest {
         final ZwaveJSNodeHandlerMock handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing,
                 "store_4.json");
 
-        ChannelUID channelid = new ChannelUID("zwavejs::test-thing:multilevel-switch-value-2");
+        ChannelUID channelid = new ChannelUID("zwavejs:test-bridge:test-thing:multilevel-switch-value-2");
 
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));

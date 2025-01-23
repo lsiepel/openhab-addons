@@ -37,7 +37,6 @@ import org.openhab.binding.zwavejs.internal.conversion.ConfigMetadata;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
 import org.openhab.core.config.core.Configuration;
-import org.openhab.core.config.core.validation.ConfigValidationException;
 import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
@@ -90,15 +89,21 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         this.typeGenerator = typeGenerator;
     }
 
+    /*
+     * @Override
+     * public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
+     * throws ConfigValidationException {
+     * super.handleConfigurationUpdate(configurationParameters);
+     * 
+     * // TODO handle update
+     * // 1 determine changed parameter
+     * // 2 prepare command
+     * // 3 sendCommand
+     * }
+     */
     @Override
-    public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
-            throws ConfigValidationException {
-        super.handleConfigurationUpdate(configurationParameters);
-
-        // TODO handle update
-        // 1 determine changed parameter
-        // 2 prepare command
-        // 3 sendCommand
+    public void handleRemoval() {
+        super.handleRemoval();
     }
 
     @Override
@@ -270,6 +275,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         } else {
             ChannelMetadata metadata = new ChannelMetadata(getId(), event);
             if (!metadata.isIgnoredCommandClass(event.args.commandClassName) && isLinked(metadata.Id)) {
+                var x = thing.getChannels();
                 @SuppressWarnings("null") // as we checked by isLinked the channel can't be null
                 ZwaveJSChannelConfiguration channelConfig = thing.getChannel(metadata.Id).getConfiguration()
                         .as(ZwaveJSChannelConfiguration.class);
@@ -343,11 +349,17 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
             if (!configurationAsChannels) {
                 Configuration configuration = editConfiguration();
+                logger.debug("Setting values to {} configuration items", configuration.keySet().size());
                 for (String key : configuration.keySet()) {
                     if (result.values.containsKey(key)) {
                         configuration.put(key, result.values.get(key));
+                        logger.debug("Node {}. Adding value to configuration item: {} = {}", config.id, key,
+                                result.values.get(key));
+                    } else {
+                        logger.debug("Node {}. Could not add value to configuration item: {}", config.id, key);
                     }
                 }
+                logger.debug("Done values to configuration items");
                 updateConfiguration(configuration);
             }
         } catch (Exception e) {
