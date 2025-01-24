@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
 import org.openhab.binding.zwavejs.internal.handler.mock.ZwaveJSNodeHandlerMock;
+import org.openhab.core.config.core.Configuration;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.PercentType;
 import org.openhab.core.library.types.QuantityType;
@@ -51,7 +52,8 @@ public class ZwaveJSNodeHandlerTest {
     public void testInvalidConfiguration() {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(0);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
-        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_1.json");
+        final ZwaveJSNodeHandlerMock handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing,
+                "store_1.json");
 
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.OFFLINE)
@@ -65,7 +67,8 @@ public class ZwaveJSNodeHandlerTest {
     public void testStore1Node3ChannelsCreation() {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(3);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
-        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_1.json");
+        final ZwaveJSNodeHandlerMock handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing,
+                "store_1.json");
 
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
@@ -78,7 +81,8 @@ public class ZwaveJSNodeHandlerTest {
     public void testStore1Node6ChannelsCreation() {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(6);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
-        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_1.json");
+        final ZwaveJSNodeHandlerMock handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing,
+                "store_1.json");
 
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
@@ -186,6 +190,26 @@ public class ZwaveJSNodeHandlerTest {
                     argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
             handler.getThing().getChannels().forEach(channel -> {
                 System.out.println(channel.getUID());
+            });
+        } finally {
+            handler.dispose();
+        }
+    }
+
+    @Test
+    public void testStore4Node7ConfigCreation() {
+        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(7);
+        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_4.json",
+                false);
+
+        try {
+            verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
+            verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
+                    argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
+            Configuration configuration = handler.getThing().getConfiguration();
+            configuration.getProperties().forEach((key, value) -> {
+                System.out.println(key + " : " + value);
             });
         } finally {
             handler.dispose();

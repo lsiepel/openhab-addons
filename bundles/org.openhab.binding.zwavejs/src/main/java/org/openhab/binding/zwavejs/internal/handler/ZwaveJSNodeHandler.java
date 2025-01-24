@@ -36,6 +36,8 @@ import org.openhab.binding.zwavejs.internal.conversion.ChannelMetadata;
 import org.openhab.binding.zwavejs.internal.conversion.ConfigMetadata;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
+import org.openhab.core.config.core.ConfigDescription;
+import org.openhab.core.config.core.ConfigDescriptionParameter;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DateTimeType;
@@ -348,19 +350,23 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             }
 
             if (!configurationAsChannels) {
+                ConfigDescription configDescription = this.getConfigDescription();
+                if (configDescription == null) {
+                    logger.debug("Node {}. No configuration description found", node.nodeId);
+                    return true;
+                }
                 Configuration configuration = editConfiguration();
-                logger.debug("Setting values to {} configuration items", configuration.keySet().size());
-                for (String key : configuration.keySet()) {
-                    if (result.values.containsKey(key)) {
-                        configuration.put(key, result.values.get(key));
-                        logger.debug("Node {}. Adding value to configuration item: {} = {}", config.id, key,
-                                result.values.get(key));
+                for (ConfigDescriptionParameter parameter : configDescription.getParameters()) {
+                    if (result.values.containsKey(parameter.getName())) {
+                        configuration.put(parameter.getName(), result.values.get(parameter.getName()));
+                        logger.trace("Node {}. Configuration item {} set to {}", node.nodeId, parameter.getName(),
+                                result.values.get(parameter.getName()));
                     } else {
-                        logger.debug("Node {}. Could not add value to configuration item: {}", config.id, key);
+                        logger.trace("Node {}. Configuration item {} not found", node.nodeId, parameter.getName());
                     }
                 }
-                logger.debug("Done values to configuration items");
                 updateConfiguration(configuration);
+                logger.debug("Done values to configuration items");
             }
         } catch (Exception e) {
             logger.error("Node {}. Error building channels and configuration", node.nodeId, e);

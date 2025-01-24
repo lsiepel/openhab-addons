@@ -122,6 +122,9 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 result.values.put(metadata.Id, value.value);
             }
         }
+        logger.debug("Node {}. Generated {} channels and {} configDescriptions with URI {}", node.nodeId,
+                result.channels.size(), configDescriptions.size(), uri);
+
         configDescriptionProvider
                 .addConfigDescription(ConfigDescriptionBuilder.create(uri).withParameters(configDescriptions).build());
 

@@ -70,4 +70,33 @@ public class ConfigMetadataTest {
             assertEquals("Inactive", optionList.get("1"));
         }
     }
+
+    @Test
+    public void testChannelDetailsStore4Node7Config1() throws IOException {
+        Node node = getNodeFromStore("store_4.json", 7);
+
+        ConfigMetadata details = new ConfigMetadata(7, node.values.get(23));
+
+        assertEquals("configuration-key-s-1-associations-send-when-double-clicking-8", details.Id);
+        assertEquals(Type.INTEGER, details.configType);
+        assertEquals("Key S 1 Associations : Send When Double Clicking", details.label);
+        assertNull(details.description);
+        assertEquals(true, details.writable);
+        assertNull(details.statePattern);
+        // assertEquals(BigDecimal.valueOf(0), details.statePattern.getMinimum());
+        // assertEquals(BigDecimal.valueOf(1), details.statePattern.getMaximum());
+        // assertEquals(BigDecimal.valueOf(1), details.statePattern.getStep());
+        // assertEquals("%0.d", details.statePattern.getPattern());
+        // assertEquals(new StateOption("0", "Activated"), details.statePattern.getOptions().get(0));
+        // assertEquals(new StateOption("1", "Inactive"), details.statePattern.getOptions().get(1));
+
+        assertNull(details.unitSymbol);
+        assertNotNull(details.optionList);
+        Map<String, String> optionList = details.optionList;
+        if (optionList != null) {
+            assertEquals(2, optionList.size());
+            assertEquals("Enable", optionList.get("0"));
+            assertEquals("Disable", optionList.get("1"));
+        }
+    }
 }
