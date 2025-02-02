@@ -161,7 +161,7 @@ public class ZWaveJSClient implements WebSocketListener {
                 listener.onConnectionError(String.format("Connection closed: %d, %s", statusCode, reason));
             }
         } catch (Exception e) {
-            logger.warn("Error invoking event listener", e);
+            logger.warn("Error invoking event listener on close", e);
         }
 
         session = null;
@@ -198,7 +198,7 @@ public class ZWaveJSClient implements WebSocketListener {
                 listener.onConnectionError(String.format("Error: %s", localThrowable.getMessage()));
             }
         } catch (Exception e) {
-            logger.warn("Error invoking event listener", e);
+            logger.warn("Error invoking event listener on error", e);
         }
     }
 
@@ -245,7 +245,7 @@ public class ZWaveJSClient implements WebSocketListener {
                 listener.onEvent(baseEvent);
             }
         } catch (Exception e) {
-            logger.warn("Error invoking event listener", e);
+            logger.warn("Error invoking event listener on websockettext", e);
         }
 
         if (baseEvent instanceof VersionMessage) {
