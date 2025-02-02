@@ -147,7 +147,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             if (channelConfig.inverted) {
                 newValue = 100 - newValue;
             }
-            if (channelConfig.itemType == CoreItemFactory.DIMMER && newValue == 100) {
+            if (CoreItemFactory.DIMMER.equals(channelConfig.itemType) && newValue == 100) {
                 newValue = 99;
             }
             zwaveCommand.value = newValue;

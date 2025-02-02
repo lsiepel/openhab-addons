@@ -114,7 +114,6 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 ConfigMetadata metadata = new ConfigMetadata(node.nodeId, value);
                 configDescriptions.add(createConfigDescription(metadata));
                 if (!result.values.containsKey(metadata.Id) && value.value != null) {
-                    logger.debug("Node {}. Adding value {} to config {}", node.nodeId, metadata.state, metadata.Id);
                     result.values.put(metadata.Id, value.value);
                 }
             }
@@ -123,7 +122,6 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                 result.channels = createChannel(thingUID, result.channels, metadata, configDescriptionProvider);
                 if (!metadata.isIgnoredCommandClass(value.commandClassName) && !result.values.containsKey(metadata.Id)
                         && value.value != null) {
-                    logger.debug("Node {}. Adding value {} to channel {}", node.nodeId, metadata.state, metadata.Id);
                     result.values.put(metadata.Id, value.value);
                 }
             }
@@ -138,7 +136,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     }
 
     private ConfigDescriptionParameter createConfigDescription(ConfigMetadata details) {
-        logger.debug("Node {}. createConfigDescriptions with Id: {}", details.nodeId, details.Id);
+        logger.trace("Node {}. createConfigDescriptions with Id: {}", details.nodeId, details.Id);
 
         ConfigDescriptionParameterBuilder parameterBuilder = ConfigDescriptionParameterBuilder
                 .create(details.Id, details.configType) //
