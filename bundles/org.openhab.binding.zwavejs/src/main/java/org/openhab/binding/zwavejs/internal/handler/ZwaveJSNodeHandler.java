@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -36,8 +37,6 @@ import org.openhab.binding.zwavejs.internal.conversion.ChannelMetadata;
 import org.openhab.binding.zwavejs.internal.conversion.ConfigMetadata;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
-import org.openhab.core.config.core.ConfigDescription;
-import org.openhab.core.config.core.ConfigDescriptionParameter;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DateTimeType;
@@ -350,19 +349,14 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             }
 
             if (!configurationAsChannels) {
-                ConfigDescription configDescription = this.getConfigDescription();
-                if (configDescription == null) {
-                    logger.debug("Node {}. No configuration description found", node.nodeId);
-                    return true;
-                }
                 Configuration configuration = editConfiguration();
-                for (ConfigDescriptionParameter parameter : configDescription.getParameters()) {
-                    if (result.values.containsKey(parameter.getName())) {
-                        configuration.put(parameter.getName(), result.values.get(parameter.getName()));
-                        logger.trace("Node {}. Configuration item {} set to {}", node.nodeId, parameter.getName(),
-                                result.values.get(parameter.getName()));
-                    } else {
-                        logger.trace("Node {}. Configuration item {} not found", node.nodeId, parameter.getName());
+                List<String> channelIds = thing.getChannels().stream().map(c -> c.getUID().getId()).toList();
+
+                for (Entry<String, Object> entry : result.values.entrySet()) {
+                    if (!channelIds.contains(entry.getKey())) {
+                        logger.debug("Node {}. Setting configuration item {} to {}", node.nodeId, entry.getKey(),
+                                entry.getValue());
+                        configuration.put(entry.getKey(), entry.getValue());
                     }
                 }
                 updateConfiguration(configuration);

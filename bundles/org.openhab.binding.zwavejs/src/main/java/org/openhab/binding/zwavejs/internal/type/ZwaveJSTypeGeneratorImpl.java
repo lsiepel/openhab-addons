@@ -113,13 +113,19 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             if (!configurationAsChannels && CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 ConfigMetadata metadata = new ConfigMetadata(node.nodeId, value);
                 configDescriptions.add(createConfigDescription(metadata));
+                if (!result.values.containsKey(metadata.Id) && value.value != null) {
+                    logger.debug("Node {}. Adding value {} to config {}", node.nodeId, metadata.state, metadata.Id);
+                    result.values.put(metadata.Id, value.value);
+                }
             }
             ChannelMetadata metadata = new ChannelMetadata(node.nodeId, value);
             if (configurationAsChannels || !CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 result.channels = createChannel(thingUID, result.channels, metadata, configDescriptionProvider);
-            }
-            if (!result.values.containsKey(metadata.Id) && value.value != null) {
-                result.values.put(metadata.Id, value.value);
+                if (!metadata.isIgnoredCommandClass(value.commandClassName) && !result.values.containsKey(metadata.Id)
+                        && value.value != null) {
+                    logger.debug("Node {}. Adding value {} to channel {}", node.nodeId, metadata.state, metadata.Id);
+                    result.values.put(metadata.Id, value.value);
+                }
             }
         }
         logger.debug("Node {}. Generated {} channels and {} configDescriptions with URI {}", node.nodeId,
@@ -136,10 +142,10 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
 
         ConfigDescriptionParameterBuilder parameterBuilder = ConfigDescriptionParameterBuilder
                 .create(details.Id, details.configType) //
-                .withRequired(true) //
+                .withRequired(details.state != null) //
                 .withContext("item") //
                 .withLabel(details.label) //
-                .withVerify(true) //
+                .withVerify(details.state != null) //
                 .withUnit(null) //
                 .withDescription(details.description);
 
