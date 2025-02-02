@@ -109,8 +109,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        logger.debug("Processing command {} type {} for channel {}", command, command.getClass().getSimpleName(),
-                channelUID);
+        logger.debug("Node {}. Processing command {} type {} for channel {}", config.id, command,
+                command.getClass().getSimpleName(), channelUID);
         ZwaveJSBridgeHandler handler = getBridgeHandler();
         if (handler == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED);
