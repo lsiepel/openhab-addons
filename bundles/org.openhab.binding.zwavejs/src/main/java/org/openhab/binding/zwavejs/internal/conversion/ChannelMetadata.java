@@ -84,11 +84,8 @@ public class ChannelMetadata extends BaseMetadata {
 
     @Override
     protected boolean isAdvanced(int commandClassId, String propertyName) {
-        if (super.isAdvanced(commandClassId, propertyName)) {
-            return true;
-        } else {
-            return ADVANCED_CHANNELS.contains(commandClassId + "-" + propertyName);
-        }
+        return super.isAdvanced(commandClassId, propertyName)
+                || ADVANCED_CHANNELS.contains(commandClassId + "-" + propertyName);
     }
 
     public static boolean isSameReadWriteChannel(Configuration configA, Configuration configB) {
@@ -103,10 +100,7 @@ public class ChannelMetadata extends BaseMetadata {
     }
 
     public boolean isIgnoredCommandClass(@Nullable String commandClassName) {
-        if (commandClassName == null) {
-            return false;
-        }
-        return IGNORED_COMMANDCLASSES.contains(commandClassName);
+        return commandClassName != null && IGNORED_COMMANDCLASSES.contains(commandClassName);
     }
 
     /**
@@ -136,7 +130,7 @@ public class ChannelMetadata extends BaseMetadata {
         StringBuilder sb = new StringBuilder();
         sb.append("ChannelMetadata [");
         sb.append("nodeId=" + nodeId);
-        sb.append(", Id=" + Id);
+        sb.append(", Id=" + id);
         sb.append(", label=" + label);
         sb.append(", description=" + description);
         sb.append(", unitSymbol=" + unitSymbol);

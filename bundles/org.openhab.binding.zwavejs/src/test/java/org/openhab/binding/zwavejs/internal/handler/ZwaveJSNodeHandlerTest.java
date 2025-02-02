@@ -14,6 +14,7 @@ package org.openhab.binding.zwavejs.internal.handler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -88,9 +89,7 @@ public class ZwaveJSNodeHandlerTest {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
                     argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
-            handler.getThing().getChannels().forEach(channel -> {
-                System.out.println(channel.getUID());
-            });
+            verify(callback, times(4)).stateUpdated(any(), any());
         } finally {
             handler.dispose();
         }
@@ -188,9 +187,7 @@ public class ZwaveJSNodeHandlerTest {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
                     argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
-            handler.getThing().getChannels().forEach(channel -> {
-                System.out.println(channel.getUID());
-            });
+            verify(callback, times(74)).stateUpdated(any(), any());
         } finally {
             handler.dispose();
         }
@@ -202,15 +199,12 @@ public class ZwaveJSNodeHandlerTest {
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
         final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_4.json",
                 false);
-
+        Configuration configuration = handler.getThing().getConfiguration();
         try {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
                     argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
-            Configuration configuration = handler.getThing().getConfiguration();
-            configuration.getProperties().forEach((key, value) -> {
-                System.out.println(key + " : " + value);
-            });
+            assertEquals(63, configuration.getProperties().size());
         } finally {
             handler.dispose();
         }
@@ -226,9 +220,7 @@ public class ZwaveJSNodeHandlerTest {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
                     argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
-            handler.getThing().getChannels().forEach(channel -> {
-                System.out.println(channel.getUID());
-            });
+            verify(callback, times(12)).stateUpdated(any(), any());
         } finally {
             handler.dispose();
         }
@@ -270,9 +262,7 @@ public class ZwaveJSNodeHandlerTest {
             verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
                     argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
-            handler.getThing().getChannels().forEach(channel -> {
-                System.out.println(channel.getUID());
-            });
+            verify(callback, times(15)).stateUpdated(any(), any());
         } finally {
             handler.dispose();
         }

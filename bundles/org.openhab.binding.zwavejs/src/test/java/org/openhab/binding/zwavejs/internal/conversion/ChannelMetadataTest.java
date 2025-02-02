@@ -59,7 +59,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(3, node.values.get(0));
 
-        assertEquals("binary-switch-value", details.Id);
+        assertEquals("binary-switch-value", details.id);
         assertNull(details.description);
         assertEquals("Switch", details.itemType);
         assertEquals("Current Value", details.label);
@@ -75,7 +75,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(6, node.values.get(0));
 
-        assertEquals("binary-switch-value", details.Id);
+        assertEquals("binary-switch-value", details.id);
         assertEquals("Switch", details.itemType);
         assertEquals("Current Value", details.label);
         assertNull(details.description);
@@ -91,7 +91,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(6, node.values.get(2));
 
-        assertEquals("multilevel-sensor-power", details.Id);
+        assertEquals("multilevel-sensor-power", details.id);
         assertEquals("Number:Power", details.itemType);
         assertEquals("Power", details.label);
         assertNull(details.description);
@@ -108,7 +108,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(6, node.values.get(3));
 
-        assertEquals("meter-value-65537", details.Id);
+        assertEquals("meter-value-65537", details.id);
         assertEquals("Number:Energy", details.itemType);
         assertEquals("Electric Consumption", details.label);
         assertNull(details.description);
@@ -125,7 +125,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(6, node.values.get(5));
 
-        assertEquals("meter-reset", details.Id);
+        assertEquals("meter-reset", details.id);
         assertEquals("Switch", details.itemType);
         assertEquals("Reset Accumulated Values", details.label);
         assertNull(details.description);
@@ -141,7 +141,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(6, node.values.get(4));
 
-        assertEquals("meter-value-66049", details.Id);
+        assertEquals("meter-value-66049", details.id);
         assertEquals("Number:Power", details.itemType);
         assertEquals("Electric Consumption", details.label);
         assertNull(details.description);
@@ -156,7 +156,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(2, node.values.get(66));
 
-        assertEquals("multilevel-sensor-humidity-2", details.Id);
+        assertEquals("multilevel-sensor-humidity-2", details.id);
         assertEquals("Number:Dimensionless", details.itemType);
         assertEquals("EP2 Humidity", details.label);
         assertNull(details.description);
@@ -173,7 +173,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(4, node.values.get(1));
 
-        assertEquals("configuration-total-alarm-duration", details.Id);
+        assertEquals("configuration-total-alarm-duration", details.id);
         assertEquals("Number:Time", details.itemType);
         assertEquals("Total Alarm Duration", details.label);
         assertEquals("Total time the Leak Sensor will beep and light its LED in the event of a leak",
@@ -189,7 +189,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(62, node.values.get(7));
 
-        assertEquals("thermostat-setpoint-setpoint-types-interpretation", details.Id);
+        assertEquals("thermostat-setpoint-setpoint-types-interpretation", details.id);
         assertEquals("String", details.itemType);
         assertEquals("setpointTypesInterpretation", details.label);
         assertNull(details.description);
@@ -204,7 +204,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(14, node.values.get(1));
 
-        assertEquals("multilevel-switch-value", details.Id);
+        assertEquals("multilevel-switch-value", details.id);
         assertEquals("Dimmer", details.itemType);
         assertEquals("Target Value", details.label);
         assertNull(details.description);
@@ -227,7 +227,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(35, node.values.get(5));
 
-        assertEquals("configuration-transmission-retry-wait-time-255", details.Id);
+        assertEquals("configuration-transmission-retry-wait-time-255", details.id);
         assertEquals("Number:Time", details.itemType);
         assertEquals("Transmission Retry Wait Time", details.label);
         assertNull(details.description);
@@ -250,7 +250,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(10, node.values.get(84));
 
-        assertEquals("multilevel-switch-value-1", details.Id);
+        assertEquals("multilevel-switch-value-1", details.id);
         assertEquals("Dimmer", details.itemType);
         assertEquals("EP1 Target Value", details.label);
         assertNull(details.description);
@@ -273,7 +273,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(10, node.values.get(97));
 
-        assertEquals("basic-restore-previous-2", details.Id);
+        assertEquals("basic-restore-previous-2", details.id);
         assertEquals("Switch", details.itemType);
         assertEquals("EP2 Restore Previous Value", details.label);
         assertNull(details.description);
@@ -288,7 +288,7 @@ public class ChannelMetadataTest {
 
         ChannelMetadata details = new ChannelMetadata(76, node.values.get(98));
 
-        assertEquals("multilevel-switch-value-2", details.Id);
+        assertEquals("multilevel-switch-value-2", details.id);
         assertEquals("Number", details.itemType);
         assertEquals("EP2 Current Value", details.label);
         assertNull(details.description);

@@ -72,7 +72,7 @@ public abstract class BaseMetadata {
     private static final List<Integer> COMMAND_CLASSES_ADVANCED = List.of(44, 117);
 
     public final int nodeId;
-    public final String Id;
+    public final String id;
     public final String label;
     public final boolean writable;
     public final String itemType;
@@ -100,7 +100,7 @@ public abstract class BaseMetadata {
         this.writable = value.metadata.writeable;
         this.min = value.metadata.min;
         this.max = value.metadata.max;
-        this.Id = generateChannelId(value);
+        this.id = generateChannelId(value);
 
         this.label = normalizeLabel(value.metadata.label, value.endpoint, value.propertyName);
         this.description = value.metadata.description != null ? value.metadata.description : null;
@@ -123,7 +123,7 @@ public abstract class BaseMetadata {
 
     public BaseMetadata(int nodeId, Event data) {
         this.nodeId = nodeId;
-        this.Id = generateId(data);
+        this.id = generateId(data);
         this.value = data.args.newValue;
 
         this.min = null;
@@ -528,7 +528,7 @@ public abstract class BaseMetadata {
         StringBuilder sb = new StringBuilder();
         sb.append("BaseMetadata [");
         sb.append(", nodeId=" + nodeId);
-        sb.append(", Id=" + Id);
+        sb.append(", Id=" + id);
         sb.append(", label=" + label);
         sb.append(", description=" + description);
         sb.append(", unitSymbol=" + unitSymbol);

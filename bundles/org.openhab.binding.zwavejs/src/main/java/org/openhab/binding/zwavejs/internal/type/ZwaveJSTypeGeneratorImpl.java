@@ -113,16 +113,16 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             if (!configurationAsChannels && CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 ConfigMetadata metadata = new ConfigMetadata(node.nodeId, value);
                 configDescriptions.add(createConfigDescription(metadata));
-                if (!result.values.containsKey(metadata.Id) && value.value != null) {
-                    result.values.put(metadata.Id, value.value);
+                if (!result.values.containsKey(metadata.id) && value.value != null) {
+                    result.values.put(metadata.id, value.value);
                 }
             }
             ChannelMetadata metadata = new ChannelMetadata(node.nodeId, value);
             if (configurationAsChannels || !CONFIGURATION_COMMAND_CLASSES.contains(value.commandClassName)) {
                 result.channels = createChannel(thingUID, result.channels, metadata, configDescriptionProvider);
-                if (!metadata.isIgnoredCommandClass(value.commandClassName) && !result.values.containsKey(metadata.Id)
+                if (!metadata.isIgnoredCommandClass(value.commandClassName) && !result.values.containsKey(metadata.id)
                         && value.value != null) {
-                    result.values.put(metadata.Id, value.value);
+                    result.values.put(metadata.id, value.value);
                 }
             }
         }
@@ -136,10 +136,10 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
     }
 
     private ConfigDescriptionParameter createConfigDescription(ConfigMetadata details) {
-        logger.trace("Node {}. createConfigDescriptions with Id: {}", details.nodeId, details.Id);
+        logger.trace("Node {}. createConfigDescriptions with Id: {}", details.nodeId, details.id);
 
         ConfigDescriptionParameterBuilder parameterBuilder = ConfigDescriptionParameterBuilder
-                .create(details.Id, details.configType) //
+                .create(details.id, details.configType) //
                 .withRequired(details.state != null) //
                 .withContext("item") //
                 .withLabel(details.label) //
@@ -167,10 +167,10 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         if (details.isIgnoredCommandClass(details.commandClassName)) {
             return channels;
         }
-        logger.trace("Node {} building channel with Id: {}", details.nodeId, details.Id);
+        logger.trace("Node {} building channel with Id: {}", details.nodeId, details.id);
         logger.trace(" >> {}", details);
 
-        ChannelUID channelUID = new ChannelUID(thingUID, details.Id);
+        ChannelUID channelUID = new ChannelUID(thingUID, details.id);
 
         Configuration newChannelConfiguration = new Configuration();
         newChannelConfiguration.put(BindingConstants.CONFIG_CHANNEL_INCOMING_UNIT, details.unitSymbol);
@@ -202,12 +202,12 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
                     }
                 }
 
-                channels.put(details.Id, builder.build());
+                channels.put(details.id, builder.build());
 
-                logger.debug("Node {}. Channel {} existing channel updated", details.nodeId, details.Id);
+                logger.debug("Node {}. Channel {} existing channel updated", details.nodeId, details.id);
                 return channels;
             } else {
-                logger.debug("Node {}. Channel {} exists: ignored", details.nodeId, details.Id);
+                logger.debug("Node {}. Channel {} exists: ignored", details.nodeId, details.id);
                 return channels;
             }
         }
@@ -221,7 +221,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         ChannelBuilder builder = ChannelBuilder.create(channelUID, details.itemType).withLabel(details.label)
                 .withConfiguration(newChannelConfiguration).withType(channelType.getUID());
 
-        channels.put(details.Id, builder.build());
+        channels.put(details.id, builder.build());
         return channels;
     }
 
@@ -235,7 +235,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         }
         if (channelType == null) {
             logger.warn("Node {} Channel {}, ChannelType could not be found or generated, please report, this is a bug",
-                    details.nodeId, details.Id);
+                    details.nodeId, details.id);
             return null;
         }
         return channelType;

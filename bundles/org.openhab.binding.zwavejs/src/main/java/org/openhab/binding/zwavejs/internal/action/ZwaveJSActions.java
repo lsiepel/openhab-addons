@@ -39,6 +39,7 @@ public class ZwaveJSActions implements ThingActions {
     public void startInclusion() {
         ZwaveJSBridgeHandler localHandler = handler;
         if (localHandler != null) {
+            logger.debug("Inclusion action issued");
             localHandler.startInclusion();
         }
     }
@@ -51,6 +52,7 @@ public class ZwaveJSActions implements ThingActions {
     public void startExclusion() {
         ZwaveJSBridgeHandler localHandler = handler;
         if (localHandler != null) {
+            logger.debug("Exclusion action issued");
             localHandler.startExclusion();
         }
     }

@@ -48,7 +48,7 @@ public class ConfigMetadataTest {
 
         ConfigMetadata details = new ConfigMetadata(6, node.values.get(6));
 
-        assertEquals("configuration-always-on-function", details.Id);
+        assertEquals("configuration-always-on-function", details.id);
         assertEquals(Type.INTEGER, details.configType);
         assertEquals("Always On Function", details.label);
         assertEquals("Once activated, Wall Plug will keep a connected device ...", details.description);
@@ -77,7 +77,7 @@ public class ConfigMetadataTest {
 
         ConfigMetadata details = new ConfigMetadata(7, node.values.get(23));
 
-        assertEquals("configuration-key-s-1-associations-send-when-double-clicking-8", details.Id);
+        assertEquals("configuration-key-s-1-associations-send-when-double-clicking-8", details.id);
         assertEquals(Type.INTEGER, details.configType);
         assertEquals("Key S 1 Associations : Send When Double Clicking", details.label);
         assertNull(details.description);

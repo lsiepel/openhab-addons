@@ -263,7 +263,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
     @Override
     public boolean onNodeStateChanged(Event event) {
-        logger.debug("Node {}. State changed", config.id);
+        logger.debug("Node {}. State changed event", config.id);
         if (!configurationAsChannels && CONFIGURATION_COMMAND_CLASSES.contains(event.args.commandClassName)) {
             if (event.args.newValue == null) {
                 logger.debug("Node {}. Configuration value not set, because it is null.", config.id);
@@ -271,24 +271,23 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             }
             ConfigMetadata details = new ConfigMetadata(getId(), event);
             Configuration configuration = editConfiguration();
-            configuration.put(details.Id, event.args.newValue);
+            configuration.put(details.id, event.args.newValue);
             updateConfiguration(configuration);
         } else {
             ChannelMetadata metadata = new ChannelMetadata(getId(), event);
-            if (!metadata.isIgnoredCommandClass(event.args.commandClassName) && isLinked(metadata.Id)) {
-                var x = thing.getChannels();
+            if (!metadata.isIgnoredCommandClass(event.args.commandClassName) && isLinked(metadata.id)) {
                 @SuppressWarnings("null") // as we checked by isLinked the channel can't be null
-                ZwaveJSChannelConfiguration channelConfig = thing.getChannel(metadata.Id).getConfiguration()
+                ZwaveJSChannelConfiguration channelConfig = thing.getChannel(metadata.id).getConfiguration()
                         .as(ZwaveJSChannelConfiguration.class);
 
                 State state = metadata.setState(event.args.newValue, channelConfig.itemType, channelConfig.incomingUnit,
                         channelConfig.inverted);
                 if (state != null) {
                     try {
-                        updateState(metadata.Id, state);
+                        updateState(metadata.id, state);
                     } catch (IllegalArgumentException e) {
                         logger.warn("Node {}. Error updating state for channel {} with value {}. {}", event.nodeId,
-                                metadata.Id, state.toFullString(), e.getMessage());
+                                metadata.id, state.toFullString(), e.getMessage());
                     }
                 }
             }

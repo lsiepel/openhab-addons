@@ -75,7 +75,7 @@ public class ConfigMetadata extends BaseMetadata {
         StringBuilder sb = new StringBuilder();
         sb.append("BaseMetadata [");
         sb.append(", nodeId=" + nodeId);
-        sb.append(", Id=" + Id);
+        sb.append(", Id=" + id);
         sb.append(", label=" + label);
         sb.append(", description=" + description);
         sb.append(", unitSymbol=" + unitSymbol);

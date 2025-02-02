@@ -12,9 +12,12 @@
  */
 package org.openhab.binding.zwavejs.internal.api.dto;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * @author Leo Siepel - Initial contribution
  */
 public class ParamInformation {
-    public Map _map;
+    @SerializedName("_map")
+    public Map map;
 }
