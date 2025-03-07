@@ -72,7 +72,7 @@ import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 @NonNullByDefault
 public class ZWaveJSClient implements WebSocketListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(ZWaveJSClient.class);
+    private Logger logger = LoggerFactory.getLogger(ZWaveJSClient.class);
     private int bufferSize = 1048576 * 2; // 8 Mb
     private static final String BINDING_SHUTDOWN_MESSAGE = "Binding shutdown";
 

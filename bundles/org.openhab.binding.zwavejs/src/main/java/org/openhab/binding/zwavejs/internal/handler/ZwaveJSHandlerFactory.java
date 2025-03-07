@@ -19,7 +19,6 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
-import org.openhab.core.i18n.TimeZoneProvider;
 import org.openhab.core.io.net.http.WebSocketFactory;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
@@ -44,14 +43,12 @@ public class ZwaveJSHandlerFactory extends BaseThingHandlerFactory {
     private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_GATEWAY, THING_TYPE_NODE);
 
     private WebSocketFactory webSocketFactory;
-    private TimeZoneProvider timeZoneProvider;
     private ZwaveJSTypeGenerator typeGenerator;
 
     @Activate
     public ZwaveJSHandlerFactory(final @Reference WebSocketFactory webSocketFactory,
-            final @Reference TimeZoneProvider timeZoneProvider, final @Reference ZwaveJSTypeGenerator typeGenerator) {
+            final @Reference ZwaveJSTypeGenerator typeGenerator) {
         this.webSocketFactory = webSocketFactory;
-        this.timeZoneProvider = timeZoneProvider;
         this.typeGenerator = typeGenerator;
     }
 

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class ChannelMetadata extends BaseMetadata {
 
-    private static final Logger logger = LoggerFactory.getLogger(ChannelMetadata.class);
+    private Logger logger = LoggerFactory.getLogger(ChannelMetadata.class);
     private static final List<String> IGNORED_COMMANDCLASSES = List.of("Manufacturer Specific", "Version");
     private static final List<String> ADVANCED_CHANNELS = List.of("32-restorePrevious", "32-duration", //
             "38-On", //

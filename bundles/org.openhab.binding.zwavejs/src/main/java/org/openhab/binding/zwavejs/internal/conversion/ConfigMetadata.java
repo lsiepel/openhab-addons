@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class ConfigMetadata extends BaseMetadata {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigMetadata.class);
+    private Logger logger = LoggerFactory.getLogger(ConfigMetadata.class);
 
     public @Nullable State state;
     public @Nullable StateDescriptionFragment statePattern;

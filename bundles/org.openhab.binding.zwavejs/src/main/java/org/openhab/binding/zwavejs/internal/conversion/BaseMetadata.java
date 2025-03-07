@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public abstract class BaseMetadata {
 
-    private static final Logger logger = LoggerFactory.getLogger(BaseMetadata.class);
+    private Logger logger = LoggerFactory.getLogger(BaseMetadata.class);
     private static final String DEFAULT_LABEL = "Unknown Label";
     private static final Map<String, String> UNIT_REPLACEMENTS = Map.of("lux", "lx", //
             "Lux", "lx", //
@@ -464,7 +464,7 @@ public abstract class BaseMetadata {
             case CoreItemFactory.NUMBER:
                 String numberFormat = "%1d";
                 if (value instanceof Double) {
-                    // TODO how to properly determine the decimals?
+                    // TODO: how to properly determine the decimals?
                     numberFormat = "%.2f";
                 }
                 if (itemTypeSplitted.length > 1) {
