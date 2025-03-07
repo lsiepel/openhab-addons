@@ -274,7 +274,7 @@ public class ZWaveJSClient implements WebSocketListener {
                 return;
             }
             logger.debug("Sending command: {}.", command.getClass().getSimpleName());
-            logger.trace("DATA >> {}", commandAsJson);
+            logger.debug("DATA >> {}", commandAsJson);
             synchronized (sendLock) {
                 endpoint.sendString(commandAsJson);
             }

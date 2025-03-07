@@ -126,7 +126,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         NodeSetValueCommand zwaveCommand = new NodeSetValueCommand(config.id, channelConfig);
 
         if (command instanceof OnOffType onOffCommand) {
-            if (channelConfig.itemType == CoreItemFactory.DIMMER) {
+            if (CoreItemFactory.DIMMER.equals(channelConfig.itemType)) {
                 zwaveCommand.value = OnOffType.ON.equals(onOffCommand) ? 255 : 0;
             } else {
                 zwaveCommand.value = onOffCommand.equals(channelConfig.inverted ? OnOffType.OFF : OnOffType.ON);
