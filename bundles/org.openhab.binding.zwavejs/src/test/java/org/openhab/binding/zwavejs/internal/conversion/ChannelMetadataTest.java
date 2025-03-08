@@ -30,6 +30,7 @@ import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.Node;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.HSBType;
 import org.openhab.core.library.types.OnOffType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.types.StringType;
@@ -280,6 +281,36 @@ public class ChannelMetadataTest {
         assertEquals(UnDefType.NULL, details.state);
         assertEquals(true, details.writable);
         assertTrue(details.isAdvanced);
+    }
+
+    @Test
+    public void testChannelDetailsStore4Node44Channel11() throws IOException {
+        Node node = getNodeFromStore("store_4.json", 44);
+
+        ChannelMetadata details = new ChannelMetadata(44, node.values.get(11));
+
+        assertEquals("color-switch-color", details.id);
+        assertEquals("Color", details.itemType);
+        assertEquals("Current Color", details.label);
+        assertNull(details.description);
+        assertEquals(HSBType.fromRGB(0, 0, 0), details.state);
+        assertEquals(false, details.writable);
+        assertFalse(details.isAdvanced);
+    }
+
+    @Test
+    public void testChannelDetailsStore4Node44Channel13() throws IOException {
+        Node node = getNodeFromStore("store_4.json", 44);
+
+        ChannelMetadata details = new ChannelMetadata(44, node.values.get(13));
+
+        assertEquals("color-switch-hex-color", details.id);
+        assertEquals("Color", details.itemType);
+        assertEquals("RGB Color", details.label);
+        assertNull(details.description);
+        assertEquals(HSBType.fromRGB(0, 0, 0), details.state);
+        assertEquals(true, details.writable);
+        assertFalse(details.isAdvanced);
     }
 
     @Test

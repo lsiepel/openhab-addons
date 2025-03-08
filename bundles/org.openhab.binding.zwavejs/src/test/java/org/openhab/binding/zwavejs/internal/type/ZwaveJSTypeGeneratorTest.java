@@ -227,7 +227,7 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(41, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(40, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 
     @Test
@@ -269,6 +269,26 @@ public class ZwaveJSTypeGeneratorTest {
     }
 
     @Test
+    public void testGenerateChannelTypeStore4Node44ColorType() throws IOException {
+        Channel channel = getChannel("store_4.json", 44, "color-switch-hex-color");
+        ChannelType type = channelTypeProvider.getChannelType(Objects.requireNonNull(channel.getChannelTypeUID()),
+                null);
+        Configuration configuration = channel.getConfiguration();
+
+        assertNotNull(type);
+        assertEquals("zwavejs:test-bridge:test-thing:color-switch-hex-color", channel.getUID().getAsString());
+        assertEquals("Color", Objects.requireNonNull(type).getItemType());
+        assertEquals("RGB Color", channel.getLabel());
+        assertNotNull(configuration.get(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY));
+
+        StateDescription statePattern = type.getState();
+        assertNotNull(statePattern);
+
+        assertNotNull(type);
+        assertEquals("Color", type.getItemType());
+    }
+
+    @Test
     public void testGenerateChannelTypeStore4AllNodes() throws IOException {
         ResultMessage resultMessage = DataUtil.fromJson("store_4.json", ResultMessage.class);
         Map<String, Channel> channels = new HashMap<>();
@@ -280,6 +300,6 @@ public class ZwaveJSTypeGeneratorTest {
         }
         ;
 
-        assertEquals(29, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(27, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
     }
 }

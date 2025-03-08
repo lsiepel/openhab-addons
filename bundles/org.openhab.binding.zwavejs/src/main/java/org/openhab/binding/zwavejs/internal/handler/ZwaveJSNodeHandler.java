@@ -67,6 +67,7 @@ import org.openhab.core.thing.binding.builder.ThingBuilder;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.State;
 import org.openhab.core.types.util.UnitUtils;
+import org.openhab.core.util.ColorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,6 +132,9 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             } else {
                 zwaveCommand.value = onOffCommand.equals(channelConfig.inverted ? OnOffType.OFF : OnOffType.ON);
             }
+        } else if (command instanceof HSBType hsbTypeCommand) {
+            int[] rgb = ColorUtil.hsbToRgb(hsbTypeCommand);
+            zwaveCommand.value = String.format("%02X%02X%02X", rgb[0], rgb[1], rgb[2]);
         } else if (command instanceof QuantityType<?> quantityCommand) {
             Unit<?> unit = UnitUtils.parseUnit(channelConfig.incomingUnit);
             if (unit == null) {
@@ -154,8 +158,6 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         } else if (command instanceof DecimalType decimalCommand) {
             zwaveCommand.value = decimalCommand.doubleValue();
         } else if (command instanceof DateTimeType dateTimeCommand) {
-            throw new UnsupportedOperationException();
-        } else if (command instanceof HSBType hsbTypeCommand) {
             throw new UnsupportedOperationException();
         } else if (command instanceof IncreaseDecreaseType increaseDecreaseCommand) {
             throw new UnsupportedOperationException();

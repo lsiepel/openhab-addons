@@ -68,7 +68,7 @@ public abstract class BaseMetadata {
             "°(C/F)", "", // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
             "°F/C", ""); // special case where Zwave JS sends °F/C as unit, but is actually dimensionless
     private static final Map<String, String> CHANNEL_ID_PROPERTY_NAME_REPLACEMENTS = Map.of("currentValue", "value", //
-            "targetValue", "value"); //
+            "targetValue", "value", "currentColor", "color", "targetColor", "color"); //
     private static final List<Integer> COMMAND_CLASSES_ADVANCED = List.of(44, 117);
     private static final List<Integer> SWITCH_STATES_OFF_CLOSED = List.of(-1, 0, 23);
 
@@ -417,14 +417,15 @@ public abstract class BaseMetadata {
 
     /**
      * Checks if the given map represents an RGB color map.
-     * An RGB color map should have either 3 or 4 entries and must contain the keys "red", "green", and "blue".
+     * An RGB color map should have atleast 3 entries and must contain the keys "red", "green", and "blue", optional is
+     * a 4th element "warmWhite".
      *
      * @param map the map to check
      * @return true if the map represents an RGB color map, false otherwise
      */
     private boolean isRGBMap(Map<?, ?> map) {
-        return map.size() == 3
-                || map.size() == 4 && map.containsKey("red") && map.containsKey("green") && map.containsKey("blue");
+        return (map.containsKey("red") && map.containsKey("green") && map.containsKey("blue"))
+                && (map.size() == 3 || (map.size() == 4 && map.containsKey("warmWhite")));
     }
 
     protected String itemTypeFromMetadata(MetadataType type, @Nullable Object value, String commandClassName,
@@ -480,6 +481,9 @@ public abstract class BaseMetadata {
                 break;
             case CoreItemFactory.DIMMER:
                 pattern = "%1d %%";
+                break;
+            case CoreItemFactory.COLOR:
+                pattern = "";
                 break;
             case CoreItemFactory.STRING:
             case CoreItemFactory.SWITCH:
