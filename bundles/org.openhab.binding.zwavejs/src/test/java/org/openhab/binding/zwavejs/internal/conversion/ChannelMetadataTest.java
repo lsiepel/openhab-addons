@@ -296,4 +296,19 @@ public class ChannelMetadataTest {
         assertEquals(false, details.writable);
         assertFalse(details.isAdvanced);
     }
+
+    @Test
+    public void testChannelDetailsStore4Node78Channel22() throws IOException {
+        Node node = getNodeFromStore("store_4.json", 78);
+
+        ChannelMetadata details = new ChannelMetadata(78, node.values.get(22));
+
+        assertEquals("notification-access-control-door-state-simple", details.id);
+        assertEquals("Switch", details.itemType);
+        assertEquals("Door State (Simple)", details.label);
+        assertNull(details.description);
+        assertEquals(OnOffType.OFF, details.state);
+        assertEquals(false, details.writable);
+        assertFalse(details.isAdvanced);
+    }
 }

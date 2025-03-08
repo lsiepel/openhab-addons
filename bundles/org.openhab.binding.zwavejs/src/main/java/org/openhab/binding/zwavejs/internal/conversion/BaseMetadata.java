@@ -70,6 +70,7 @@ public abstract class BaseMetadata {
     private static final Map<String, String> CHANNEL_ID_PROPERTY_NAME_REPLACEMENTS = Map.of("currentValue", "value", //
             "targetValue", "value"); //
     private static final List<Integer> COMMAND_CLASSES_ADVANCED = List.of(44, 117);
+    private static final List<Integer> SWITCH_STATES_OFF_CLOSED = List.of(-1, 0, 23);
 
     public final int nodeId;
     public final String id;
@@ -321,8 +322,12 @@ public abstract class BaseMetadata {
     }
 
     private @Nullable State handleSwitchType(Object value, boolean inverted) {
+        logger.debug("Node {}, handleSwitchType value {}", nodeId, value);
         if (value instanceof Number numberValue) {
-            return OnOffType.from(inverted ? numberValue.intValue() < 1 : numberValue.intValue() > 0);
+            logger.debug("Node {}, Numbervalue value detect {}", nodeId, numberValue);
+
+            boolean offOrClosedState = SWITCH_STATES_OFF_CLOSED.contains(numberValue.intValue());
+            return OnOffType.from(inverted ? offOrClosedState : !offOrClosedState);
         }
         if (!(value instanceof Boolean boolVal)) {
             logger.warn("Node {}, unexpected value type for switch: {}, please file a bug report", nodeId,

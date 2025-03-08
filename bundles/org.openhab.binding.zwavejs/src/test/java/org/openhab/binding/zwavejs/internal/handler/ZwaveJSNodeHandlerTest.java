@@ -267,4 +267,42 @@ public class ZwaveJSNodeHandlerTest {
             handler.dispose();
         }
     }
+
+    @Test
+    public void testStore4Node78ChannelsCreation() {
+        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(78);
+        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
+        final ZwaveJSNodeHandlerMock handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing,
+                "store_4.json");
+
+        try {
+            verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
+            verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
+                    argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
+            verify(callback, times(10)).stateUpdated(any(), any());
+        } finally {
+            handler.dispose();
+        }
+    }
+
+    @Test
+    public void testStore4Node78SwitchEventUpdate() throws IOException {
+        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(78);
+        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_4.json");
+
+        EventMessage eventMessage = DataUtil.fromJson("event_node_78_switch.json", EventMessage.class);
+        handler.onNodeStateChanged(eventMessage.event);
+
+        ChannelUID channelid = new ChannelUID(
+                "zwavejs:test-bridge:test-thing:notification-access-control-door-state-simple");
+        try {
+            verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
+            verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
+                    argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
+            verify(callback).stateUpdated(eq(channelid), eq(OnOffType.ON));
+        } finally {
+            handler.dispose();
+        }
+    }
 }
