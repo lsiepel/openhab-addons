@@ -177,6 +177,7 @@ public class ZWaveJSClient implements WebSocketListener {
             currentPolicy.setInputBufferSize(bufferSize);
             currentPolicy.setMaxTextMessageSize(bufferSize);
             currentPolicy.setMaxBinaryMessageSize(bufferSize);
+            currentPolicy.setIdleTimeout(-1);
             this.session = session;
         }
     }
