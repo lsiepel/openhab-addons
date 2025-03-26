@@ -16,10 +16,14 @@ package org.openhab.binding.zwavejs.internal.api;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.naming.CommunicationException;
 
@@ -31,6 +35,7 @@ import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
+import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.BaseCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.ServerInitializeCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.ServerListeningCommand;
@@ -39,6 +44,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.ResultMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.VersionMessage;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveEventListener;
+import org.openhab.core.common.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +83,11 @@ public class ZWaveJSClient implements WebSocketListener {
     private static final String BINDING_SHUTDOWN_MESSAGE = "Binding shutdown";
 
     private final WebSocketClient wsClient;
+    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(BindingConstants.BINDING_ID);
     private volatile @Nullable Session session;
     private final Set<ZwaveEventListener> listeners = new CopyOnWriteArraySet<>();
     private @Nullable Future<?> sessionFuture;
+    private @Nullable ScheduledFuture<?> keepAliveFuture;
     private final Gson gson;
     private final Object sendLock = new Object();
 
@@ -164,6 +172,12 @@ public class ZWaveJSClient implements WebSocketListener {
             logger.warn("Error invoking event listener on close", e);
         }
 
+        ScheduledFuture<?> keepAliveFuture = this.keepAliveFuture;
+        if (keepAliveFuture != null) {
+            keepAliveFuture.cancel(true);
+        }
+        this.keepAliveFuture = null;
+
         session = null;
         sessionFuture = null;
     }
@@ -177,7 +191,16 @@ public class ZWaveJSClient implements WebSocketListener {
             currentPolicy.setInputBufferSize(bufferSize);
             currentPolicy.setMaxTextMessageSize(bufferSize);
             currentPolicy.setMaxBinaryMessageSize(bufferSize);
-            currentPolicy.setIdleTimeout(-1);
+            keepAliveFuture = scheduler.scheduleWithFixedDelay(() -> {
+                try {
+                    String data = "Ping";
+                    ByteBuffer payload = ByteBuffer.wrap(data.getBytes());
+                    session.getRemote().sendPing(payload);
+                } catch (IOException e) {
+                    logger.warn("Problem starting periodic Ping. {}", e.getMessage());
+                }
+            }, 25, 25, TimeUnit.SECONDS);
+
             this.session = session;
         }
     }
@@ -191,6 +214,11 @@ public class ZWaveJSClient implements WebSocketListener {
         Session localSession = session;
         if (localSession != null) {
             localSession.close(StatusCode.SERVER_ERROR, "Failure: " + localThrowable.getMessage());
+            ScheduledFuture<?> keepAliveFuture = this.keepAliveFuture;
+            if (keepAliveFuture != null) {
+                keepAliveFuture.cancel(true);
+            }
+            this.keepAliveFuture = null;
             session = null;
         }
 
