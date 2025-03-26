@@ -80,7 +80,8 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
         ZwaveJSBridgeConfiguration config = getConfigAs(ZwaveJSBridgeConfiguration.class);
 
         if (!config.isValid()) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "@text/offline.conf-error.hostname-or-port");
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error.hostname-or-port");
             return;
         }
 
