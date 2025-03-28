@@ -280,6 +280,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         } else {
             ChannelMetadata metadata = new ChannelMetadata(getId(), event);
             if (!metadata.isIgnoredCommandClass(event.args.commandClassName) && isLinked(metadata.id)) {
+                logger.trace("Getting the configuration for linked channel {}", metadata.id);
                 @SuppressWarnings("null") // as we checked by isLinked the channel can't be null
                 ZwaveJSChannelConfiguration channelConfig = thing.getChannel(metadata.id).getConfiguration()
                         .as(ZwaveJSChannelConfiguration.class);
