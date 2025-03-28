@@ -80,6 +80,7 @@ public class ZWaveJSClient implements WebSocketListener {
 
     private Logger logger = LoggerFactory.getLogger(ZWaveJSClient.class);
     private int bufferSize = 1048576 * 2; // 8 Mb
+    private static final int RECONNECT_INTERVAL_MINUTES = 2;
     private static final String BINDING_SHUTDOWN_MESSAGE = "Binding shutdown";
 
     private final WebSocketClient wsClient;
@@ -88,8 +89,10 @@ public class ZWaveJSClient implements WebSocketListener {
     private final Set<ZwaveEventListener> listeners = new CopyOnWriteArraySet<>();
     private @Nullable Future<?> sessionFuture;
     private @Nullable ScheduledFuture<?> keepAliveFuture;
+    private @Nullable ScheduledFuture<?> reconnectFuture;
     private final Gson gson;
     private final Object sendLock = new Object();
+    private String uri = "";
 
     public ZWaveJSClient(WebSocketClient wsClient) {
         this.wsClient = wsClient;
@@ -111,6 +114,7 @@ public class ZWaveJSClient implements WebSocketListener {
      */
     public void start(String uri) throws CommunicationException, InterruptedException {
         logger.debug("Connecting to Z-Wave JS Webservice");
+        this.uri = uri;
         try {
             sessionFuture = wsClient.connect(this, new URI(uri));
         } catch (IOException | URISyntaxException e) {
@@ -175,6 +179,28 @@ public class ZWaveJSClient implements WebSocketListener {
         stopKeepAlive();
         session = null;
         sessionFuture = null;
+        scheduleReconnect();
+    }
+
+    private void scheduleReconnect() {
+        ScheduledFuture<?> reconnectFuture = this.reconnectFuture;
+        if (reconnectFuture != null) {
+            return;
+        }
+        logger.info("Scheduling reconnect to Z-Wave JS Webservice every {} minutes", RECONNECT_INTERVAL_MINUTES);
+        reconnectFuture = scheduler.scheduleAtFixedRate(() -> {
+            try {
+                start(this.uri);
+                ScheduledFuture<?> future = this.reconnectFuture;
+                if (future != null) {
+                    future.cancel(false);
+                    this.reconnectFuture = null;
+                }
+            } catch (CommunicationException | InterruptedException e) {
+                // silently ignore as the thing state is already updated when the connection is lost
+                logger.debug("Error while reconnecting to Z-Wave JS Webservice: {}", e.getMessage());
+            }
+        }, RECONNECT_INTERVAL_MINUTES, RECONNECT_INTERVAL_MINUTES, TimeUnit.MINUTES);
     }
 
     private void stopKeepAlive() {
