@@ -125,6 +125,7 @@ public class ZWaveJSClient implements WebSocketListener {
         logger.debug("Disconnecting from Z-Wave JS Webservice");
         Session localSession = this.session;
         if (localSession != null) {
+            stopKeepAlive();
             try {
                 localSession.close(StatusCode.NORMAL, BINDING_SHUTDOWN_MESSAGE);
             } catch (Exception e) {
@@ -171,15 +172,17 @@ public class ZWaveJSClient implements WebSocketListener {
         } catch (Exception e) {
             logger.warn("Error invoking event listener on close", e);
         }
+        stopKeepAlive();
+        session = null;
+        sessionFuture = null;
+    }
 
+    private void stopKeepAlive() {
         ScheduledFuture<?> keepAliveFuture = this.keepAliveFuture;
         if (keepAliveFuture != null) {
             keepAliveFuture.cancel(true);
         }
         this.keepAliveFuture = null;
-
-        session = null;
-        sessionFuture = null;
     }
 
     @Override
@@ -213,12 +216,8 @@ public class ZWaveJSClient implements WebSocketListener {
 
         Session localSession = session;
         if (localSession != null) {
+            stopKeepAlive();
             localSession.close(StatusCode.SERVER_ERROR, "Failure: " + localThrowable.getMessage());
-            ScheduledFuture<?> keepAliveFuture = this.keepAliveFuture;
-            if (keepAliveFuture != null) {
-                keepAliveFuture.cancel(true);
-            }
-            this.keepAliveFuture = null;
             session = null;
         }
 
@@ -274,7 +273,11 @@ public class ZWaveJSClient implements WebSocketListener {
                 listener.onEvent(baseEvent);
             }
         } catch (Exception e) {
-            logger.warn("Error invoking event listener on websockettext", e);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Error invoking event listener on websockettext", e);
+            } else {
+                logger.warn("Error invoking event listener on websockettext", e);
+            }
         }
 
         if (baseEvent instanceof VersionMessage) {

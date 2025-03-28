@@ -322,10 +322,7 @@ public abstract class BaseMetadata {
     }
 
     private @Nullable State handleSwitchType(Object value, boolean inverted) {
-        logger.debug("Node {}, handleSwitchType value {}", nodeId, value);
         if (value instanceof Number numberValue) {
-            logger.debug("Node {}, Numbervalue value detect {}", nodeId, numberValue);
-
             boolean offOrClosedState = SWITCH_STATES_OFF_CLOSED.contains(numberValue.intValue());
             return OnOffType.from(inverted ? offOrClosedState : !offOrClosedState);
         }
