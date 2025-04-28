@@ -15,6 +15,7 @@ package org.openhab.binding.zwavejs.internal.action;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
+import org.openhab.core.automation.annotation.ActionInput;
 import org.openhab.core.automation.annotation.RuleAction;
 import org.openhab.core.thing.binding.ThingActions;
 import org.openhab.core.thing.binding.ThingActionsScope;
@@ -59,6 +60,25 @@ public class ZwaveJSActions implements ThingActions {
 
     public static void startExclusion(ThingActions actions) {
         ((ZwaveJSActions) actions).startExclusion();
+    }
+
+    @RuleAction(label = "send multicast command", description = "Send command to multiple nodes")
+    public void sendMulticastCommand(
+            @ActionInput(name = "nodeIDs", label = "node IDs", description = "Comma separated list of Z-Wave node IDs") String nodeIDs,
+            @ActionInput(name = "commandClass", label = "command class", description = "Z-Wave command class") Integer commandClass,
+            @ActionInput(name = "endpoint", label = "endpoint", description = "Z-Wave endpoint") Integer endpoint,
+            @ActionInput(name = "property", label = "property", description = "Z-Wave write property") String property,
+            @ActionInput(name = "value", label = "value", description = "Value to write") String value) {
+        ZwaveJSBridgeHandler localHandler = handler;
+        if (localHandler != null) {
+            logger.debug("Multicast action issued");
+            localHandler.sendMulticastCommand(nodeIDs, commandClass, endpoint, property, value);
+        }
+    }
+
+    public static void sendMulticastCommand(ThingActions actions, String nodeIDs, Integer commandClass,
+            Integer endpoint, String property, String value) {
+        ((ZwaveJSActions) actions).sendMulticastCommand(nodeIDs, commandClass, endpoint, property, value);
     }
 
     @Override

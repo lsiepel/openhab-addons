@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.zwavejs.internal.handler;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.openhab.binding.zwavejs.internal.api.dto.Status;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.BaseCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.ControllerExclusionCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.ControllerInclusionCommand;
+import org.openhab.binding.zwavejs.internal.api.dto.commands.MulticastSetValueCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.commands.ServerListeningCommand;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.BaseMessage;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
@@ -178,7 +180,7 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
 
     /**
      * Initiates a full refresh of all data from the remote service.
-     * 
+     *
      */
     public void getFullState() {
         if (getThing().getStatus().equals(ThingStatus.ONLINE)) {
@@ -258,5 +260,23 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
 
     public void startExclusion() {
         sendCommand(new ControllerExclusionCommand());
+    }
+
+    public void sendMulticastCommand(String nodeIDs, Integer commandClass, Integer endpoint, String property,
+            String value) {
+        sendCommand(new MulticastSetValueCommand(parseNodeIDs(nodeIDs), commandClass, endpoint, property,
+                convertValueType(value)));
+    }
+
+    private static int[] parseNodeIDs(String nodeIDs) {
+        return Arrays.stream(nodeIDs.split(",")).map(String::trim).mapToInt(Integer::parseInt).toArray();
+    }
+
+    private static Object convertValueType(String value) {
+        try {
+            return Double.parseDouble(value.trim());
+        } catch (NumberFormatException e) {
+            return value;
+        }
     }
 }
