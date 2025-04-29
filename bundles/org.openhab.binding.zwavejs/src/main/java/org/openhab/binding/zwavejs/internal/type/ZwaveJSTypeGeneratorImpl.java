@@ -141,7 +141,6 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         ConfigDescriptionParameterBuilder parameterBuilder = ConfigDescriptionParameterBuilder
                 .create(details.id, details.configType) //
                 .withRequired(details.state != null) //
-                .withContext("item") //
                 .withLabel(details.label) //
                 .withVerify(details.state != null) //
                 .withUnit(null) //
@@ -156,6 +155,7 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
             optionList.forEach((k, v) -> options.add(new ParameterOption(k, v)));
             parameterBuilder.withLimitToOptions(true);
             parameterBuilder.withMultiple(false);
+            parameterBuilder.withContext("item");
             parameterBuilder.withOptions(options);
         }
 
