@@ -58,7 +58,7 @@ Bridge zwavejs:gateway:myBridge "Z-Wave JS Bridge" [ hostname="localhost", port=
 ### `demo.items` Example
 
 ```java
-Switch LightSwitch "Light Switch" { channel="zwavejs:node:controller:node1:switch_binary" }
+Switch LightSwitch "Light Switch" { channel="zwavejs:node:myBridge:node1:switch_binary" }
 ```
 
 ## Troubleshooting
