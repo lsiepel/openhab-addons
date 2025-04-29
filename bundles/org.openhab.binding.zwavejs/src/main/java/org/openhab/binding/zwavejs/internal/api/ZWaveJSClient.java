@@ -57,22 +57,22 @@ import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
  * The {@code ZWaveJSClient} class is responsible for managing the WebSocket connection
  * to the Z-Wave JS Webservice. It implements the {@link WebSocketListener} interface to
  * handle WebSocket events such as connection, disconnection, and message reception.
- * 
+ *
  * <p>
  * This class provides methods to start and stop the WebSocket connection, as well as
  * to add and remove event listeners for Z-Wave events. It also includes functionality
  * to send commands to the Z-Wave JS server.
- * 
+ *
  * <p>
  * Thread Safety: This class is thread-safe. It uses a {@link CopyOnWriteArraySet} for
  * managing event listeners and ensures that the WebSocket session is accessed in a
  * thread-safe manner.
- * 
+ *
  * @see WebSocketListener
  * @see WebSocketClient
  * @see BaseMessage
  * @see BaseCommand
- * 
+ *
  * @author Leo Siepel - Initial contribution
  */
 @NonNullByDefault
@@ -188,7 +188,7 @@ public class ZWaveJSClient implements WebSocketListener {
             return;
         }
         logger.info("Scheduling reconnect to Z-Wave JS Webservice every {} minutes", RECONNECT_INTERVAL_MINUTES);
-        reconnectFuture = scheduler.scheduleAtFixedRate(() -> {
+        this.reconnectFuture = scheduler.scheduleAtFixedRate(() -> {
             try {
                 start(this.uri);
                 ScheduledFuture<?> future = this.reconnectFuture;
