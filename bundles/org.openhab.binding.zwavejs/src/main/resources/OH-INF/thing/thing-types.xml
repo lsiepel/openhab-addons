@@ -8,7 +8,7 @@
 
 		<label>Z-Wave JS Gateway</label>
 		<description>The Z-Wave JS server that acts as a bridge to the Z-Wave network</description>
-
+		<semantic-equipment-tag>NetworkAppliance</semantic-equipment-tag>
 		<config-description>
 			<parameter name="hostname" type="text" required="true">
 				<context>network-address</context>
