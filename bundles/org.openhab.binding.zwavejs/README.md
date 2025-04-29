@@ -8,7 +8,7 @@ For documentation about Z-Wave JS UI please visit <https://zwave-js.github.io/zw
 
 This binding supports the following types of things:
 
-- `bridge`: Represents the Z-Wave JS Webservice bridge. This is required to communicate with the Z-Wave network.
+- `gateway`: Represents the Z-Wave JS Webservice bridge. This is required to communicate with the Z-Wave network.
 - `node`: Represents a Z-Wave device (node) in the network. Each node can have multiple channels corresponding to its capabilities.
 
 ## Discovery
@@ -49,8 +49,10 @@ These Channels are dynamically added to the Thing during node initialization and
 ### `demo.things` Example
 
 ```java
-Bridge zwavejs:bridge:myBridge "Z-Wave JS Bridge" [ hostname="localhost", port=3000 ]
-Thing zwavejs:node:myBridge:node1 "Z-Wave Node 1" [ nodeId=1 ]
+Bridge zwavejs:gateway:myBridge "Z-Wave JS Bridge" [ hostname="localhost", port=3000 ] {
+    Thing zwavejs:node:myBridge:node1 "Z-Wave Node 1" [ id=1 ]
+    Thing zwavejs:node:myBridge:node2 "Z-Wave Node 2" [ id=2 ]
+}
 ```
 
 ### `demo.items` Example
