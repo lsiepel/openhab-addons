@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class ZwaveJSActions implements ThingActions {
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSActions.class);
-    private final static ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("zwavejs");
+    private static final ScheduledExecutorService SCHEDULER = ThreadPoolManager.getScheduledPool("zwavejs");
     private @Nullable ZwaveJSBridgeHandler handler;
 
     @RuleAction(label = "start inclusion", description = "Put the controller for 30s in network wide inclusion mode")
@@ -46,7 +46,7 @@ public class ZwaveJSActions implements ThingActions {
         if (localHandler != null) {
             logger.debug("Inclusion action issued");
             localHandler.startInclusion();
-            scheduler.schedule(() -> {
+            SCHEDULER.schedule(() -> {
                 localHandler.stopInclusion();
             }, 30, java.util.concurrent.TimeUnit.SECONDS);
         }
@@ -62,7 +62,7 @@ public class ZwaveJSActions implements ThingActions {
         if (localHandler != null) {
             logger.debug("Exclusion action issued");
             localHandler.startExclusion();
-            scheduler.schedule(() -> {
+            SCHEDULER.schedule(() -> {
                 localHandler.stopExclusion();
             }, 30, java.util.concurrent.TimeUnit.SECONDS);
         }

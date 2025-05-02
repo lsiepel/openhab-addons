@@ -188,7 +188,7 @@ public class ZWaveJSClient implements WebSocketListener {
             return;
         }
         logger.info("Scheduling reconnect to Z-Wave JS Webservice every {} minutes", RECONNECT_INTERVAL_MINUTES);
-        this.reconnectFuture = scheduler.scheduleAtFixedRate(() -> {
+        this.reconnectFuture = scheduler.scheduleWithFixedDelay(() -> {
             try {
                 start(this.uri);
                 ScheduledFuture<?> future = this.reconnectFuture;
