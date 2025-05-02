@@ -255,11 +255,19 @@ public class ZwaveJSBridgeHandler extends BaseBridgeHandler implements ZwaveEven
     }
 
     public void startInclusion() {
-        sendCommand(new ControllerInclusionCommand());
+        sendCommand(new ControllerInclusionCommand(false));
+    }
+
+    public void stopInclusion() {
+        sendCommand(new ControllerInclusionCommand(true));
     }
 
     public void startExclusion() {
-        sendCommand(new ControllerExclusionCommand());
+        sendCommand(new ControllerExclusionCommand(false));
+    }
+
+    public void stopExclusion() {
+        sendCommand(new ControllerExclusionCommand(true));
     }
 
     public void sendMulticastCommand(String nodeIDs, Integer commandClass, Integer endpoint, String property,

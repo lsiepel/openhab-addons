@@ -17,7 +17,7 @@ package org.openhab.binding.zwavejs.internal.api.dto.commands;
  */
 public class ControllerInclusionCommand extends BaseCommand {
 
-    public ControllerInclusionCommand() {
-        command = "controller.begin_inclusion";
+    public ControllerInclusionCommand(boolean stop) {
+        command = stop ? "controller.stop_inclusion" : "controller.begin_inclusion";
     }
 }

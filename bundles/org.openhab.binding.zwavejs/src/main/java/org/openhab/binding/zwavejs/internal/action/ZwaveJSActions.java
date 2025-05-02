@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.zwavejs.internal.action;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.zwavejs.internal.handler.ZwaveJSBridgeHandler;
 import org.openhab.core.automation.annotation.ActionInput;
 import org.openhab.core.automation.annotation.RuleAction;
+import org.openhab.core.common.ThreadPoolManager;
 import org.openhab.core.thing.binding.ThingActions;
 import org.openhab.core.thing.binding.ThingActionsScope;
 import org.openhab.core.thing.binding.ThingHandler;
@@ -34,14 +37,19 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class ZwaveJSActions implements ThingActions {
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSActions.class);
+    private final static ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("zwavejs");
     private @Nullable ZwaveJSBridgeHandler handler;
+    
 
-    @RuleAction(label = "start inclusion", description = "Put the controller in network wide inclusion mode")
+    @RuleAction(label = "start inclusion", description = "Put the controller for 30s in network wide inclusion mode")
     public void startInclusion() {
         ZwaveJSBridgeHandler localHandler = handler;
         if (localHandler != null) {
             logger.debug("Inclusion action issued");
             localHandler.startInclusion();
+            scheduler.schedule(() -> {
+                localHandler.stopInclusion();
+            }, 30, java.util.concurrent.TimeUnit.SECONDS);
         }
     }
 
@@ -49,12 +57,15 @@ public class ZwaveJSActions implements ThingActions {
         ((ZwaveJSActions) actions).startInclusion();
     }
 
-    @RuleAction(label = "start exclusion", description = "Put the controller in network wide exclusion mode")
+    @RuleAction(label = "start exclusion", description = "Put the controller for 30s in network wide exclusion mode")
     public void startExclusion() {
         ZwaveJSBridgeHandler localHandler = handler;
         if (localHandler != null) {
             logger.debug("Exclusion action issued");
             localHandler.startExclusion();
+            scheduler.schedule(() -> {
+                localHandler.stopExclusion();
+            }, 30, java.util.concurrent.TimeUnit.SECONDS);
         }
     }
 

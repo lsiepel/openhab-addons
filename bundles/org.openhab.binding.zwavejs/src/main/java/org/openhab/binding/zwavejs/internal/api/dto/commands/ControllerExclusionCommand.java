@@ -17,7 +17,7 @@ package org.openhab.binding.zwavejs.internal.api.dto.commands;
  */
 public class ControllerExclusionCommand extends BaseCommand {
 
-    public ControllerExclusionCommand() {
-        command = "controller.begin_exclusion";
+    public ControllerExclusionCommand(boolean stop) {
+        command = stop ? "controller.stop_exclusion" : "controller.begin_exclusion";
     }
 }
