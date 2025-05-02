@@ -12,14 +12,22 @@
  */
 package org.openhab.binding.zwavejs.internal.api.dto.commands;
 
+import org.openhab.binding.zwavejs.internal.api.dto.ValueId;
+import org.openhab.binding.zwavejs.internal.config.ZwaveJSChannelConfiguration;
+
 /**
  * @author Leo Siepel - Initial contribution
  */
 public class NodeGetValueCommand extends BaseCommand {
     public int nodeId;
+    public ValueId valueId;
 
-    public NodeGetValueCommand(int nodeId) {
+    public NodeGetValueCommand(int nodeId, ZwaveJSChannelConfiguration config) {
         command = "node.get_value";
         this.nodeId = nodeId;
+
+        this.valueId = new ValueId();
+        this.valueId.commandClass = config.commandClassId;
+        this.valueId.endpoint = config.endpoint;
     }
 }
