@@ -38,6 +38,7 @@ import org.openhab.binding.zwavejs.internal.conversion.ConfigMetadata;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGenerator;
 import org.openhab.binding.zwavejs.internal.type.ZwaveJSTypeGeneratorResult;
 import org.openhab.core.config.core.Configuration;
+import org.openhab.core.config.core.validation.ConfigValidationException;
 import org.openhab.core.library.CoreItemFactory;
 import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
@@ -91,18 +92,41 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
         this.typeGenerator = typeGenerator;
     }
 
-    /*
-     * @Override
-     * public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
-     * throws ConfigValidationException {
-     * super.handleConfigurationUpdate(configurationParameters);
-     * 
-     * // TODO handle update
-     * // 1 determine changed parameter
-     * // 2 prepare command
-     * // 3 sendCommand
-     * }
-     */
+    @Override
+    public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
+            throws ConfigValidationException {
+        super.handleConfigurationUpdate(configurationParameters);
+        logger.debug("Node {}. Configuration update", config.id);
+        ZwaveJSBridgeHandler handler = getBridgeHandler();
+        if (handler == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED);
+            return;
+        }
+        Node node = handler.requestNodeDetails(config.id);
+        if (node == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "@text/offline.conf-error.no-node-details");
+            return;
+        }
+        ZwaveJSTypeGeneratorResult result = typeGenerator.generate(thing.getUID(), node, true);
+
+        // TODO are we able to determine the changed parameters? The UI has a hold of 'dirty' parameters
+        for (Entry<String, Object> configurationParameter : configurationParameters.entrySet()) {
+            String key = configurationParameter.getKey();
+            Object newValue = configurationParameter.getValue();
+
+            if (result.channels.containsKey(key)) {
+                ZwaveJSChannelConfiguration channelConfig = result.channels.get(key).getConfiguration()
+                        .as(ZwaveJSChannelConfiguration.class);
+                NodeSetValueCommand zwaveCommand = new NodeSetValueCommand(config.id, channelConfig);
+                zwaveCommand.value = newValue;
+                if (zwaveCommand.value != null) {
+                    handler.sendCommand(zwaveCommand);
+                }
+            }
+        }
+    }
+
     @Override
     public void handleRemoval() {
         super.handleRemoval();
