@@ -325,6 +325,18 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
     }
 
     @Override
+    public void onNodeDead(Event event) {
+        logger.trace("Node {}. Dead", config.id);
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, "Z-Wave JS reported this node dead");
+    }
+
+    @Override
+    public void onNodeAlive(Event event) {
+        logger.trace("Node {}. Alive", config.id);
+        updateStatus(ThingStatus.ONLINE);
+    }
+
+    @Override
     public Integer getId() {
         return this.config.id;
     }
