@@ -39,7 +39,6 @@ public class ZwaveJSActions implements ThingActions {
     private final Logger logger = LoggerFactory.getLogger(ZwaveJSActions.class);
     private final static ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("zwavejs");
     private @Nullable ZwaveJSBridgeHandler handler;
-    
 
     @RuleAction(label = "start inclusion", description = "Put the controller for 30s in network wide inclusion mode")
     public void startInclusion() {
