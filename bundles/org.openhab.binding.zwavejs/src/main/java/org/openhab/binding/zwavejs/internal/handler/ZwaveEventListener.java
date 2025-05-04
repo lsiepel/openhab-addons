@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010-2024 Contributors to the openHAB project
+/*
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -28,45 +28,48 @@ import org.openhab.binding.zwavejs.internal.discovery.NodeDiscoveryService;
 @NonNullByDefault
 public interface ZwaveEventListener {
 
-    /**
+    /*
      * Register {@link NodeDiscoveryService} to bridge handler
      *
      * @param listener the discovery service
+     * 
      * @return {@code true} if the new discovery service is accepted
      */
     boolean registerDiscoveryListener(NodeDiscoveryService listener);
 
-    /**
+    /*
      * Unregister {@link NodeDiscoveryService} from bridge handler
      *
      * @return {@code true} if the discovery service was removed
      */
     boolean unregisterDiscoveryListener();
 
-    /**
+    /*
      * Registers a listener for node events.
      *
      * @param nodeListener the listener to be registered
+     * 
      * @return true if the listener was successfully registered, false otherwise
      */
     boolean registerNodeListener(ZwaveNodeListener nodeListener);
 
-    /**
+    /*
      * Unregisters a previously registered node listener.
      *
      * @param nodeListener the node listener to unregister
+     * 
      * @return true if the listener was successfully unregistered, false otherwise
      */
     boolean unregisterNodeListener(ZwaveNodeListener nodeListener);
 
-    /**
+    /*
      * Handles an event when a message is received.
      *
      * @param message the message that was received
      */
     void onEvent(BaseMessage message);
 
-    /**
+    /*
      * This method is called when there is a connection error.
      *
      * @param message the error message describing the connection issue

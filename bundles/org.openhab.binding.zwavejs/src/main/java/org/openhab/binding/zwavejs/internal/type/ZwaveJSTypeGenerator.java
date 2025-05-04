@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010-2024 Contributors to the openHAB project
+/*
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -24,12 +24,15 @@ import org.openhab.core.thing.ThingUID;
 @NonNullByDefault
 public interface ZwaveJSTypeGenerator {
 
-    /**
+    /*
      * Generates a ZwaveJSTypeGeneratorResult based on the provided ThingUID, Node, and configurationAsChannels flag.
      *
      * @param thingUID the unique identifier of the thing
+     * 
      * @param node the node for which the type is being generated
+     * 
      * @param configurationAsChannels a flag indicating whether the configuration should be treated as channels
+     * 
      * @return a ZwaveJSTypeGeneratorResult containing the generated type information
      */
     ZwaveJSTypeGeneratorResult generate(ThingUID thingUID, Node node, boolean configurationAsChannels);

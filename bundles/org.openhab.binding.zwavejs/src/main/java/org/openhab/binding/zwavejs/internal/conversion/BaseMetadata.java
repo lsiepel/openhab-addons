@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010-2024 Contributors to the openHAB project
+/*
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -138,10 +138,11 @@ public abstract class BaseMetadata {
         this.factor = 1.0;
     }
 
-    /**
+    /*
      * Determines the factor based on the unit string.
      *
      * @param unitString the unit string
+     * 
      * @return the factor
      */
     protected Double determineFactor(@Nullable String unitString) {
@@ -173,12 +174,15 @@ public abstract class BaseMetadata {
         return COMMAND_CLASSES_ADVANCED.contains(commandClassId);
     }
 
-    /**
+    /*
      * Normalizes the label based on the provided parameters.
      *
      * @param label the label
+     * 
      * @param endpoint the endpoint
+     * 
      * @param propertyName the property name
+     * 
      * @return the normalized label
      */
     private String normalizeLabel(@Nullable String label, int endpoint, String propertyName) {
@@ -194,10 +198,11 @@ public abstract class BaseMetadata {
         return output;
     }
 
-    /**
+    /*
      * Capitalizes the input string by splitting camelCase words.
      *
      * @param input the input string
+     * 
      * @return the capitalized string
      */
     private String capitalize(@Nullable String input) {
@@ -251,14 +256,19 @@ public abstract class BaseMetadata {
         return generateId(value.commandClassName, value.endpoint, value.propertyName, value.propertyKey);
     }
 
-    /**
+    /*
      * Converts the given value to a State object based on the item type and unit.
      *
      * @param value the value to convert
+     * 
      * @param itemType the item type
+     * 
      * @param unit the unit of the value
+     * 
      * @param inverted whether the value should be inverted
+     * 
      * @param factor the factor to apply to the value
+     * 
      * @return the converted State object, or UnDefType.NULL if the value is null
      */
     protected @Nullable State toState(@Nullable Object value, String itemType, @Nullable Unit<?> unit, boolean inverted,
@@ -293,6 +303,11 @@ public abstract class BaseMetadata {
 
     private @Nullable State handleNumberType(Object value, @Nullable Unit<?> unit, Double factor) {
         if (!(value instanceof Number numberVal)) {
+            if (value instanceof String strVal) {
+                if ("unnknown".equalsIgnoreCase(strVal)) {
+                    return UnDefType.UNDEF;
+                }
+            }
             logger.warn("Node {}, unexpected value type for number: {}, please file a bug report", nodeId,
                     value.getClass().getName());
             return UnDefType.UNDEF;
@@ -359,13 +374,17 @@ public abstract class BaseMetadata {
         }
     }
 
-    /**
+    /*
      * Corrects the metadata type based on the provided value, command class name, and optional list of options.
      *
      * @param type The original metadata type.
+     * 
      * @param value The value to determine the type from if the original type is ANY.
+     * 
      * @param commandClassName The name of the command class.
+     * 
      * @param optionList An optional list of options that may influence the type correction.
+     * 
      * @return The corrected metadata type.
      */
     protected MetadataType correctedType(MetadataType type, @Nullable Object value, String commandClassName,
@@ -385,11 +404,13 @@ public abstract class BaseMetadata {
         }
     }
 
-    /**
+    /*
      * Determines the metadata type from the given value.
      *
      * @param value The value to determine the metadata type from.
+     * 
      * @param commandClassName The name of the command class associated with the value.
+     * 
      * @return The determined metadata type.
      */
     private MetadataType determineTypeFromValue(@Nullable Object value, String commandClassName) {
@@ -412,12 +433,13 @@ public abstract class BaseMetadata {
         return MetadataType.STRING;
     }
 
-    /**
+    /*
      * Checks if the given map represents an RGB color map.
      * An RGB color map should have atleast 3 entries and must contain the keys "red", "green", and "blue", optional is
      * a 4th element "warmWhite".
      *
      * @param map the map to check
+     * 
      * @return true if the map represents an RGB color map, false otherwise
      */
     private boolean isRGBMap(Map<?, ?> map) {

@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010-2024 Contributors to the openHAB project
+/*
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -86,22 +86,26 @@ public class ZwaveJSTypeGeneratorImpl implements ZwaveJSTypeGenerator {
         this.thingRegistry = thingRegistry;
     }
 
-    /**
+    /*
      * Retrieves a Thing by its UID.
      *
      * @param thingUID the UID of the Thing
+     * 
      * @return the Thing, or null if not found
      */
     public @Nullable Thing getThing(ThingUID thingUID) {
         return thingRegistry.get(thingUID);
     }
 
-    /**
+    /*
      * Generates a ZwaveJSTypeGeneratorResult for the given ThingUID and Node.
      *
      * @param thingUID the ThingUID of the device
+     * 
      * @param node the Node containing the values to be processed
+     * 
      * @param configurationAsChannels flag indicating whether to treat configuration as channels
+     * 
      * @return a ZwaveJSTypeGeneratorResult containing the generated channels and configuration descriptions
      */
     @Override

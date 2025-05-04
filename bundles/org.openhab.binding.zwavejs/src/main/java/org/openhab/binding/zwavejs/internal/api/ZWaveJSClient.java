@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010-2024 Contributors to the openHAB project
+/*
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -109,7 +109,9 @@ public class ZWaveJSClient implements WebSocketListener {
      * Starts the WebSocket connection to the Z-Wave JS Webservice.
      *
      * @param uri the URI of the WebSocket server
+     * 
      * @throws CommunicationException if there is an error during communication
+     * 
      * @throws InterruptedException if the thread is interrupted
      */
     public void start(String uri) throws CommunicationException, InterruptedException {
@@ -319,7 +321,9 @@ public class ZWaveJSClient implements WebSocketListener {
      * Sends a command to the Z-Wave JS server.
      *
      * @param command the command to be sent, represented as a {@link BaseCommand} object.
+     * 
      * @throws IOException if an I/O error occurs while sending the command.
+     * 
      * @throws IllegalStateException if the session or remote endpoint is not available.
      */
     public void sendCommand(BaseCommand command) {

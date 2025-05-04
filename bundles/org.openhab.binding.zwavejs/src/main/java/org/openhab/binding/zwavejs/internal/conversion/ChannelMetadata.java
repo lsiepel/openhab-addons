@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010-2024 Contributors to the openHAB project
+/*
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -103,12 +103,15 @@ public class ChannelMetadata extends BaseMetadata {
         return commandClassName != null && IGNORED_COMMANDCLASSES.contains(commandClassName);
     }
 
-    /**
+    /*
      * Sets the state based on the provided event, item type, and unit symbol.
      *
      * @param event The event containing the new value to set the state to.
+     * 
      * @param itemType The type of the item for which the state is being set.
+     * 
      * @param unitSymbol The unit symbol to be used for the state, can be null.
+     * 
      * @return The new state after setting it based on the event's new value.
      */
     public @Nullable State setState(Object value, String itemType, @Nullable String unitSymbol, boolean inverted) {

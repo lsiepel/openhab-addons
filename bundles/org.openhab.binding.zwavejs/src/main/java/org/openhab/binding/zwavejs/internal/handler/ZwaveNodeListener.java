@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010-2024 Contributors to the openHAB project
+/*
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -26,41 +26,42 @@ import org.openhab.binding.zwavejs.internal.api.dto.Node;
 @NonNullByDefault
 public interface ZwaveNodeListener {
 
-    /**
+    /*
      * Retrieves the identifier of the node.
      *
      * @return the identifier of the node as an Integer.
      */
     Integer getId();
 
-    /**
+    /*
      * This method is called when the state of a node changes.
      *
      * @param event the event that contains information about the state change
+     * 
      * @return true if the state change was handled successfully, false otherwise
      */
     boolean onNodeStateChanged(Event event);
 
-    /**
+    /*
      * This method is called when the node is dead
      *
      * @param event the event that contains information about the status change
      */
     void onNodeDead(Event event);
 
-    /**
+    /*
      * This method is called when the node is alive
      *
      * @param event the event that contains information about the status change
      */
     void onNodeAlive(Event event);
 
-    /**
+    /*
      * This method is called when a node is removed from the Z-Wave network.
      */
     void onNodeRemoved();
 
-    /**
+    /*
      * This method is called when a new node is added to the Z-Wave network.
      *
      * @param node the node that has been added

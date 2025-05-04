@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010-2024 Contributors to the openHAB project
+/*
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -33,7 +33,7 @@ public class CommunicationException extends Exception {
 
     private static final long serialVersionUID = -1895774551653276530L;
 
-    /**
+    /*
      * Constructs a new CommunicationException with the specified detail message.
      *
      * @param message the detail message
@@ -42,17 +42,18 @@ public class CommunicationException extends Exception {
         super(message);
     }
 
-    /**
+    /*
      * Constructs a new CommunicationException with the specified detail message and cause.
      *
      * @param message the detail message
+     * 
      * @param cause the cause of the exception
      */
     public CommunicationException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    /**
+    /*
      * Constructs a new CommunicationException with the specified cause.
      *
      * @param cause the cause of the exception

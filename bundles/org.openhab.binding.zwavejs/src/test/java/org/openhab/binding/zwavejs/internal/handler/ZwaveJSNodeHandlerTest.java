@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010-2024 Contributors to the openHAB project
+/*
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -103,27 +103,6 @@ public class ZwaveJSNodeHandlerTest {
         final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_1.json");
 
         EventMessage eventMessage = DataUtil.fromJson("event_node_6_switch.json", EventMessage.class);
-        handler.onNodeStateChanged(eventMessage.event);
-
-        ChannelUID channelid = new ChannelUID("zwavejs:test-bridge:test-thing:binary-switch-value");
-        try {
-            verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
-            verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
-                    argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
-            verify(callback).stateUpdated(eq(channelid), eq(OnOffType.OFF));
-        } finally {
-            handler.dispose();
-        }
-    }
-
-    @Disabled
-    @Test
-    public void testStore2Node11SwitchEventUpdate() throws IOException {
-        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(11);
-        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
-        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_2.json");
-
-        EventMessage eventMessage = DataUtil.fromJson("event_node_11_switch.json", EventMessage.class);
         handler.onNodeStateChanged(eventMessage.event);
 
         ChannelUID channelid = new ChannelUID("zwavejs:test-bridge:test-thing:binary-switch-value");
