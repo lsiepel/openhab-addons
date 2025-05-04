@@ -40,7 +40,6 @@ import com.google.gson.ToNumberPolicy;
 @NonNullByDefault
 public class DataUtil {
 
-    @SuppressWarnings("null")
     public static Reader openDataReader(String fileName) throws FileNotFoundException {
         String filePath = "src/test/resources/json/" + fileName;
 
@@ -56,10 +55,10 @@ public class DataUtil {
         }
     }
 
-    @SuppressWarnings("null")
     public static String fromFile(String fileName) throws IOException {
         try (Reader reader = openDataReader(fileName)) {
-            return new BufferedReader(reader).lines().parallel().collect(Collectors.joining("\n"));
+            return Objects
+                    .requireNonNull(new BufferedReader(reader).lines().parallel().collect(Collectors.joining("\n")));
         }
     }
 

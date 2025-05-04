@@ -116,8 +116,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             Object newValue = configurationParameter.getValue();
 
             if (result.channels.containsKey(key)) {
-                ZwaveJSChannelConfiguration channelConfig = result.channels.get(key).getConfiguration()
-                        .as(ZwaveJSChannelConfiguration.class);
+                ZwaveJSChannelConfiguration channelConfig = Objects.requireNonNull(result.channels.get(key))
+                        .getConfiguration().as(ZwaveJSChannelConfiguration.class);
                 NodeSetValueCommand zwaveCommand = new NodeSetValueCommand(config.id, channelConfig);
                 zwaveCommand.value = newValue;
                 if (zwaveCommand.value != null) {
@@ -305,9 +305,8 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             ChannelMetadata metadata = new ChannelMetadata(getId(), event);
             if (!metadata.isIgnoredCommandClass(event.args.commandClassName) && isLinked(metadata.id)) {
                 logger.trace("Getting the configuration for linked channel {}", metadata.id);
-                @SuppressWarnings("null") // as we checked by isLinked the channel can't be null
-                ZwaveJSChannelConfiguration channelConfig = thing.getChannel(metadata.id).getConfiguration()
-                        .as(ZwaveJSChannelConfiguration.class);
+                ZwaveJSChannelConfiguration channelConfig = Objects.requireNonNull(thing.getChannel(metadata.id))
+                        .getConfiguration().as(ZwaveJSChannelConfiguration.class);
 
                 State state = metadata.setState(event.args.newValue, channelConfig.itemType, channelConfig.incomingUnit,
                         channelConfig.inverted);

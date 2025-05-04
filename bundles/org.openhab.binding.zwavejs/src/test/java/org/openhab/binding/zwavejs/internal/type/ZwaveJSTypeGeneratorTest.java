@@ -29,7 +29,6 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.BindingConstants;
 import org.openhab.binding.zwavejs.internal.DataUtil;
@@ -43,7 +42,6 @@ import org.openhab.core.thing.ThingRegistry;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.type.ChannelType;
 import org.openhab.core.types.StateDescription;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Leo Siepel - Initial contribution
@@ -115,24 +113,6 @@ public class ZwaveJSTypeGeneratorTest {
                 .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node), false);
 
         assertEquals(3, results.channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
-    }
-
-    @Disabled
-    @Test
-    public void testGeneratedChannelUIDStore2AllNodes() throws IOException {
-        ResultMessage resultMessage = DataUtil.fromJson("store_2.json", ResultMessage.class);
-        int counter = 0;
-        for (Node node : resultMessage.result.state.nodes) {
-            ZwaveJSTypeGeneratorResult results = Objects.requireNonNull(provider)
-                    .generate(new ThingUID(BINDING_ID, "test-thing"), Objects.requireNonNull(node), false);
-
-            for (Channel channel : results.channels.values()) {
-                LoggerFactory.getLogger(ZwaveJSTypeGeneratorTest.class).error("Node {} {}", node.nodeId,
-                        channel.getUID());
-            }
-        }
-
-        assertEquals(0, counter);
     }
 
     @Test
