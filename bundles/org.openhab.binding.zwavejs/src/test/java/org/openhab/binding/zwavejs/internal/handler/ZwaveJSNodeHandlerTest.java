@@ -26,7 +26,6 @@ import java.io.IOException;
 import javax.measure.quantity.Power;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.zwavejs.internal.DataUtil;
 import org.openhab.binding.zwavejs.internal.api.dto.messages.EventMessage;
