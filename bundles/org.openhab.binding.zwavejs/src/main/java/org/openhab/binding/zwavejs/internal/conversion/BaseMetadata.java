@@ -304,7 +304,7 @@ public abstract class BaseMetadata {
     private @Nullable State handleNumberType(Object value, @Nullable Unit<?> unit, Double factor) {
         if (!(value instanceof Number numberVal)) {
             if (value instanceof String strVal) {
-                if ("unnknown".equalsIgnoreCase(strVal)) {
+                if ("unknown".equalsIgnoreCase(strVal)) {
                     return UnDefType.UNDEF;
                 }
             }
