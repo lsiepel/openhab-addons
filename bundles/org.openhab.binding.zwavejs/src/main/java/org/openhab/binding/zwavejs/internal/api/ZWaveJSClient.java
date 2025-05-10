@@ -353,4 +353,35 @@ public class ZWaveJSClient implements WebSocketListener {
     public void setBufferSize(int maxMessageSize) {
         bufferSize = maxMessageSize;
     }
+
+    /**
+     * Disposes the client by clearing the connection and scheduled futures.
+     */
+    public void dispose() {
+        logger.debug("Disposing ZWaveJSClient");
+        stop(); // Ensure the connection is stopped
+
+        ScheduledFuture<?> localReconnectFuture = reconnectFuture;
+        if (localReconnectFuture != null) {
+            localReconnectFuture.cancel(true);
+            reconnectFuture = null;
+        }
+
+        ScheduledFuture<?> localKeepAliveFuture = keepAliveFuture;
+        if (localKeepAliveFuture != null) {
+            localKeepAliveFuture.cancel(true);
+            keepAliveFuture = null;
+        }
+
+        Future<?> localSessionFuture = sessionFuture;
+        if (localSessionFuture != null) {
+            if (!localSessionFuture.isDone()) {
+                localSessionFuture.cancel(true);
+            }
+            sessionFuture = null;
+        }
+
+        listeners.clear();
+        logger.debug("ZWaveJSClient disposed");
+    }
 }
