@@ -305,8 +305,14 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
             ChannelMetadata metadata = new ChannelMetadata(getId(), event);
             if (!metadata.isIgnoredCommandClass(event.args.commandClassName) && isLinked(metadata.id)) {
                 logger.trace("Getting the configuration for linked channel {}", metadata.id);
-                ZwaveJSChannelConfiguration channelConfig = Objects.requireNonNull(thing.getChannel(metadata.id))
-                        .getConfiguration().as(ZwaveJSChannelConfiguration.class);
+                Channel channel = thing.getChannel(metadata.id);
+                if (channel == null) {
+                    logger.debug("Node {}. Channel {} not found, ignoring event", config.id, metadata.id);
+                    return false;
+                }
+
+                ZwaveJSChannelConfiguration channelConfig = channel.getConfiguration()
+                        .as(ZwaveJSChannelConfiguration.class);
 
                 State state = metadata.setState(event.args.newValue, channelConfig.itemType, channelConfig.incomingUnit,
                         channelConfig.inverted);
@@ -393,7 +399,7 @@ public class ZwaveJSNodeHandler extends BaseThingHandler implements ZwaveNodeLis
 
                 for (Entry<String, Object> entry : result.values.entrySet()) {
                     if (!channelIds.contains(entry.getKey())) {
-                        logger.debug("Node {}. Setting configuration item {} to {}", node.nodeId, entry.getKey(),
+                        logger.trace("Node {}. Setting configuration item {} to {}", node.nodeId, entry.getKey(),
                                 entry.getValue());
                         configuration.put(entry.getKey(), entry.getValue());
                     }
