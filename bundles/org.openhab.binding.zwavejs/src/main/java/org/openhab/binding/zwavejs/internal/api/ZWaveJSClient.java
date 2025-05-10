@@ -181,6 +181,10 @@ public class ZWaveJSClient implements WebSocketListener {
         stopKeepAlive();
         session = null;
         sessionFuture = null;
+        if (statusCode == StatusCode.NORMAL && BINDING_SHUTDOWN_MESSAGE.equals(reason)) {
+            logger.debug("Z-Wave JS Webservice closed normally");
+            return;
+        }
         scheduleReconnect();
     }
 
