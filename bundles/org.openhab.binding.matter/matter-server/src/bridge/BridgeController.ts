@@ -12,7 +12,7 @@ export class BridgeController extends Controller {
         override params: URLSearchParams,
     ) {
         super(ws, params);
-        const storagePath = this.params.get("storagePath");
+        let storagePath = this.params.get("storagePath");
 
         if (storagePath === null) {
             throw new Error("No storagePath parameters in the request");
@@ -60,7 +60,7 @@ export class BridgeController extends Controller {
     override async init() {}
 
     executeCommand(namespace: string, functionName: string, args: any[]): any | Promise<any> {
-        const baseObject: any = this.deviceNode;
+        let baseObject: any = this.deviceNode;
 
         logger.debug(`Executing function ${namespace}.${functionName}(${Logger.toJSON(args)})`);
 

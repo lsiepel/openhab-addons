@@ -184,7 +184,7 @@ export class DeviceNode {
     async setEndpointState(endpointId: string, clusterName: string, stateName: string, stateValue: any) {
         const device = this.devices.get(endpointId);
         if (device) {
-            void device.updateState(clusterName, stateName, stateValue);
+            device.updateState(clusterName, stateName, stateValue);
         }
     }
 
@@ -299,6 +299,10 @@ export class DeviceNode {
 
     async #ohBridgeStorage() {
         return (await this.storageService.open(DeviceNode.DEFAULT_NODE_ID)).createContext("openhab");
+    }
+
+    async #rootStorage() {
+        return (await this.storageService.open(DeviceNode.DEFAULT_NODE_ID)).createContext("root");
     }
 
     async #uniqueIdForBridge() {

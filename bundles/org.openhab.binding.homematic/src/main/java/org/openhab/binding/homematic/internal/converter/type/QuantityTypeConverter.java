@@ -112,10 +112,8 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
                 return new QuantityType<>(number, MetricPrefix.MILLI(Units.HERTZ));
             case "Hz":
                 return new QuantityType<>(number, Units.HERTZ);
-            case "Pa":
-                return new QuantityType<>(number, SIUnits.PASCAL);
             case "hPa":
-                return new QuantityType<>(number, MetricPrefix.HECTO(SIUnits.PASCAL));
+                return new QuantityType<>(number, SIUnits.PASCAL.multiply(2));
             case "Lux":
                 return new QuantityType<>(number, Units.LUX);
             case "degree":

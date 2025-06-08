@@ -53,11 +53,15 @@ export class WindowCoveringDeviceType extends GenericDeviceType {
                 targetPercent100ths?: number,
             ): Promise<void> {
                 if (targetPercent100ths != null) {
-                    parent.sendBridgeEvent("windowCovering", "targetPositionLiftPercent100ths", targetPercent100ths);
+                    await parent.sendBridgeEvent(
+                        "windowCovering",
+                        "targetPositionLiftPercent100ths",
+                        targetPercent100ths,
+                    );
                 }
             }
             override async handleStopMovement() {
-                parent.sendBridgeEvent("windowCovering", "operationalStatus", {
+                await parent.sendBridgeEvent("windowCovering", "operationalStatus", {
                     global: WindowCovering.MovementStatus.Stopped,
                     lift: WindowCovering.MovementStatus.Stopped,
                     tilt: WindowCovering.MovementStatus.Stopped,
