@@ -19,7 +19,7 @@
     <retrofit.version>2.10.0</retrofit.version>
     <influx2.version>7.0.0</influx2.version>
     <influx1.version>2.24</influx1.version>
-    <io.reactivex.rxjava3>3.1.8</io.reactivex.rxjava3>
+    <io.reactivex.rxjava3>3.1.11</io.reactivex.rxjava3>
   </properties>
 
   <dependencies>
