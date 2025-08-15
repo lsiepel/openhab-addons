@@ -14,7 +14,7 @@
   <name>openHAB Add-ons :: Bundles :: Jellyfin Binding</name>
   <properties>
     <bnd.importpackage>!android.*,!com.android.*,!kotlin.internal.jdk7,!kotlin.internal.jdk8,!kotlin.reflect.*,!okhttp3.*,!okio.*</bnd.importpackage>
-    <jellyfin.sdk>1.4.7</jellyfin.sdk>
+    <jellyfin.sdk>1.6.8</jellyfin.sdk>
   </properties>
   <dependencies>
     <dependency>
