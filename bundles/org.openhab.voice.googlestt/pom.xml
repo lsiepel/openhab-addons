@@ -127,7 +127,7 @@
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-grpclb</artifactId>
-      <version>1.53.0</version>
+      <version>1.74.0</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
