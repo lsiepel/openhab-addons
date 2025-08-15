@@ -65,7 +65,7 @@
     <dependency>
       <groupId>io.ktor</groupId>
       <artifactId>ktor-utils-jvm</artifactId>
-      <version>1.6.8</version>
+      <version>3.2.3</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
