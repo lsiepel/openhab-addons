@@ -37,7 +37,7 @@
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-http</artifactId>
-      <version>2.28</version>
+      <version>3.1.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>
