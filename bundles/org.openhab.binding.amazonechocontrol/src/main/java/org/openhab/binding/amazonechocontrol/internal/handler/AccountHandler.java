@@ -416,7 +416,7 @@ public class AccountHandler extends BaseBridgeHandler implements PushConnection.
         if (!connection.isLoggedIn()) {
             return;
         }
-
+        logger.debug("refresh notifications {}", getThing().getUID().getAsString());
         ZonedDateTime requestTime = ZonedDateTime.now();
         List<Notification> notifications = connection.getNotifications().stream()
                 .map(n -> map(n, requestTime, ZonedDateTime.now())).filter(Objects::nonNull)

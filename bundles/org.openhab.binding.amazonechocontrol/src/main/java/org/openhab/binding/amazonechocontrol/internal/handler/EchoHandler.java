@@ -202,9 +202,9 @@ public class EchoHandler extends BaseThingHandler {
     }
 
     public String getSerialNumber() {
-        return Objects.requireNonNullElse((String)getConfig().get(DEVICE_PROPERTY_SERIAL_NUMBER), "");
+        return Objects.requireNonNullElse((String) getConfig().get(DEVICE_PROPERTY_SERIAL_NUMBER), "");
     }
-    
+
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (command instanceof RefreshType) {
