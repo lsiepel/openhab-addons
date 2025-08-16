@@ -709,10 +709,13 @@ public class AccountHandler extends BaseBridgeHandler implements PushConnection.
             return List.of();
         }
 
+        String jsonQuery = "{\"query\":\"query Endpoints{endpoints{items{endpointId id friendlyName displayCategories{primary{value}} legacyIdentifiers{dmsIdentifier{deviceType{type value{text}} deviceSerialNumber{type value{text}}}} legacyAppliance{applianceId applianceTypes endpointTypeId friendlyName friendlyDescription manufacturerName connectedVia modelName entityId actions mergedApplianceIds capabilities applianceNetworkState version isEnabled customerDefinedDeviceType customerPreference alexaDeviceIdentifierList aliases driverIdentity additionalApplianceDetails isConsentRequired applianceKey appliancePairs deduplicatedPairs entityPairs deduplicatedAliasesByEntityId relations} serialNumber{value{text}} enablement model{value{text}} manufacturer{value{text}} features{name operations{name}}}}}\"}";
+
         try {
             if (connection.isLoggedIn()) {
                 JsonNetworkDetails networkDetails = connection.getRequestBuilder()
-                        .get(connection.getAlexaServer() + "/api/phoenix").syncSend(JsonNetworkDetails.class);
+                        .post(connection.getAlexaServer() + "/nexus/v1/graphql").withContent(jsonQuery).withJson(true)
+                        .syncSend(JsonNetworkDetails.class);
                 Object jsonObject = gson.fromJson(networkDetails.networkDetail, Object.class);
                 List<SmartHomeBaseDevice> smartHomeDevices = new ArrayList<>();
                 searchSmartHomeDevicesRecursive(jsonObject, smartHomeDevices);
