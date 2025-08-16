@@ -270,8 +270,6 @@ public class HttpRequestBuilder {
                     return returnValue;
                 } catch (JsonParseException e) {
                     logger.warn("Parsing json failed, exception: {}", e.getMessage());
-                    logger.trace("Response headers: {}", response.headers());
-                    logger.trace("Response body: {}", response.content());
                     throw e;
                 }
             });
