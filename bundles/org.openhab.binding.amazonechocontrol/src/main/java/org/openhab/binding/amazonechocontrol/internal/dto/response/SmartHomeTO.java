@@ -37,8 +37,8 @@ public class SmartHomeTO {
 
     public List<JsonSmartHomeDevice> getItems() {
         if (data instanceof Data data && data.endpoints != null && data.endpoints instanceof Endpoints endpoints
-                && endpoints.items != null) {
-            return endpoints.items;
+                && endpoints.items instanceof List<JsonSmartHomeDevice> items) {
+            return items;
         }
         return List.of();
     }
