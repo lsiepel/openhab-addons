@@ -66,12 +66,12 @@ import org.openhab.binding.amazonechocontrol.internal.dto.response.BluetoothStat
 import org.openhab.binding.amazonechocontrol.internal.dto.response.CustomerHistoryRecordTO;
 import org.openhab.binding.amazonechocontrol.internal.dto.response.ListItemTO;
 import org.openhab.binding.amazonechocontrol.internal.dto.response.MusicProviderTO;
+import org.openhab.binding.amazonechocontrol.internal.dto.response.SmartHomeTO;
 import org.openhab.binding.amazonechocontrol.internal.dto.response.WakeWordTO;
 import org.openhab.binding.amazonechocontrol.internal.dto.smarthome.JsonSmartHomeDevice;
 import org.openhab.binding.amazonechocontrol.internal.dto.smarthome.JsonSmartHomeGroups;
 import org.openhab.binding.amazonechocontrol.internal.dto.smarthome.SmartHomeBaseDevice;
 import org.openhab.binding.amazonechocontrol.internal.push.PushConnection;
-import org.openhab.binding.amazonechocontrol.internal.smarthome.JsonNetworkDetails;
 import org.openhab.binding.amazonechocontrol.internal.smarthome.SmartHomeDeviceStateGroupUpdateCalculator;
 import org.openhab.binding.amazonechocontrol.internal.types.Notification;
 import org.openhab.core.library.types.OnOffType;
@@ -713,27 +713,27 @@ public class AccountHandler extends BaseBridgeHandler implements PushConnection.
 
         try {
             if (connection.isLoggedIn()) {
-                JsonNetworkDetails networkDetails = connection.getRequestBuilder()
+                SmartHomeTO networkDetails = connection.getRequestBuilder()
                         .post(connection.getAlexaServer() + "/nexus/v1/graphql").withContent(jsonQuery).withJson(true)
-                        .syncSend(JsonNetworkDetails.class);
-                Object jsonObject = gson.fromJson(networkDetails.networkDetail, Object.class);
-                List<SmartHomeBaseDevice> smartHomeDevices = new ArrayList<>();
-                searchSmartHomeDevicesRecursive(jsonObject, smartHomeDevices);
+                        .syncSend(SmartHomeTO.class);
 
-                // create new id map
+                List<JsonSmartHomeDevice> smartHomeDevices = (networkDetails != null) ? networkDetails.getItems()
+                        : List.of();
                 Map<String, SmartHomeBaseDevice> newJsonIdSmartHomeDeviceMapping = new HashMap<>();
-                for (SmartHomeBaseDevice smartHomeDevice : smartHomeDevices) {
+                for (JsonSmartHomeDevice smartHomeDevice : smartHomeDevices) {
                     String id = smartHomeDevice.findId();
                     if (id != null) {
                         newJsonIdSmartHomeDeviceMapping.put(id, smartHomeDevice);
                     }
                 }
+                // searchSmartHomeDevicesRecursive(jsonObject, smartHomeDevices);
+
                 jsonIdSmartHomeDeviceMapping = newJsonIdSmartHomeDeviceMapping;
 
                 // update handlers
                 smartHomeDeviceHandlers
                         .forEach(child -> child.setDeviceAndUpdateThingState(this, findSmartHomeDeviceJson(child)));
-                return smartHomeDevices;
+                return newJsonIdSmartHomeDeviceMapping.values().stream().toList();
             }
         } catch (ConnectionException e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getLocalizedMessage());

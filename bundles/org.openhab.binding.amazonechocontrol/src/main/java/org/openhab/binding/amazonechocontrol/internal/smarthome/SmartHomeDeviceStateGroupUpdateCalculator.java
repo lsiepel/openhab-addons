@@ -69,7 +69,7 @@ public class SmartHomeDeviceStateGroupUpdateCalculator {
         }
 
         if (updateIntervalInSeconds == null) {
-            String manufacturerName = shd.manufacturerName;
+            String manufacturerName = shd.getManufacturerName();
             if (manufacturerName != null && ("openHAB".equalsIgnoreCase(manufacturerName)
                     || manufacturerName.toLowerCase().startsWith("iobroker"))) {
                 // OpenHAB or ioBroker skill

@@ -258,13 +258,16 @@ public class HttpRequestBuilder {
                 }
                 String contentType = response.headers.get(CONTENT_TYPE);
                 try {
-                    if (contentType == null || !contentType.startsWith(MediaType.APPLICATION_JSON)) {
+                    if (contentType == null) {
                         throw new JsonParseException("Response Content-Type is not JSON: " + contentType);
                     }
 
                     T returnValue = gson.fromJson(response.content(), returnType);
                     // gson.fromJson is non-null if json is non-null and not empty
                     if (returnValue == null) {
+                        if (!contentType.startsWith(MediaType.APPLICATION_JSON)) {
+                            throw new JsonParseException("Response Content-Type is not JSON: " + contentType);
+                        }
                         throw new JsonParseException("Empty result");
                     }
                     return returnValue;

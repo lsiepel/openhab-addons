@@ -20,6 +20,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.amazonechocontrol.internal.dto.smarthome.JsonSmartHomeDeviceNetworkState.SmartHomeDeviceNetworkState;
 import org.openhab.binding.amazonechocontrol.internal.dto.smarthome.JsonSmartHomeTags.JsonSmartHomeTag;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * The {@link JsonSmartHomeDevice} encapsulates smarthome device API responses
  *
@@ -28,10 +30,13 @@ import org.openhab.binding.amazonechocontrol.internal.dto.smarthome.JsonSmartHom
 @NonNullByDefault
 public class JsonSmartHomeDevice implements SmartHomeBaseDevice {
     public @Nullable Integer updateIntervalInSeconds;
+    @SerializedName("endpointId")
     public @Nullable String applianceId;
-    public @Nullable String manufacturerName;
+
+    @SerializedName("manufacturer")
+    public @Nullable StringWrapper manufacturerName;
     public @Nullable String friendlyDescription;
-    public @Nullable String modelName;
+    public @Nullable StringWrapper model;
     public @Nullable String friendlyName;
     public @Nullable String reachability;
     public @Nullable String entityId;
@@ -51,6 +56,17 @@ public class JsonSmartHomeDevice implements SmartHomeBaseDevice {
         return Objects.requireNonNullElse(capabilities, List.of());
     }
 
+    public @Nullable String getManufacturerName() {
+        StringWrapper manufacturerName = this.manufacturerName;
+        if (manufacturerName != null) {
+            TextValue value = manufacturerName.value;
+            if (value != null) {
+                return value.text;
+            }
+        }
+        return null;
+    }
+
     @Override
     public @Nullable String findId() {
         return applianceId;
@@ -64,14 +80,14 @@ public class JsonSmartHomeDevice implements SmartHomeBaseDevice {
     @Override
     public String toString() {
         return "JsonSmartHomeDevice{" + "updateIntervalInSeconds=" + updateIntervalInSeconds + ", applianceId='"
-                + applianceId + "'" + ", manufacturerName='" + manufacturerName + "'" + ", friendlyDescription='"
-                + friendlyDescription + "'" + ", modelName='" + modelName + "'" + ", friendlyName='" + friendlyName
-                + "'" + ", reachability='" + reachability + "'" + ", entityId='" + entityId + "'"
-                + ", applianceNetworkState=" + applianceNetworkState + ", capabilities=" + capabilities + ", tags="
-                + tags + ", applianceTypes=" + applianceTypes + ", aliases=" + aliases + ", groupDevices="
-                + groupDevices + ", connectedVia='" + connectedVia + "'" + ", alexaDeviceIdentifierList="
-                + alexaDeviceIdentifierList + ", driverIdentity=" + driverIdentity + ", mergedApplianceIds="
-                + mergedApplianceIds + ", smarthomeDevices=" + smarthomeDevices + "}";
+                + applianceId + "'" + ", manufacturerName='" + getManufacturerName() + "'" + ", friendlyDescription='"
+                + friendlyDescription + "'" + ", modelName='" + model + "'" + ", friendlyName='" + friendlyName + "'"
+                + ", reachability='" + reachability + "'" + ", entityId='" + entityId + "'" + ", applianceNetworkState="
+                + applianceNetworkState + ", capabilities=" + capabilities + ", tags=" + tags + ", applianceTypes="
+                + applianceTypes + ", aliases=" + aliases + ", groupDevices=" + groupDevices + ", connectedVia='"
+                + connectedVia + "'" + ", alexaDeviceIdentifierList=" + alexaDeviceIdentifierList + ", driverIdentity="
+                + driverIdentity + ", mergedApplianceIds=" + mergedApplianceIds + ", smarthomeDevices="
+                + smarthomeDevices + "}";
     }
 
     public static class DriverIdentity {
@@ -93,5 +109,13 @@ public class JsonSmartHomeDevice implements SmartHomeBaseDevice {
             return "DeviceIdentifier{" + "dmsDeviceSerialNumber='" + dmsDeviceSerialNumber + "'" + ", dmsDeviceTypeId='"
                     + dmsDeviceTypeId + "'" + "}";
         }
+    }
+
+    public static class TextValue {
+        public @Nullable String text;
+    }
+
+    public static class StringWrapper {
+        public @Nullable TextValue value;
     }
 }

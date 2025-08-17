@@ -117,7 +117,7 @@ public class SmartHomeDevicesDiscovery extends AbstractThingHandlerDiscoveryServ
                     // Connected through skill and we want direct only
                     continue;
                 }
-                if (smartHomeDeviceDiscoveryMode == 2 && "openHAB".equalsIgnoreCase(shd.manufacturerName)) {
+                if (smartHomeDeviceDiscoveryMode == 2 && "openHAB".equalsIgnoreCase(shd.getManufacturerName())) {
                     // openHAB device and we want non-openHAB only
                     continue;
                 }
@@ -131,7 +131,7 @@ public class SmartHomeDevicesDiscovery extends AbstractThingHandlerDiscoveryServ
                 thingUID = new ThingUID(THING_TYPE_SMART_HOME_DEVICE, bridgeThingUID, entityId.replace(".", "-"));
 
                 List<JsonSmartHomeDeviceAlias> aliases = shd.aliases;
-                String manufacturerName = shd.manufacturerName;
+                String manufacturerName = shd.getManufacturerName();
                 if (manufacturerName != null) {
                     props.put(DEVICE_PROPERTY_MANUFACTURER_NAME, manufacturerName);
                 }
