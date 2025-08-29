@@ -1,65 +1,53 @@
+/*
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.openhab.binding.parkeergroningen.internal.api.dto;
 
-import java.time.ZonedDateTime;
+import java.util.List;
 
+/**
+ * Data Transfer Object (DTO) representing a permit with various attributes.
+ * This class is used to encapsulate the details of a permit, including its
+ * code, type, associated media, pricing, reservation details, and other
+ * related information.
+ * 
+ * @author Leo Siepel - Initial contribution
+ */
 public class PermitDTO {
-    private ZonedDateTime dateFrom;
-    private ZonedDateTime dateUntil;
-    private LicensePlateDTO licensePlate;
-    private int permitMediaTypeID;
-    private String permitMediaCode;
-
-    public PermitDTO() {
-    }
-
-    public PermitDTO(ZonedDateTime dateFrom, ZonedDateTime dateUntil, LicensePlateDTO licensePlate,
-            int permitMediaTypeID, String permitMediaCode) {
-        this.dateFrom = dateFrom;
-        this.dateUntil = dateUntil;
-        this.licensePlate = licensePlate;
-        this.permitMediaTypeID = permitMediaTypeID;
-        this.permitMediaCode = permitMediaCode;
-    }
-
-    public ZonedDateTime getDateFrom() {
-        return dateFrom;
-    }
-
-    public void setDateFrom(ZonedDateTime dateFrom) {
-        this.dateFrom = dateFrom;
-    }
-
-    public ZonedDateTime getDateUntil() {
-        return dateUntil;
-    }
-
-    public void setDateUntil(ZonedDateTime dateUntil) {
-        this.dateUntil = dateUntil;
-    }
-
-    public String getLicensePlate() {
-        return this.licensePlate.getName();
-    }
-
-    public void setLicensePlate(String licensePlate) {
-        this.licensePlate = new LicensePlateDTO();
-        this.licensePlate.setName("openHAB automation");
-        this.licensePlate.setValue(licensePlate);
-    }
-
-    public int getPermitMediaTypeID() {
-        return permitMediaTypeID;
-    }
-
-    public void setPermitMediaTypeID(int permitMediaTypeID) {
-        this.permitMediaTypeID = permitMediaTypeID;
-    }
-
-    public String getPermitMediaCode() {
-        return permitMediaCode;
-    }
-
-    public void setPermitMediaCode(String permitMediaCode) {
-        this.permitMediaCode = permitMediaCode;
-    }
+    public String Code;
+    public String Type;
+    public String TypeCode;
+    public String ZoneCode;
+    public List<PermitMediasDTO> PermitMedias;
+    public Integer UnitFormat;
+    public Integer StartTariff;
+    public Integer ProlongMinutes;
+    public List<BlockTimeDTO> BlockTimes;
+    public Integer BalanceLimit;
+    public Double UnitPrice;
+    public List<Integer> UpgradeUnits;
+    public Boolean IsLicensePlatesFixed;
+    public List<LicensePlateDTO> LicensePlates;
+    public Boolean PresentationDateTimeWithTime;
+    public Boolean ReservationDateFromOnBlock;
+    public Integer ReservationDuration;
+    public Boolean ReservationDateUntilActualBlock;
+    public Boolean ReservationDateUntilLastBlockOfDay;
+    public Boolean ReservationDateUntilWholeDay;
+    public Boolean ReservationDateUntilEndOfDay;
+    public Boolean ReservationDateUntilAlmostEndOfDay;
+    public Boolean ReservationDateUntilInfinite;
+    public Boolean PresentationDateFromHide;
+    public Boolean PresentationDateFromVariable;
+    public Boolean PresentationDateUntilHide;
+    public Boolean PresentationDateUntilVariable;
 }

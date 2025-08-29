@@ -10,21 +10,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.parkeergroningen.internal.api.dto;
+package org.openhab.binding.parkeergroningen.internal.api.dto.request;
 
 /**
- * Data Transfer Object (DTO) representing a license plate.
- * This class is used to encapsulate the details of a license plate,
- * including its value and an associated name.
+ * Data Transfer Object (DTO) representing a request to deactivate a reservation.
+ * This class is used to encapsulate the necessary information for the deactivation process.
  * 
  * @author Leo Siepel - Initial contribution
  */
-public class LicensePlateDTO {
-    public String value;
-    public String name;
-
-    public LicensePlateDTO(String value, String name) {
-        this.value = value;
-        this.name = name;
-    }
+public class DeactivateRequestDTO {
+    public Long ReservationID;
+    public Integer permitMediaTypeID = 1;
+    public String permitMediaCode;
 }

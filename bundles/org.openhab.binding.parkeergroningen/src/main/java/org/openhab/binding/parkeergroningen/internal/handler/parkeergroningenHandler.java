@@ -78,14 +78,12 @@ public class parkeergroningenHandler extends BaseThingHandler {
                 }
             } else if (CHANNEL_START.equals(channelUID.getId())) {
                 if (command instanceof DateTimeType datetimeTypeCommand) {
-                    restController.data
-                            .setDateFrom(datetimeTypeCommand.getZonedDateTime(ZoneId.of("Europe/Amsterdam")));
+                    restController.data.dateFrom = datetimeTypeCommand.getZonedDateTime(ZoneId.of("Europe/Amsterdam"));
                 }
             } else if (CHANNEL_END.equals(channelUID.getId())) {
                 // Example: Accept DateTimeType command as new end time
                 if (command instanceof DateTimeType datetimeTypeCommand) {
-                    restController.data
-                            .setDateUntil(datetimeTypeCommand.getZonedDateTime(ZoneId.of("Europe/Amsterdam")));
+                    restController.data.dateUntil = datetimeTypeCommand.getZonedDateTime(ZoneId.of("Europe/Amsterdam"));
                 }
             } else {
                 logger.debug("Command {} not supported for channel {}", command, channelUID.getId());

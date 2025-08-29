@@ -13,18 +13,18 @@
 package org.openhab.binding.parkeergroningen.internal.api.dto;
 
 /**
- * Data Transfer Object (DTO) representing a license plate.
- * This class is used to encapsulate the details of a license plate,
- * including its value and an associated name.
+ * Data Transfer Object (DTO) representing a block of time with associated properties.
  * 
  * @author Leo Siepel - Initial contribution
  */
-public class LicensePlateDTO {
-    public String value;
-    public String name;
-
-    public LicensePlateDTO(String value, String name) {
-        this.value = value;
-        this.name = name;
-    }
+public class BlockTimeDTO {
+    public String ValidFrom;
+    public String ValidUntil;
+    public Double Units;
+    public Integer Seconds;
+    public Boolean IsException;
+    public Boolean IsDefined;
+    public Boolean IsAllowed;
+    public Boolean IsFree;
+    public Integer DayOfWeek;
 }
