@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="parkeergroningen"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+	<!-- Sample Thing Type -->
+	<thing-type id="card">
+		<!-- Comment this in for Things which need a Bridge to function.
+			<supported-bridge-type-refs>
+			<bridge-type-ref id="parkeergroningenBridge" />
+			</supported-bridge-type-refs>
+		-->
+		<label>Visitor Card</label>
+		<description>Thing type for a visitor card</description>
+
+		<channels>
+			<channel id="active" typeId="active"/>
+			<channel id="license-plate" typeId="license-plate"/>
+			<channel id="start" typeId="timestamp-start"/>
+			<channel id="end" typeId="timestamp-end"/>
+		</channels>
+
+		<config-description>
+			<parameter name="cardNumber" type="text" required="true">
+				<label>Card Number</label>
+				<description>Unique identifier for the visitor card</description>
+			</parameter>
+			<parameter name="pin" type="text" required="true">
+				<context>password</context>
+				<label>PIN</label>
+				<description>PIN to access the card details</description>
+			</parameter>
+			<parameter name="refreshInterval" type="integer" unit="s" min="1">
+				<label>Refresh Interval</label>
+				<description>Interval the device is polled in sec.</description>
+				<default>600</default>
+				<advanced>true</advanced>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<!-- Sample Channel Type -->
+	<channel-type id="active">
+		<item-type>Switch</item-type>
+		<label>Active</label>
+		<description>Indicates if the visitor card is active</description>
+		<tags>
+			<tag>Control</tag>
+			<tag>Enabled</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="license-plate">
+		<item-type>String</item-type>
+		<label>License Plate</label>
+		<description>License plate associated with the visitor card</description>
+		<tags>
+			<tag>Control</tag>
+			<tag>Info</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="timestamp-start">
+		<item-type>DateTime</item-type>
+		<label>Start</label>
+		<description>Time the visitor card activates</description>
+		<tags>
+			<tag>Status</tag>
+			<tag>Timestamp</tag>
+		</tags>
+		<state readOnly="false" pattern="%1$tF"/>
+	</channel-type>
+
+	<!-- Sample Channel Type -->
+	<channel-type id="timestamp-end">
+		<item-type>DateTime</item-type>
+		<label>End</label>
+		<description>Time the visitor card deactivates</description>
+		<tags>
+			<tag>Status</tag>
+			<tag>Timestamp</tag>
+		</tags>
+		<state readOnly="false" pattern="%1$tF"/>
+	</channel-type>
+
+</thing:thing-descriptions>
