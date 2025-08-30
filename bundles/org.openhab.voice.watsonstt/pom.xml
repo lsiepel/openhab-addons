@@ -20,7 +20,7 @@
     <dependency>
       <groupId>com.ibm.watson</groupId>
       <artifactId>speech-to-text</artifactId>
-      <version>11.0.1</version>
+      <version>15.0.0</version>
       <scope>compile</scope>
     </dependency>
     <!-- sdk deps -->
