@@ -385,7 +385,7 @@ public class ZwaveJSTypeGeneratorTest {
             channels.putAll(results.channels);
         }
 
-        assertEquals(47, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
+        assertEquals(48, channels.values().stream().map(f -> f.getChannelTypeUID()).distinct().count());
         assertTrue(channels.containsKey("color-switch-color-temperature"));
     }
 }
