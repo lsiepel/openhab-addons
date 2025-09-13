@@ -265,6 +265,24 @@ public class ZwaveJSTypeGeneratorTest {
     }
 
     @Test
+    public void testGenCTNode33Notification() throws IOException {
+        Channel channel = getChannel("store_4.json", 33, "door-lock-inside-handles-can-open-door");
+        ChannelType type = channelTypeProvider.getChannelType(Objects.requireNonNull(channel.getChannelTypeUID()),
+                null);
+        Configuration configuration = channel.getConfiguration();
+
+        assertNotNull(type);
+        assertEquals("zwavejs:test-bridge:test-thing:door-lock-inside-handles-can-open-door",
+                channel.getUID().getAsString());
+        assertEquals("String", type.getItemType());
+        assertEquals("Which Inside Handles Can Open The Door (Actual Status)", channel.getLabel());
+        assertNull(configuration.get(BindingConstants.CONFIG_CHANNEL_WRITE_PROPERTY_STR));
+
+        StateDescription statePattern = type.getState();
+        assertNull(statePattern);
+    }
+
+    @Test
     public void testGenCTNode39RollerShutterTypeForOnOff() throws IOException {
         // Test detection of Roller Shutter type based on On/Off Switch channels.
         // Channel identifiers may vary depending on device configuration.
