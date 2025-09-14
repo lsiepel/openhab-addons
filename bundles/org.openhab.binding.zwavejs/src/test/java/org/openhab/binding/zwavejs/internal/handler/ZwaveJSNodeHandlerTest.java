@@ -366,12 +366,12 @@ public class ZwaveJSNodeHandlerTest {
     }
 
     @Test
-    public void testNode78SwitchEventUpdate() throws IOException {
+    public void testNode78SwitchEventUpdateOpen() throws IOException {
         final Thing thing = ZwaveJSNodeHandlerMock.mockThing(78);
         final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
         final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_4.json");
 
-        EventMessage eventMessage = DataUtil.fromJson("event_node_78_switch.json", EventMessage.class);
+        EventMessage eventMessage = DataUtil.fromJson("event_node_78_switch_open.json", EventMessage.class);
         handler.onNodeStateChanged(eventMessage.event);
 
         ChannelUID channelid = new ChannelUID(
@@ -381,6 +381,27 @@ public class ZwaveJSNodeHandlerTest {
             verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
                     argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
             verify(callback).stateUpdated(eq(channelid), eq(OnOffType.ON));
+        } finally {
+            handler.dispose();
+        }
+    }
+
+    @Test
+    public void testNode78SwitchEventUpdateClosed() throws IOException {
+        final Thing thing = ZwaveJSNodeHandlerMock.mockThing(78);
+        final ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
+        final ZwaveJSNodeHandler handler = ZwaveJSNodeHandlerMock.createAndInitHandler(callback, thing, "store_4.json");
+
+        EventMessage eventMessage = DataUtil.fromJson("event_node_78_switch_closed.json", EventMessage.class);
+        handler.onNodeStateChanged(eventMessage.event);
+
+        ChannelUID channelid = new ChannelUID(
+                "zwavejs:test-bridge:test-thing:notification-access-control-door-state-simple");
+        try {
+            verify(callback).statusUpdated(eq(thing), argThat(arg -> arg.getStatus().equals(ThingStatus.UNKNOWN)));
+            verify(callback).statusUpdated(argThat(arg -> arg.getUID().equals(thing.getUID())),
+                    argThat(arg -> arg.getStatus().equals(ThingStatus.ONLINE)));
+            verify(callback).stateUpdated(eq(channelid), eq(OnOffType.OFF));
         } finally {
             handler.dispose();
         }
