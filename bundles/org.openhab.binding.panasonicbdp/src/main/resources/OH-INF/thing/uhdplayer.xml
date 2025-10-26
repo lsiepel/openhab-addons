@@ -119,17 +119,6 @@
 		<autoUpdatePolicy>veto</autoUpdatePolicy>
 	</channel-type>
 
-	<channel-type id="control">
-		<item-type>Player</item-type>
-		<label>Control</label>
-		<description>Transport Controls e.g. Play/Pause/Next/Previous/FForward/Rewind</description>
-		<category>Player</category>
-		<tags>
-			<tag>Control</tag>
-			<tag>MediaControl</tag>
-		</tags>
-	</channel-type>
-
 	<channel-type id="player-status">
 		<item-type>String</item-type>
 		<label>Player Status</label>
@@ -139,18 +128,6 @@
 			<tag>Mode</tag>
 		</tags>
 		<state readOnly="true"/>
-	</channel-type>
-
-	<channel-type id="time-elapsed">
-		<item-type>Number:Time</item-type>
-		<label>Playback Time</label>
-		<description>The current playback time elapsed</description>
-		<category>Time</category>
-		<tags>
-			<tag>Status</tag>
-			<tag>Progress</tag>
-		</tags>
-		<state readOnly="true" pattern="%1$tT"/>
 	</channel-type>
 
 </thing:thing-descriptions>
