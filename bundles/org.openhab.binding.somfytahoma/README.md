@@ -15,7 +15,7 @@ Any home automation system based on the OverKiz API is potentially supported.
 - gateways (gateway status)
 - gates (control gate, get state)
 - roller shutters (UP, DOWN, STOP control of a roller shutter). IO Homecontrol devices are allowed to set exact position of a shutter (0-100%)
-- blinds (UP, DOWN, STOP control of a blind). IO Homecontrol devices are allowed to set exact position of a blinds (0-100%) as well as orientation of slats (0-100%)
+- blinds (UP, DOWN, STOP control of a blind). IO Homecontrol devices are allowed to set exact position of a blind (0-100%) as well as orientation of slats (0-100%)
 - screens (UP, DOWN, STOP control of a screen). IO Homecontrol devices are allowed to set exact position of a screen (0-100%)
 - garage doors (UP, DOWN, STOP control of a garage door). IO Homecontrol devices are allowed to set exact position of a garage door (0-100%)
 - awnings (UP, DOWN, STOP control of an awning). IO Homecontrol devices are allowed to set exact position of an awning (0-100%)
@@ -117,7 +117,7 @@ Please see the example below.
 | up/down venetian blind                                                             | tilt                            | tilt of the blind's slats, it can have value -5 to 5 (negative or positive tilt). Works even for RTS blinds                                                                                                                       |
 | adjustable slats roller shutter                                                    | rocker                          | used for setting the rocker position of the roller shutter, the only position allowing the slats control                                                                                                                          |
 | bioclimatic pergola                                                                | slats                           | slats state (open/closed)                                                                                                                                                                                                         |
-| bioclimatic pergola                                                                | pergola_command                 | used for controlling biclimatic pergola (closeSlats, openSlats, stop)                                                                                                                                                             |
+| bioclimatic pergola                                                                | pergola_command                 | used for controlling bioclimatic pergola (closeSlats, openSlats, stop)                                                                                                                                                            |
 | action group                                                                       | execute_action                  | switch which reacts to ON command and triggers the predefined Tahoma action                                                                                                                                                       |
 | onoff, light                                                                       | switch                          | reacts to standard ON/OFF commands                                                                                                                                                                                                |
 | dimmer light                                                                       | light_intensity                 | sets/gets intensity of the dimmer light or ON/OFF                                                                                                                                                                                 |
@@ -361,11 +361,11 @@ Slider item=HeatingLevel
 ## Alexa compatibility
 
 This binding is compatible with the official Alexa Smart Home Skill.
-Since Rolleshutter items are unsupported, only Dimmer with control channel can be used.
+Since Rollershutter items are unsupported, only Dimmer with control channel can be used.
 Syntax in .item file is as follows:
 
 ```java
 Dimmer RollerShutterLivingD "Roller shutter living [%.1f]"  [ "Lighting" ] {channel="somfytahoma:rollershutter:237dbae7:87bf0403-a45d-4037-b874-28f4ece30004:control"}
 ```
 
-Alexa can set the roller shutter (awning, blind, ...) to a specific position as well as send ON (interpretted as UP) and OFF commands (interpretted as DOWN).
+Alexa can set the roller shutter (awning, blind, ...) to a specific position as well as send ON (interpreted as UP) and OFF commands (interpreted as DOWN).

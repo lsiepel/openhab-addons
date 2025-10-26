@@ -46,7 +46,7 @@
 	</channel-type>
 	<channel-type id="energy-today">
 		<item-type>Number:Energy</item-type>
-		<label>Todays Energy Forecast</label>
+		<label>Today's Energy Forecast</label>
 		<description>Today's total energy forecast</description>
 		<tags>
 			<tag>Forecast</tag>
@@ -72,7 +72,7 @@
 	<channel-type id="api-count">
 		<item-type>String</item-type>
 		<label>API Request Count</label>
-		<description>Number of requests send to Solcast API starting 0:00 UTC</description>
+		<description>Number of requests sent to the Solcast API starting 0:00 UTC</description>
 	</channel-type>
 	<channel-type id="latest-update">
 		<item-type>DateTime</item-type>

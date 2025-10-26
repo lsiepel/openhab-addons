@@ -22,7 +22,7 @@ The discovered Power Stations will appear as new Things.
 
 The configuration of the Portal Thing (Bridge) is pretty straight forward.
 You need to have your power station set up in the SEMS portal, and you need to have an account that is allowed to view the power station data.
-You should log in at least once in the portal with this account to activate it.
+You should have logged in at least once in the portal with this account to activate it.
 The Portal needs the username and password to connect and retrieve the data.
 You can configure the update frequency between 1 and 60 minutes.
 The default is 5 minutes.
@@ -54,13 +54,13 @@ The Power Station Thing has the following channels:
 
 | channel       | type          | description                                                                                                |
 | ------------- | ------------- | ---------------------------------------------------------------------------------------------------------- |
-| lastUpdate    | DateTime      | Last time the powerStation sent information to the portal                                                  |
-| currentOutput | Number:Power  | The current output of the powerStation in Watt                                                             |
-| todayTotal    | Number:Energy | Todays total generation of the station in kWh                                                              |
-| monthTotal    | Number:Energy | This month's total generation of the station in kWh                                                        |
-| overallTotal  | Number:Energy | The total generation of the station since installation, in kWh                                             |
-| todayIncome   | Number        | Todays income as reported by the portal, if you have configured the power rates of your energy provider    |
-| totalIncome   | Number        | The total income as reported by the portal, if you have configured the power rates of your energy provider |
+| lastUpdate    | DateTime      | Last time the powerStation sent information to the portal.                                                  |
+| currentOutput | Number:Power  | The current output of the powerStation in Watt.                                                             |
+| todayTotal    | Number:Energy | Todays total generation of the station in kWh.                                                              |
+| monthTotal    | Number:Energy | This month's total generation of the station in kWh.                                                        |
+| overallTotal  | Number:Energy | The total generation of the station since installation, in kWh.                                             |
+| todayIncome   | Number        | Todays income as reported by the portal, if you have configured the power rates of your energy provider.    |
+| totalIncome   | Number        | The total income as reported by the portal, if you have configured the power rates of your energy provider. |
 
 ## Parameters
 
@@ -69,15 +69,15 @@ When using thing files you need to provide the station UUID.
 
 | Parameter   | Required? | Description                                                                      |
 | ----------- | :-------: | -------------------------------------------------------------------------------- |
-| stationUUID |     X     | UUID of the station. Can be found on the SEMS portal URL (see description above) |
+| stationUUID |     X     | UUID of the station. Can be found on the SEMS portal URL (see description above). |
 
 The Bridge has the following configuration parameters:
 
 | Parameter | Required? | Description                                                                                           |
 | --------- | :-------: | ----------------------------------------------------------------------------------------------------- |
 | username  |     X     | Account name (email address) at the SEMS portal. Account must have been used at least once to log in. |
-| password  |     X     | Password of the SEMS portal                                                                           |
-| interval  |           | Number of minutes between two updates. Between 1 and 60 minutes, defaults to 5 minutes                |
+| password  |     X     | Password of the SEMS portal.                                                                           |
+| interval  |           | Number of minutes between two updates. Between 1 and 60 minutes, defaults to 5 minutes.                |
 
 ## Credits
 

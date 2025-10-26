@@ -60,7 +60,7 @@ It defaults to 161.
 
 By using the `timeout` and `retries` parameters the timeout/error behaviour can be defined.
 A single request times out after `timeout` ms.
-After `retries` timeouts the refresh operation is considered to be fails and the status of the thing set accordingly.
+After `retries` timeouts the refresh operation is considered to have failed and the status of the thing is set accordingly.
 The default values are `timeout=1500` and `retries=2`.
 
 ### `target`
@@ -123,7 +123,7 @@ The `HEXSTRING` datatype converts a hexadecimal string (e.g. `aa bb 11`) to the 
 
 `number`-type channels can have a parameter `unit` if their `mode` is set to `READ`. This will result in a state update applying [UoM](https://www.openhab.org/docs/concepts/units-of-measurement.html) to the received data if the UoM symbol is recognised.
 
-`switch`-type channels send a pre-defined value if they receive `ON` or `OFF` command in `WRITE` or `READ_WRITE` mode.
+`switch`-type channels send a predefined value if they receive `ON` or `OFF` commands in `WRITE` or `READ_WRITE` mode.
 In `READ`, `READ_WRITE` or `TRAP` mode they change to either `ON` or `OFF` on these values.
 The parameters used for defining the values are `onvalue` and `offvalue`.
 The `datatype` parameter is used to convert the configuration strings to the needed values.
