@@ -106,7 +106,7 @@ Here is a sample item configuration:
 ```java
 Switch      MasterBR_SleepIQ_InBed_Alice                 "In Bed [%s]"                      { channel="sleepiq:dualBed:1:master:left#inBed" }
 Number      MasterBR_SleepIQ_SleepNumber_Alice           "Sleep Number [%s]"                { channel="sleepiq:dualBed:1:master:left#sleepNumber" }
-Number:Time MasterBR_SleepIQ_SleepGoal_Alice             "Sleep Goal [%d min]"              { channel="sleepiq:dualBed:1:master:left#sleepGoalMinutes"
+Number:Time MasterBR_SleepIQ_SleepGoal_Alice             "Sleep Goal [%d min]"              { channel="sleepiq:dualBed:1:master:left#sleepGoalMinutes" }
 Number      MasterBR_SleepIQ_Pressure_Alice              "Pressure [%s]"                    { channel="sleepiq:dualBed:1:master:left#pressure" }
 Switch      MasterBR_SleepIQ_PrivacyMode_Alice           "Privacy Mode [%s]"                { channel="sleepiq:dualBed:1:master:left#privacyMode" }
 String      MasterBR_SleepIQ_LastLink_Alice              "Last Update [%s]"                 { channel="sleepiq:dualBed:1:master:left#lastLink" }
@@ -132,8 +132,8 @@ Switch      MasterBR_SleepIQ_FoundationNightLight_Alice  "Night Light [%d]"     
 
 Switch      MasterBR_SleepIQ_InBed_Bob                   "In Bed [%s]"                      { channel="sleepiq:dualBed:1:master:right#inBed" }
 Number      MasterBR_SleepIQ_SleepNumber_Bob             "Sleep Number [%s]"                { channel="sleepiq:dualBed:1:master:right#sleepNumber" }
-Number      MasterBR_SleepIQ_SleepGoal_Bob               "Sleep Goal [%d min]"              { channel="sleepiq:dualBed:1:master:left#sleepGoalMinutes"
-Number:Time MasterBR_SleepIQ_Pressure_Bob                "Pressure [%s]"                    { channel="sleepiq:dualBed:1:master:right#pressure" }
+Number:Time MasterBR_SleepIQ_SleepGoal_Bob               "Sleep Goal [%d min]"              { channel="sleepiq:dualBed:1:master:right#sleepGoalMinutes" }
+Number      MasterBR_SleepIQ_Pressure_Bob                "Pressure [%s]"                    { channel="sleepiq:dualBed:1:master:right#pressure" }
 Switch      MasterBR_SleepIQ_PrivacyMode_Bob             "Privacy Mode [%s]"                { channel="sleepiq:dualBed:1:master:right#privacyMode" }
 String      MasterBR_SleepIQ_LastLink_Bob                "Last Update [%s]"                 { channel="sleepiq:dualBed:1:master:right#lastLink" }
 Number      MasterBR_SleepIQ_AlertId_Bob                 "Alert ID [%s]"                    { channel="sleepiq:dualBed:1:master:right#alertId" }

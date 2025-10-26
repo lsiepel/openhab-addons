@@ -170,7 +170,8 @@ This is the list you get for the `deye_sg04lp3` inverter type:
 
 ## Writable Channels
 
-If you want to write into registers of the invertor you need to directly define your channels as writable, because by default channels are counted as read-only. For example, `deye_sg04lp3` and `deye_sg01hp3` have a full set of writable channels connected to `Time Of Use` functionality, but if you want to add custom writable channels you need to define it like this:
+If you want to write to registers of the inverter, you need to define your channels as writable, because by default channels are treated as read-only.
+For example, `deye_sg04lp3` and `deye_sg01hp3` have a full set of writable channels connected to the `Time Of Use` functionality, but if you want to add custom writable channels you need to define them like this:
 
 ```java
 Thing solarman:logger:local [ hostname="x.x.x.x", inverterType="deye_sg04lp3", serialNumber="1234567890", additionalRequests="0x03:0x00A6-0x00A8" ] {
@@ -179,7 +180,7 @@ Thing solarman:logger:local [ hostname="x.x.x.x", inverterType="deye_sg04lp3", s
 }
 ```
 
-Note the **readOnly="false"** part here, which will make channel accept commands and write data to invertor register. 
+Note the **readOnly="false"** part here, which will make the channel accept commands and write data to the inverter register.
 
 ## Full Example
 

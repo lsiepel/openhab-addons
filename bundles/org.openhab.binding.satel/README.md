@@ -40,7 +40,7 @@ You can configure the following settings for this bridge:
 
 | Name          | Required | Description                                                                                                                                                                                                                                                                  |
 | ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| host          | yes      | Host name or IP addres of ETHM-1 module.                                                                                                                                                                                                                                     |
+| host          | yes      | Host name or IP address of ETHM-1 module.                                                                                                                                                                                                                                   |
 | port          | no       | TCP port for the integration protocol, defaults to 7094.                                                                                                                                                                                                                     |
 | timeout       | no       | Timeout value in milliseconds for connect, read and write operations, defaults to 5000 (5secs).                                                                                                                                                                              |
 | refresh       | no       | Polling interval in milliseconds, defaults to 5000 (5secs). As of version 2.03 ETHM-1 Plus firmware the module disconnects after 25 seconds of inactivity. Setting this parameter to value greater than 25000 will cause inability to correctly communicate with the module. |
@@ -239,15 +239,15 @@ Thing atd-100 KitchenTemp [ id=10, refresh=30 ]
 
 ### system
 
-| Name            | Type     | Description                                                                                                                        |
-| --------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| date_time       | DateTime | Date and time on the alarm system                                                                                                  |
-| troubles        | Switch   | Active when the system has troubles (trouble LED is blinking on a panel)                                                           |
-| troubles_memory | Switch   | Memorized state of system troubles                                                                                                 |
-| service_mode    | Switch   | Active when the system is in service mode                                                                                          |
-| acu100_present  | Switch   | Active when there is an ACU-100 module installed in the system                                                                     |
-| intrx_present   | Switch   | Active when there is an INT-RX module installed in the system                                                                      |
-| grade23_set     | Switch   | Active when Grade2/Grade3 option is set in the system                                                                              |
+| Name        | Type     | Description                                                                                                                        |
+| ----------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| date_time   | DateTime | Date and time on the alarm system.                                                                                                |
+| troubles    | Switch   | Active when the system has troubles (trouble LED is blinking on a panel).                                                         |
+| troubles_memory | Switch   | Memorized state of system troubles.                                                                                                |
+| service_mode    | Switch   | Active when the system is in service mode.                                                                                         |
+| acu100_present  | Switch   | Active when there is an ACU-100 module installed in the system.                                                                    |
+| intrx_present   | Switch   | Active when there is an INT-RX module installed in the system.                                                                     |
+| grade23_set     | Switch   | Active when Grade2/Grade3 option is set in the system.                                                                             |
 | user_code       | String   | Accepts string commands that override configured user code. Send empty string to revert user code to the one in the configuration. |
 
 ### event-log (deprecated)
@@ -256,7 +256,7 @@ These channels and the thing will be removed in the future release of the bindin
 
 | Name        | Type     | Description                                                                            |
 | ----------- | -------- | -------------------------------------------------------------------------------------- |
-| index       | Number   | Index of the current record in the event log. Send '-1' to get most recent record.     |
+| index       | Number   | Index of the current record in the event log. Send '-1' to get most recent record.    |
 | prev_index  | Number   | Index of the previous record in the event log. Use this value to iterate over the log. |
 | timestamp   | DateTime | Date and time when the event happened.                                                 |
 | description | String   | Textual description of the event.                                                      |
@@ -266,9 +266,9 @@ These channels and the thing will be removed in the future release of the bindin
 
 | Name          | Type               | Description                                               |
 | ------------- | ------------------ | --------------------------------------------------------- |
-| temperature   | Number:Temperature | Current temperature in the zone                           |
-| device_lobatt | Switch             | Indicates low battery level in the wireless device        |
-| device_nocomm | Switch             | Indicates communication troubles with the wireless device |
+| temperature   | Number:Temperature | Current temperature in the zone.                          |
+| device_lobatt | Switch             | Indicates low battery level in the wireless device.       |
+| device_nocomm | Switch             | Indicates communication troubles with the wireless device. |
 
 ## Rule Actions
 
