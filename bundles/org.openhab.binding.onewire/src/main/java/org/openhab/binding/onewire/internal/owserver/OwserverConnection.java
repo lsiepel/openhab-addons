@@ -331,6 +331,7 @@ public class OwserverConnection {
     private boolean open() {
         try {
             if (owserverConnectionState == OwserverConnectionState.CLOSED || tryingConnectionRecovery) {
+                logger.debug("opening owServerConnection to {}:{}", owserverAddress, owserverPort);
                 // open socket & set timeout to 3000ms
                 final Socket owserverSocket = new Socket(owserverAddress, owserverPort);
                 owserverSocket.setSoTimeout(3000);
@@ -359,7 +360,7 @@ public class OwserverConnection {
             } else {
                 return false;
             }
-        } catch (IOException e) {
+        } catch (RuntimeException | IOException e) {
             logger.debug("could not open owServerConnection to {}:{}: {}", owserverAddress, owserverPort,
                     e.getMessage());
             closeOnError();
