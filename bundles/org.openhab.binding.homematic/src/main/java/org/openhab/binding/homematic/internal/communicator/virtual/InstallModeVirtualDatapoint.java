@@ -12,10 +12,13 @@
  */
 package org.openhab.binding.homematic.internal.communicator.virtual;
 
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.VIRTUAL_DATAPOINT_NAME_INSTALL_MODE;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.VIRTUAL_DATAPOINT_NAME_INSTALL_MODE_DURATION;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.misc.HomematicClientException;
 import org.openhab.binding.homematic.internal.misc.MiscUtils;
 import org.openhab.binding.homematic.internal.model.HmChannel;
@@ -31,6 +34,7 @@ import org.openhab.binding.homematic.internal.model.HmValueType;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class InstallModeVirtualDatapoint extends AbstractVirtualDatapointHandler {
     @Override
     public String getName() {
@@ -45,13 +49,13 @@ public class InstallModeVirtualDatapoint extends AbstractVirtualDatapointHandler
     }
 
     @Override
-    public boolean canHandleCommand(HmDatapoint dp, Object value) {
+    public boolean canHandleCommand(HmDatapoint dp, @Nullable Object value) {
         return getName().equals(dp.getName());
     }
 
     @Override
-    public void handleCommand(VirtualGateway gateway, HmDatapoint dp, HmDatapointConfig dpConfig, Object value)
-            throws IOException, HomematicClientException {
+    public void handleCommand(VirtualGateway gateway, HmDatapoint dp, HmDatapointConfig dpConfig,
+            @Nullable Object value) throws IOException, HomematicClientException {
         dp.setValue(value);
         boolean enable = MiscUtils.isTrueValue(value);
         int duration = getDuration(dp.getChannel());
@@ -68,7 +72,7 @@ public class InstallModeVirtualDatapoint extends AbstractVirtualDatapointHandler
     private Integer getDuration(HmChannel channel) {
         HmDatapoint dpDuration = channel
                 .getDatapoint(HmDatapointInfo.createValuesInfo(channel, VIRTUAL_DATAPOINT_NAME_INSTALL_MODE_DURATION));
-        return dpDuration == null || dpDuration.getValue() == null || dpDuration.getType() != HmValueType.INTEGER ? 60
-                : ((Number) dpDuration.getValue()).intValue();
+        Number value = dpDuration != null ? dpDuration.getNumericValue() : null;
+        return value != null ? value.intValue() : 60;
     }
 }

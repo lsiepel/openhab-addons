@@ -41,16 +41,16 @@ public class HomematicBridgeHandlerTest {
 
     @Test
     public void testGetRpcCallbackUrlDoesNotContainsSpaces() {
-        HttpClient httpClient = Mockito.mock(HttpClient.class);
+        HttpClient httpClient = Objects.requireNonNull(Mockito.mock(HttpClient.class));
 
         Bridge bridge = new BridgeImpl(HomematicBindingConstants.THING_TYPE_BRIDGE, "1234");
         bridge.getConfiguration().put("callbackHost", " 192. 168.1.1");
         assertThat(bridge.getStatus(), is(ThingStatus.UNINITIALIZED));
-        HomematicTypeGenerator typeGenerator = mock(HomematicTypeGenerator.class);
+        HomematicTypeGenerator typeGenerator = Objects.requireNonNull(mock(HomematicTypeGenerator.class));
 
         HomematicBridgeHandlerMock handler = new HomematicBridgeHandlerMock(bridge, typeGenerator, "1.2.3.4",
                 httpClient);
-        ThingHandlerCallback callback = mock(ThingHandlerCallback.class);
+        ThingHandlerCallback callback = Objects.requireNonNull(mock(ThingHandlerCallback.class));
         handler.setCallback(callback);
         handler.initialize();
 

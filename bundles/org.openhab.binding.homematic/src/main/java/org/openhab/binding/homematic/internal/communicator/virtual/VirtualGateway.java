@@ -14,6 +14,8 @@ package org.openhab.binding.homematic.internal.communicator.virtual;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.communicator.HomematicGateway;
 import org.openhab.binding.homematic.internal.communicator.HomematicGatewayAdapter;
 import org.openhab.binding.homematic.internal.communicator.client.RpcClient;
@@ -27,12 +29,13 @@ import org.openhab.binding.homematic.internal.model.HmInterface;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public interface VirtualGateway extends HomematicGateway {
 
     /**
      * Sends the datapoint from a virtual datapoint.
      */
-    void sendDatapointIgnoreVirtual(HmDatapoint dp, HmDatapointConfig dpConfig, Object newValue)
+    void sendDatapointIgnoreVirtual(HmDatapoint dp, HmDatapointConfig dpConfig, @Nullable Object newValue)
             throws IOException, HomematicClientException;
 
     /**

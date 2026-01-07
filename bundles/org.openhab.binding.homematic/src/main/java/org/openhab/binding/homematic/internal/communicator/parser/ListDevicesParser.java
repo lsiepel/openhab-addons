@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.homematic.internal.common.HomematicConfig;
 import org.openhab.binding.homematic.internal.misc.MiscUtils;
 import org.openhab.binding.homematic.internal.model.HmChannel;
@@ -30,6 +32,7 @@ import org.openhab.binding.homematic.internal.model.HmInterface;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class ListDevicesParser extends CommonRpcParser<Object[], Collection<HmDevice>> {
     private HmInterface hmInterface;
     private HomematicConfig config;
@@ -60,12 +63,14 @@ public class ListDevicesParser extends CommonRpcParser<Object[], Collection<HmDe
             } else {
                 // channel
                 String deviceAddress = getSanitizedAddress(data.get("PARENT"));
-                HmDevice device = devices.get(deviceAddress);
+                // Assumes central sends devices first and channels afterwards
+                HmDevice device = Objects.requireNonNull(devices.get(deviceAddress));
 
                 String type = toString(data.get("TYPE"));
                 Integer number = toInteger(data.get("INDEX"));
-
-                device.addChannel(new HmChannel(type, number));
+                if (type != null && number != null) {
+                    device.addChannel(new HmChannel(type, number));
+                }
             }
         }
         return devices.values();

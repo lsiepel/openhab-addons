@@ -15,12 +15,15 @@ package org.openhab.binding.homematic.internal.communicator.server;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -37,6 +40,7 @@ import org.xml.sax.SAXException;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class XmlRpcServer implements RpcServer {
     private final Logger logger = LoggerFactory.getLogger(XmlRpcServer.class);
 
@@ -44,7 +48,7 @@ public class XmlRpcServer implements RpcServer {
     private static final String XML_EMPTY_ARRAY = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<methodResponse><params><param><value><array><data></data></array></value></param></params></methodResponse>";
     private static final String XML_EMPTY_EVENT_LIST = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<methodResponse><params><param><value><array><data><value>event</value></data></array></value></param></params></methodResponse>";
 
-    private Server xmlRpcHTTPD;
+    private @Nullable Server xmlRpcHTTPD;
     private HomematicConfig config;
     private RpcResponseHandler<String> rpcResponseHander;
     private final ResponseHandler jettyResponseHandler = new ResponseHandler();
@@ -80,13 +84,15 @@ public class XmlRpcServer implements RpcServer {
         logger.debug("Initializing XML-RPC server at port {}", config.getXmlCallbackPort());
 
         InetSocketAddress callbackAddress = new InetSocketAddress(config.getXmlCallbackPort());
-        xmlRpcHTTPD = new Server(callbackAddress);
-        xmlRpcHTTPD.setHandler(jettyResponseHandler);
+        Server server = new Server(callbackAddress);
+        server.setHandler(jettyResponseHandler);
+
+        this.xmlRpcHTTPD = server;
 
         try {
-            xmlRpcHTTPD.start();
+            server.start();
             if (logger.isTraceEnabled()) {
-                xmlRpcHTTPD.dumpStdErr();
+                server.dumpStdErr();
             }
         } catch (Exception e) {
             throw new IOException("Jetty start failed", e);
@@ -95,10 +101,11 @@ public class XmlRpcServer implements RpcServer {
 
     @Override
     public void shutdown() {
-        if (xmlRpcHTTPD != null) {
+        Server server = this.xmlRpcHTTPD;
+        if (server != null) {
             logger.debug("Stopping XML-RPC server");
             try {
-                xmlRpcHTTPD.stop();
+                server.stop();
             } catch (Exception ex) {
                 logger.error("{}", ex.getMessage(), ex);
             }
@@ -112,8 +119,12 @@ public class XmlRpcServer implements RpcServer {
      */
     private class ResponseHandler extends AbstractHandler {
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-                throws IOException, ServletException {
+        public void handle(@Nullable String target, @Nullable Request baseRequest, @Nullable HttpServletRequest request,
+                @Nullable HttpServletResponse response) throws IOException, ServletException {
+            Objects.requireNonNull(baseRequest);
+            Objects.requireNonNull(request);
+            Objects.requireNonNull(response);
+
             response.setContentType("text/xml;charset=ISO-8859-1");
             response.setStatus(HttpServletResponse.SC_OK);
             final PrintWriter respWriter = response.getWriter();

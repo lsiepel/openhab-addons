@@ -17,7 +17,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.misc.HomematicConstants;
 
 /**
@@ -25,6 +28,7 @@ import org.openhab.binding.homematic.internal.misc.HomematicConstants;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class HmChannel {
     public static final String TYPE_GATEWAY_EXTRAS = "GATEWAY-EXTRAS";
     public static final String TYPE_GATEWAY_VARIABLE = "GATEWAY-VARIABLE";
@@ -36,9 +40,9 @@ public class HmChannel {
 
     private final Integer number;
     private final String type;
-    private HmDevice device;
+    private @Nullable HmDevice device;
     private boolean initialized;
-    private Integer lastFunction;
+    private @Nullable Integer lastFunction;
     private Map<HmDatapointInfo, HmDatapoint> datapoints = new HashMap<>();
 
     public HmChannel(String type, Integer number) {
@@ -57,7 +61,7 @@ public class HmChannel {
      * Returns the device of the channel.
      */
     public HmDevice getDevice() {
-        return device;
+        return Objects.requireNonNull(device);
     }
 
     /**
@@ -94,14 +98,14 @@ public class HmChannel {
      * Returns true, if the channel contains gateway scripts.
      */
     public boolean isGatewayScript() {
-        return device.isGatewayExtras() && TYPE_GATEWAY_SCRIPT.equals(type);
+        return getDevice().isGatewayExtras() && TYPE_GATEWAY_SCRIPT.equals(type);
     }
 
     /**
      * Returns true, if the channel contains gateway variables.
      */
     public boolean isGatewayVariable() {
-        return device.isGatewayExtras() && TYPE_GATEWAY_VARIABLE.equals(type);
+        return getDevice().isGatewayExtras() && TYPE_GATEWAY_VARIABLE.equals(type);
     }
 
     /**
@@ -140,6 +144,7 @@ public class HmChannel {
     /**
      * Returns the HmDatapoint with the given HmDatapointInfo.
      */
+    @Nullable
     public HmDatapoint getDatapoint(HmDatapointInfo dpInfo) {
         synchronized (datapoints) {
             return datapoints.get(dpInfo);
@@ -149,6 +154,7 @@ public class HmChannel {
     /**
      * Returns the HmDatapoint with the given datapoint name.
      */
+    @Nullable
     public HmDatapoint getDatapoint(HmParamsetType type, String datapointName) {
         return getDatapoint(new HmDatapointInfo(type, this, datapointName));
     }
@@ -172,6 +178,7 @@ public class HmChannel {
      * Returns the numeric value of the function this channel is currently configured to.
      * Returns null if the channel is not yet initialized or does not support dynamic reconfiguration.
      */
+    @Nullable
     public Integer getCurrentFunction() {
         HmDatapoint functionDp = getDatapoint(HmParamsetType.MASTER,
                 HomematicConstants.DATAPOINT_NAME_CHANNEL_FUNCTION);
@@ -187,16 +194,17 @@ public class HmChannel {
         if (currentFunction == null) {
             return false;
         }
+        Integer lastFunction = this.lastFunction;
         if (lastFunction == null) {
             // We were called from initialization, which was preceded by initial metadata fetch, so everything
             // should be fine by now
-            lastFunction = currentFunction;
+            this.lastFunction = currentFunction;
             return false;
         }
         if (lastFunction.equals(currentFunction)) {
             return false;
         }
-        lastFunction = currentFunction;
+        this.lastFunction = currentFunction;
         return true;
     }
 

@@ -12,8 +12,12 @@
  */
 package org.openhab.binding.homematic.internal.communicator.virtual;
 
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_CALIBRATION;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_STATE;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_VALUE;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DEVICE_TYPE_WIRED_IO_MODULE;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.homematic.internal.model.HmChannel;
 import org.openhab.binding.homematic.internal.model.HmDatapoint;
 import org.openhab.binding.homematic.internal.model.HmDatapointInfo;
@@ -28,10 +32,11 @@ import org.openhab.binding.homematic.internal.model.HmValueType;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class HmwIoModuleVirtualDatapointHandler extends AbstractVirtualDatapointHandler {
     @Override
     public String getName() {
-        return null;
+        return "";
     }
 
     @Override
@@ -45,14 +50,12 @@ public class HmwIoModuleVirtualDatapointHandler extends AbstractVirtualDatapoint
                     boolean hasValueDatapoint = channel.hasDatapoint(dpInfoValue);
 
                     if (hasStateDatapoint && !hasValueDatapoint) {
-                        HmDatapoint dp = addDatapoint(channel.getDevice(), channel.getNumber(), DATAPOINT_NAME_VALUE,
-                                HmValueType.FLOAT, 0.0, false);
+                        HmDatapoint dp = addDatapoint(channel, DATAPOINT_NAME_VALUE, HmValueType.FLOAT, 0.0, false);
                         dp.setMinValue(0.0);
                         dp.setMaxValue(1000.0);
                         dp.setVirtual(false);
                     } else if (hasValueDatapoint && !hasStateDatapoint) {
-                        HmDatapoint dp = addDatapoint(channel.getDevice(), channel.getNumber(), DATAPOINT_NAME_STATE,
-                                HmValueType.BOOL, false, false);
+                        HmDatapoint dp = addDatapoint(channel, DATAPOINT_NAME_STATE, HmValueType.BOOL, false, false);
                         dp.setVirtual(false);
                     }
                 }

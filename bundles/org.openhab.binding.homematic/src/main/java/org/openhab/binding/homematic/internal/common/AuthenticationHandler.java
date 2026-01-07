@@ -37,7 +37,7 @@ public class AuthenticationHandler {
             return;
         }
 
-        if (config.getPassword() == null || config.getUserName() == null) {
+        if (config.getPassword().isEmpty() || config.getUserName().isEmpty()) {
             throw new ConfigurationException("Username or password missing");
         }
         this.authValue = "Basic "

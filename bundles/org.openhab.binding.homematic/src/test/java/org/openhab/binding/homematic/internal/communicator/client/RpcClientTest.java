@@ -12,14 +12,22 @@
  */
 package org.openhab.binding.homematic.internal.communicator.client;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.openhab.binding.homematic.internal.HomematicBindingConstants.*;
-import static org.openhab.binding.homematic.test.util.DimmerHelper.*;
-import static org.openhab.binding.homematic.test.util.RpcClientMockImpl.*;
+import static org.openhab.binding.homematic.internal.HomematicBindingConstants.RX_BURST_MODE;
+import static org.openhab.binding.homematic.internal.HomematicBindingConstants.RX_WAKEUP_MODE;
+import static org.openhab.binding.homematic.test.util.DimmerHelper.createDimmerDummyChannel;
+import static org.openhab.binding.homematic.test.util.DimmerHelper.createDimmerHmChannel;
+import static org.openhab.binding.homematic.test.util.RpcClientMockImpl.GET_PARAMSET_DESCRIPTION_NAME;
+import static org.openhab.binding.homematic.test.util.RpcClientMockImpl.GET_PARAMSET_NAME;
 
 import java.io.IOException;
+import java.util.Objects;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openhab.binding.homematic.internal.communicator.message.RpcRequest;
@@ -32,9 +40,10 @@ import org.openhab.core.test.java.JavaTest;
 /**
  * @author Florian Stolte - Initial contribution
  */
+@NonNullByDefault
 public class RpcClientTest extends JavaTest {
 
-    private RpcClientMockImpl rpcClient;
+    private @Nullable RpcClientMockImpl rpcClient;
 
     @BeforeEach
     public void setup() throws IOException {
@@ -44,6 +53,7 @@ public class RpcClientTest extends JavaTest {
     @Test
     public void valuesParamsetDescriptionIsLoadedForChannel() throws IOException {
         HmChannel channel = createDimmerHmChannel();
+        RpcClientMockImpl rpcClient = Objects.requireNonNull(this.rpcClient);
 
         rpcClient.addChannelDatapoints(channel, HmParamsetType.VALUES);
 
@@ -53,6 +63,7 @@ public class RpcClientTest extends JavaTest {
     @Test
     public void masterParamsetDescriptionIsLoadedForDummyChannel() throws IOException {
         HmChannel channel = createDimmerDummyChannel();
+        RpcClientMockImpl rpcClient = Objects.requireNonNull(this.rpcClient);
 
         rpcClient.addChannelDatapoints(channel, HmParamsetType.MASTER);
 
@@ -62,6 +73,7 @@ public class RpcClientTest extends JavaTest {
     @Test
     public void valuesParamsetDescriptionIsNotLoadedForDummyChannel() throws IOException {
         HmChannel channel = createDimmerDummyChannel();
+        RpcClientMockImpl rpcClient = Objects.requireNonNull(this.rpcClient);
 
         rpcClient.addChannelDatapoints(channel, HmParamsetType.VALUES);
 
@@ -71,6 +83,7 @@ public class RpcClientTest extends JavaTest {
     @Test
     public void valuesParamsetIsLoadedForChannel() throws IOException {
         HmChannel channel = createDimmerHmChannel();
+        RpcClientMockImpl rpcClient = Objects.requireNonNull(this.rpcClient);
 
         rpcClient.setChannelDatapointValues(channel, HmParamsetType.VALUES);
 
@@ -80,6 +93,7 @@ public class RpcClientTest extends JavaTest {
     @Test
     public void masterParamsetIsLoadedForDummyChannel() throws IOException {
         HmChannel channel = createDimmerDummyChannel();
+        RpcClientMockImpl rpcClient = Objects.requireNonNull(this.rpcClient);
 
         rpcClient.setChannelDatapointValues(channel, HmParamsetType.MASTER);
 
@@ -89,6 +103,7 @@ public class RpcClientTest extends JavaTest {
     @Test
     public void valuesParamsetIsNotLoadedForDummyChannel() throws IOException {
         HmChannel channel = createDimmerDummyChannel();
+        RpcClientMockImpl rpcClient = Objects.requireNonNull(this.rpcClient);
 
         rpcClient.setChannelDatapointValues(channel, HmParamsetType.VALUES);
 
@@ -98,6 +113,7 @@ public class RpcClientTest extends JavaTest {
     @Test
     public void burstRxModeIsConfiguredAsParameterOnRequest() throws IOException {
         RpcRequest<String> request = new XmlRpcRequest("setValue");
+        RpcClientMockImpl rpcClient = Objects.requireNonNull(this.rpcClient);
 
         rpcClient.configureRxMode(request, RX_BURST_MODE);
 
@@ -107,6 +123,7 @@ public class RpcClientTest extends JavaTest {
     @Test
     public void wakeupRxModeIsConfiguredAsParameterOnRequest() throws IOException {
         RpcRequest<String> request = new XmlRpcRequest("setValue");
+        RpcClientMockImpl rpcClient = Objects.requireNonNull(this.rpcClient);
 
         rpcClient.configureRxMode(request, RX_WAKEUP_MODE);
 
@@ -116,6 +133,7 @@ public class RpcClientTest extends JavaTest {
     @Test
     public void rxModeIsNotConfiguredAsParameterOnRequestForNull() throws IOException {
         RpcRequest<String> request = new XmlRpcRequest("setValue");
+        RpcClientMockImpl rpcClient = Objects.requireNonNull(this.rpcClient);
 
         rpcClient.configureRxMode(request, null);
 
@@ -125,6 +143,7 @@ public class RpcClientTest extends JavaTest {
     @Test
     public void rxModeIsNotConfiguredAsParameterOnRequestForInvalidString() throws IOException {
         RpcRequest<String> request = new XmlRpcRequest("setValue");
+        RpcClientMockImpl rpcClient = Objects.requireNonNull(this.rpcClient);
 
         rpcClient.configureRxMode(request, "SUPER_RX_MODE");
 

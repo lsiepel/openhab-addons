@@ -12,11 +12,16 @@
  */
 package org.openhab.binding.homematic.internal.communicator.virtual;
 
-import static org.openhab.binding.homematic.internal.communicator.virtual.DeleteDeviceModeVirtualDatapointHandler.*;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
+import static org.openhab.binding.homematic.internal.communicator.virtual.DeleteDeviceModeVirtualDatapointHandler.MODE_DEFER;
+import static org.openhab.binding.homematic.internal.communicator.virtual.DeleteDeviceModeVirtualDatapointHandler.MODE_FORCE;
+import static org.openhab.binding.homematic.internal.communicator.virtual.DeleteDeviceModeVirtualDatapointHandler.MODE_RESET;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.VIRTUAL_DATAPOINT_NAME_DELETE_DEVICE;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.VIRTUAL_DATAPOINT_NAME_DELETE_DEVICE_MODE;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.communicator.AbstractHomematicGateway;
 import org.openhab.binding.homematic.internal.misc.HomematicClientException;
 import org.openhab.binding.homematic.internal.misc.MiscUtils;
@@ -34,6 +39,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class DeleteDeviceVirtualDatapointHandler extends AbstractVirtualDatapointHandler {
     private final Logger logger = LoggerFactory.getLogger(DeleteDeviceVirtualDatapointHandler.class);
 
@@ -50,29 +56,27 @@ public class DeleteDeviceVirtualDatapointHandler extends AbstractVirtualDatapoin
     }
 
     @Override
-    public boolean canHandleCommand(HmDatapoint dp, Object value) {
+    public boolean canHandleCommand(HmDatapoint dp, @Nullable Object value) {
         return getName().equals(dp.getName());
     }
 
     @Override
-    public void handleCommand(VirtualGateway gateway, HmDatapoint dp, HmDatapointConfig dpConfig, Object value)
-            throws IOException, HomematicClientException {
+    public void handleCommand(VirtualGateway gateway, HmDatapoint dp, HmDatapointConfig dpConfig,
+            @Nullable Object value) throws IOException, HomematicClientException {
         dp.setValue(value);
-        if (MiscUtils.isTrueValue(dp.getValue())) {
+        if (MiscUtils.isTrueValue(value)) {
             try {
                 HmDatapoint deleteMode = dp.getChannel().getDatapoint(
                         HmDatapointInfo.createValuesInfo(dp.getChannel(), VIRTUAL_DATAPOINT_NAME_DELETE_DEVICE_MODE));
                 HmDevice device = dp.getChannel().getDevice();
+                String option = deleteMode != null ? deleteMode.getOptionValue() : null;
                 int flag = -1;
-                switch (deleteMode.getOptionValue()) {
-                    case MODE_RESET:
-                        flag = 1;
-                        break;
-                    case MODE_FORCE:
-                        flag = 2;
-                        break;
-                    case MODE_DEFER:
-                        flag = 4;
+                if (MODE_RESET.equals(option)) {
+                    flag = 1;
+                } else if (MODE_FORCE.equals(option)) {
+                    flag = 2;
+                } else if (MODE_DEFER.equals(option)) {
+                    flag = 4;
                 }
                 if (flag == -1) {
                     logger.info("Can't delete device '{}' from gateway '{}', DELETE_MODE is LOCKED",

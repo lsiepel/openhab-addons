@@ -19,9 +19,12 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Future;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.discovery.eq3udp.Eq3UdpRequest;
 import org.openhab.binding.homematic.internal.discovery.eq3udp.Eq3UdpResponse;
 import org.openhab.core.config.discovery.AbstractDiscoveryService;
@@ -39,15 +42,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 @Component(service = DiscoveryService.class, configurationPid = "discovery.homematic")
 public class CcuDiscoveryService extends AbstractDiscoveryService {
     private final Logger logger = LoggerFactory.getLogger(CcuDiscoveryService.class);
 
     private static final int RECEIVE_TIMEOUT_MSECS = 3000;
-    private InetAddress broadcastAddress;
-    private MulticastSocket socket;
-    private Future<?> scanFuture;
-    private NetworkAddressService networkAddressService;
+    private @Nullable InetAddress broadcastAddress;
+    private @Nullable Future<?> scanFuture;
+    private @Nullable NetworkAddressService networkAddressService;
 
     public CcuDiscoveryService() {
         super(Set.of(THING_TYPE_BRIDGE), 5, true);
@@ -64,10 +67,11 @@ public class CcuDiscoveryService extends AbstractDiscoveryService {
 
     @Override
     protected void stopScan() {
+        Future<?> scanFuture = this.scanFuture;
         if (scanFuture != null) {
             scanFuture.cancel(false);
-            scanFuture = null;
         }
+        this.scanFuture = null;
     }
 
     @Override
@@ -84,7 +88,8 @@ public class CcuDiscoveryService extends AbstractDiscoveryService {
     private synchronized void startDiscovery() {
         try {
             logger.debug("Starting Homematic CCU discovery scan");
-            String configuredBroadcastAddress = networkAddressService.getConfiguredBroadcastAddress();
+            String configuredBroadcastAddress = Objects.requireNonNull(networkAddressService)
+                    .getConfiguredBroadcastAddress();
             if (configuredBroadcastAddress != null) {
                 broadcastAddress = InetAddress.getByName(configuredBroadcastAddress);
             }
@@ -92,13 +97,13 @@ public class CcuDiscoveryService extends AbstractDiscoveryService {
                 logger.warn("Homematic CCU discovery: discovery not possible, no broadcast address found");
                 return;
             }
-            socket = new MulticastSocket();
-            socket.setBroadcast(true);
-            socket.setTimeToLive(5);
-            socket.setSoTimeout(800);
-
-            sendBroadcast();
-            receiveResponses();
+            try (MulticastSocket socket = new MulticastSocket()) {
+                socket.setBroadcast(true);
+                socket.setTimeToLive(5);
+                socket.setSoTimeout(800);
+                sendBroadcast(socket);
+                receiveResponses(socket);
+            }
         } catch (Exception ex) {
             logger.error("An error was thrown while running Homematic CCU discovery {}", ex.getMessage(), ex);
         } finally {
@@ -109,7 +114,7 @@ public class CcuDiscoveryService extends AbstractDiscoveryService {
     /**
      * Sends a UDP hello broadcast message for CCU gateways.
      */
-    private void sendBroadcast() throws IOException {
+    private void sendBroadcast(MulticastSocket socket) throws IOException {
         Eq3UdpRequest hello = new Eq3UdpRequest();
         byte[] data = hello.getBytes();
         DatagramPacket packet = new DatagramPacket(data, data.length, broadcastAddress, 43439);
@@ -119,20 +124,19 @@ public class CcuDiscoveryService extends AbstractDiscoveryService {
     /**
      * Receives the UDP responses to the hello messages.
      */
-    private void receiveResponses() throws IOException {
+    private void receiveResponses(MulticastSocket socket) throws IOException {
         long startTime = System.currentTimeMillis();
         long currentTime = System.currentTimeMillis();
         while (currentTime - startTime < RECEIVE_TIMEOUT_MSECS) {
-            extractGatewayInfos();
+            extractGatewayInfos(socket);
             currentTime = System.currentTimeMillis();
         }
-        socket.close();
     }
 
     /**
      * Extracts the CCU infos from the UDP response.
      */
-    private void extractGatewayInfos() throws IOException {
+    private void extractGatewayInfos(MulticastSocket socket) throws IOException {
         try {
             DatagramPacket packet = new DatagramPacket(new byte[265], 256);
             socket.receive(packet);

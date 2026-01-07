@@ -12,8 +12,12 @@
  */
 package org.openhab.binding.homematic.internal.communicator.virtual;
 
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_RSSI_DEVICE;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_RSSI_PEER;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.VIRTUAL_DATAPOINT_NAME_RSSI;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.model.HmChannel;
 import org.openhab.binding.homematic.internal.model.HmDatapoint;
 import org.openhab.binding.homematic.internal.model.HmDevice;
@@ -25,6 +29,7 @@ import org.openhab.binding.homematic.internal.model.HmValueType;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class RssiVirtualDatapointHandler extends AbstractVirtualDatapointHandler {
     @Override
     public String getName() {
@@ -34,11 +39,13 @@ public class RssiVirtualDatapointHandler extends AbstractVirtualDatapointHandler
     @Override
     public void initialize(HmDevice device) {
         if (isWirelessDevice(device)) {
-            HmDatapoint dp = addDatapoint(device, 0, getName(), HmValueType.INTEGER, getRssiValue(device.getChannel(0)),
-                    true);
-            dp.setUnit("dBm");
-            dp.setMinValue(Integer.MIN_VALUE);
-            dp.setMaxValue(Integer.MAX_VALUE);
+            HmChannel channel = device.getChannel(0);
+            if (channel != null) {
+                HmDatapoint dp = addDatapoint(channel, getName(), HmValueType.INTEGER, getRssiValue(channel), true);
+                dp.setUnit("dBm");
+                dp.setMinValue(Integer.MIN_VALUE);
+                dp.setMaxValue(Integer.MAX_VALUE);
+            }
         }
     }
 
@@ -51,36 +58,47 @@ public class RssiVirtualDatapointHandler extends AbstractVirtualDatapointHandler
     @Override
     public void handleEvent(VirtualGateway gateway, HmDatapoint dp) {
         HmChannel channel = dp.getChannel();
+        @Nullable
         Object value = getRssiValue(channel);
         HmDatapoint vdpRssi = getVirtualDatapoint(channel);
-        vdpRssi.setValue(value);
+        if (vdpRssi != null) {
+            vdpRssi.setValue(value);
+        }
     }
 
     /**
      * Returns either the device or the peer rssi value.
      */
+    @Nullable
     protected Integer getRssiValue(HmChannel channel) {
         HmDatapoint dpRssiDevice = channel.getDatapoint(HmParamsetType.VALUES, DATAPOINT_NAME_RSSI_DEVICE);
         HmDatapoint dpRssiPeer = channel.getDatapoint(HmParamsetType.VALUES, DATAPOINT_NAME_RSSI_PEER);
 
-        Integer deviceValue = getDatapointValue(dpRssiDevice);
-        Integer peerValue = getDatapointValue(dpRssiPeer);
-
-        if ((deviceValue == null || deviceValue == 0) && peerValue != null) {
-            return peerValue;
+        if (dpRssiDevice != null) {
+            Integer deviceValue = getDatapointValue(dpRssiDevice);
+            if (deviceValue != null) {
+                return deviceValue;
+            }
         }
-        return deviceValue;
+        if (dpRssiPeer != null) {
+            Integer peerValue = getDatapointValue(dpRssiPeer);
+            if (peerValue != null) {
+                return peerValue;
+            }
+        }
+        return null;
     }
 
+    @Nullable
     private Integer getDatapointValue(HmDatapoint dp) {
-        if (dp == null || dp.getValue() == null || (Integer) dp.getValue() == 0) {
-            return null;
+        if (dp.getValue() instanceof Integer value && value != 0) {
+            return value;
         }
-
-        return (Integer) dp.getValue();
+        return null;
     }
 
     protected boolean isWirelessDevice(HmDevice device) {
-        return device.getChannel(0).getDatapoint(HmParamsetType.VALUES, DATAPOINT_NAME_RSSI_DEVICE) != null;
+        HmChannel channel = device.getChannel(0);
+        return channel != null && channel.getDatapoint(HmParamsetType.VALUES, DATAPOINT_NAME_RSSI_DEVICE) != null;
     }
 }

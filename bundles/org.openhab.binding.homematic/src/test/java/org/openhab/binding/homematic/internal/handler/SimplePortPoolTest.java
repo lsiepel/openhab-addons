@@ -18,7 +18,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,9 +30,10 @@ import org.junit.jupiter.api.Test;
  *
  * @author Florian Stolte - Initial Contribution
  */
+@NonNullByDefault
 public class SimplePortPoolTest {
 
-    private SimplePortPool simplePortPool;
+    private @Nullable SimplePortPool simplePortPool;
 
     @BeforeEach
     public void setup() {
@@ -38,6 +42,7 @@ public class SimplePortPoolTest {
 
     @Test
     public void testPoolOnlyGivesOutPortsNotInUse() {
+        SimplePortPool simplePortPool = Objects.requireNonNull(this.simplePortPool);
         final List<Integer> ports = acquireSomePorts();
 
         final int newPort = simplePortPool.getNextPort();
@@ -49,6 +54,7 @@ public class SimplePortPoolTest {
 
     @Test
     public void testPoolReusesReleasedPort() {
+        SimplePortPool simplePortPool = Objects.requireNonNull(this.simplePortPool);
         final List<Integer> ports = acquireSomePorts();
         final int firstPort = ports.get(0);
 
@@ -60,6 +66,7 @@ public class SimplePortPoolTest {
 
     @Test
     public void testPoolSkipsPortsThatAreSetInUse() {
+        SimplePortPool simplePortPool = Objects.requireNonNull(this.simplePortPool);
         final int firstPort = simplePortPool.getNextPort();
 
         simplePortPool.setInUse(firstPort + 1);
@@ -69,6 +76,7 @@ public class SimplePortPoolTest {
     }
 
     private List<Integer> acquireSomePorts() {
+        SimplePortPool simplePortPool = Objects.requireNonNull(this.simplePortPool);
         final int numberOfPorts = 5;
         final List<Integer> ports = new ArrayList<>(numberOfPorts);
 

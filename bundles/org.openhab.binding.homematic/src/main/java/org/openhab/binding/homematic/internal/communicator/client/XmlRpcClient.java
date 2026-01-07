@@ -22,6 +22,8 @@ import java.util.concurrent.TimeoutException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
@@ -45,10 +47,11 @@ import org.xml.sax.SAXException;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class XmlRpcClient extends RpcClient<String> {
     private final Logger logger = LoggerFactory.getLogger(XmlRpcClient.class);
     private HttpClient httpClient;
-    private AuthenticationHandler authenticationHandler;
+    private @Nullable AuthenticationHandler authenticationHandler;
 
     public XmlRpcClient(HomematicConfig config, HttpClient httpClient) throws IOException, ConfigurationException {
         super(config);
@@ -109,11 +112,14 @@ public class XmlRpcClient extends RpcClient<String> {
             if (port == config.getGroupPort()) {
                 url += "/groups";
             }
-            if (authenticationHandler == null) {
-                authenticationHandler = new AuthenticationHandler(config);
+
+            AuthenticationHandler authHandler = this.authenticationHandler;
+            if (authHandler == null) {
+                authHandler = new AuthenticationHandler(config);
+                this.authenticationHandler = authHandler;
             }
 
-            Request req = authenticationHandler.updateAuthenticationInformation(
+            Request req = authHandler.updateAuthenticationInformation(
                     httpClient.POST(new URI(url)).content(content).timeout(config.getTimeout(), TimeUnit.SECONDS)
                             .header(HttpHeader.CONTENT_TYPE, "text/xml;charset=" + config.getEncoding()));
 

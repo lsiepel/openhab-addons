@@ -27,9 +27,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.misc.MiscUtils;
 import org.openhab.binding.homematic.internal.model.HmDatapoint;
 import org.openhab.binding.homematic.internal.model.HmDevice;
@@ -45,12 +48,11 @@ import org.slf4j.LoggerFactory;
  * @author Gerhard Riegler - Initial contribution
  * @author Michael Reitler - QuantityType support
  */
-
+@NonNullByDefault
 public class MetadataUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataUtils.class);
-    private static ResourceBundle descriptionsBundle;
     private static Map<String, String> descriptions = new HashMap<>();
-    private static Map<String, Set<String>> standardDatapoints = new HashMap<>();
+    private static Map<String, Set<@Nullable String>> standardDatapoints = new HashMap<>();
 
     protected static void initialize() {
         // loads all Homematic device names
@@ -60,12 +62,11 @@ public class MetadataUtils {
     }
 
     private static void loadBundle(String filename) {
-        descriptionsBundle = ResourceBundle.getBundle(filename, Locale.getDefault());
+        final ResourceBundle descriptionsBundle = ResourceBundle.getBundle(filename, Locale.getDefault());
         for (String key : descriptionsBundle.keySet()) {
             descriptions.put(key.toUpperCase(), descriptionsBundle.getString(key));
         }
         ResourceBundle.clearCache();
-        descriptionsBundle = null;
     }
 
     /**
@@ -79,16 +80,9 @@ public class MetadataUtils {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty() && !line.startsWith("#")) {
                     String[] parts = line.split("\\|");
-                    String channelType = null;
-                    String datapointName = null;
-                    if (parts.length > 0) {
-                        channelType = parts[0].trim();
-                        if (parts.length > 1) {
-                            datapointName = parts[1].trim();
-                        }
-                    }
-
-                    Set<String> channelDatapoints = standardDatapoints.get(channelType);
+                    String channelType = parts[0].trim();
+                    String datapointName = parts.length > 1 ? parts[1].trim() : null;
+                    Set<@Nullable String> channelDatapoints = standardDatapoints.get(channelType);
                     if (channelDatapoints == null) {
                         channelDatapoints = new HashSet<>();
                         standardDatapoints.put(channelType, channelDatapoints);
@@ -109,22 +103,18 @@ public class MetadataUtils {
     /**
      * Creates channel and config description metadata options for the given Datapoint.
      */
-    public static <T> List<T> generateOptions(HmDatapoint dp, OptionsBuilder<T> optionsBuilder) {
-        List<T> options = null;
-        if (dp.getOptions() == null) {
+    public static <T> @Nullable List<T> generateOptions(HmDatapoint dp, OptionsBuilder<T> optionsBuilder) {
+        String[] dpOptions = dp.getOptions();
+        if (dpOptions == null) {
             LOGGER.warn("No options for ENUM datapoint {}", dp);
-        } else {
-            options = new ArrayList<>();
-            for (int i = 0; i < dp.getOptions().length; i++) {
-                String description = null;
-                if (!dp.isVariable() && !dp.isScript()) {
-                    description = getDescription(dp.getChannel().getType(), dp.getName(), dp.getOptions()[i]);
-                }
-                if (description == null) {
-                    description = dp.getOptions()[i];
-                }
-                options.add(optionsBuilder.createOption(dp.getOptions()[i], description));
-            }
+            return null;
+        }
+        List<T> options = new ArrayList<>();
+        for (String opt : dpOptions) {
+            String description = !dp.isVariable() && !dp.isScript()
+                    ? getDescription(dp.getChannel().getType(), dp.getName(), opt)
+                    : null;
+            options.add(optionsBuilder.createOption(opt, description != null ? description : opt));
         }
         return options;
     }
@@ -147,9 +137,11 @@ public class MetadataUtils {
     /**
      * Returns the unit metadata string for the given Datapoint.
      */
+    @Nullable
     public static String getUnit(HmDatapoint dp) {
-        if (dp.getUnit() != null) {
-            return dp.getUnit().replace("100%", "%").replace("%", "%%");
+        String dpUnit = dp.getUnit();
+        if (dpUnit != null) {
+            return dpUnit.replace("100%", "%").replace("%", "%%");
         }
         return null;
     }
@@ -157,6 +149,7 @@ public class MetadataUtils {
     /**
      * Returns the pattern metadata string for the given Datapoint.
      */
+    @Nullable
     public static String getPattern(HmDatapoint dp) {
         if (dp.isFloatType()) {
             return "%.2f";
@@ -170,6 +163,7 @@ public class MetadataUtils {
     /**
      * Returns the state pattern metadata string with unit for the given Datapoint.
      */
+    @Nullable
     public static String getStatePattern(HmDatapoint dp) {
         String unit = getUnit(dp);
         if ("%%".equals(unit)) {
@@ -201,6 +195,7 @@ public class MetadataUtils {
     /**
      * Returns the description for the given keys.
      */
+    @Nullable
     public static String getDescription(String... keys) {
         StringBuilder sb = new StringBuilder();
         for (int startIdx = 0; startIdx < keys.length; startIdx++) {
@@ -225,7 +220,7 @@ public class MetadataUtils {
      */
     public static String getDeviceName(HmDevice device) {
         if (device.isGatewayExtras()) {
-            return getDescription(HmDevice.TYPE_GATEWAY_EXTRAS);
+            return Objects.requireNonNull(getDescription(HmDevice.TYPE_GATEWAY_EXTRAS));
         }
 
         String deviceDescription = null;
@@ -242,6 +237,7 @@ public class MetadataUtils {
     /**
      * Returns the description for the given datapoint.
      */
+    @Nullable
     public static String getDatapointDescription(HmDatapoint dp) {
         if (dp.isVariable() || dp.isScript()) {
             return null;
@@ -253,7 +249,7 @@ public class MetadataUtils {
      * Returns true, if the given datapoint is a standard datapoint.
      */
     public static boolean isStandard(HmDatapoint dp) {
-        Set<String> channelDatapoints = standardDatapoints.get(dp.getChannel().getType());
+        Set<@Nullable String> channelDatapoints = standardDatapoints.get(dp.getChannel().getType());
         if (channelDatapoints == null) {
             return true;
         }
@@ -264,7 +260,8 @@ public class MetadataUtils {
     /**
      * Helper method for creating a BigDecimal.
      */
-    public static BigDecimal createBigDecimal(Number number) {
+    @Nullable
+    public static BigDecimal createBigDecimal(@Nullable Number number) {
         if (number == null) {
             return null;
         }
@@ -282,9 +279,6 @@ public class MetadataUtils {
     public static String getItemType(HmDatapoint dp) {
         String dpName = dp.getName();
         String channelType = dp.getChannel().getType();
-        if (channelType == null) {
-            channelType = "";
-        }
 
         if (dp.isBooleanType()) {
             if (((dpName.equals(DATAPOINT_NAME_STATE) || dpName.equals(VIRTUAL_DATAPOINT_NAME_STATE_CONTACT))
@@ -303,7 +297,7 @@ public class MetadataUtils {
                 return ITEM_TYPE_DIMMER;
             } else {
                 // determine QuantityType
-                String unit = dp.getUnit() != null ? dp.getUnit() : "";
+                String unit = Objects.requireNonNullElse(dp.getUnit(), "");
                 switch (unit) {
                     case "Â°C":
                     case "°C":
@@ -370,12 +364,10 @@ public class MetadataUtils {
     /**
      * Determines the category for the given Datapoint.
      */
+    @Nullable
     public static String getCategory(HmDatapoint dp, String itemType) {
         String dpName = dp.getName();
         String channelType = dp.getChannel().getType();
-        if (channelType == null) {
-            channelType = "";
-        }
 
         if (dpName.equals(DATAPOINT_NAME_BATTERY_TYPE) || dpName.equals(DATAPOINT_NAME_LOWBAT)
                 || dpName.equals(DATAPOINT_NAME_LOWBAT_IP)) {

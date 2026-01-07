@@ -19,6 +19,8 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.converter.ConverterException;
 import org.openhab.binding.homematic.internal.converter.ConverterTypeException;
 import org.openhab.binding.homematic.internal.converter.StateInvertInfo;
@@ -37,6 +39,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public abstract class AbstractTypeConverter<T extends State> implements TypeConverter<T> {
     private final Logger logger = LoggerFactory.getLogger(AbstractTypeConverter.class);
 
@@ -72,7 +75,7 @@ public abstract class AbstractTypeConverter<T extends State> implements TypeConv
      * Rounds a double value.
      */
     protected BigDecimal round(Double number) {
-        BigDecimal bd = new BigDecimal(number == null ? "0" : number.toString());
+        BigDecimal bd = new BigDecimal(number.toString());
         String stringBd = bd.toPlainString();
         int scale = stringBd.length() - (stringBd.lastIndexOf('.') + 1);
         return bd.setScale(scale > 2 ? 6 : 2, RoundingMode.HALF_UP);
@@ -80,6 +83,7 @@ public abstract class AbstractTypeConverter<T extends State> implements TypeConv
 
     @SuppressWarnings("unchecked")
     @Override
+    @Nullable
     public Object convertToBinding(Type type, HmDatapoint dp) throws ConverterException {
         if (isLoggingRequired()) {
             logAtDefaultLevel(
@@ -143,7 +147,7 @@ public abstract class AbstractTypeConverter<T extends State> implements TypeConv
         return true;
     }
 
-    private void logAtDefaultLevel(String format, Object... arguments) {
+    private void logAtDefaultLevel(String format, Object @Nullable... arguments) {
         switch (getDefaultLogLevelForTypeConverter()) {
             case TRACE:
                 logger.trace(format, arguments);
@@ -161,6 +165,7 @@ public abstract class AbstractTypeConverter<T extends State> implements TypeConv
     /**
      * Converts an openHAB command to a Homematic value.
      */
+    @Nullable
     protected Object commandToBinding(Command command, HmDatapoint dp) throws ConverterException {
         throw new ConverterException("Unsupported command " + command.getClass().getSimpleName() + " for "
                 + this.getClass().getSimpleName());

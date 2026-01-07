@@ -14,6 +14,7 @@ package org.openhab.binding.homematic.internal.communicator;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jetty.client.HttpClient;
 import org.openhab.binding.homematic.internal.common.HomematicConfig;
 import org.openhab.binding.homematic.internal.communicator.client.RpcClient;
@@ -25,6 +26,7 @@ import org.openhab.core.i18n.ConfigurationException;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class HomematicGatewayFactory {
 
     /**

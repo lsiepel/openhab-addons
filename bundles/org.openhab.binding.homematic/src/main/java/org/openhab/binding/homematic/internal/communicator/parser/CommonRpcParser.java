@@ -14,9 +14,9 @@ package org.openhab.binding.homematic.internal.communicator.parser;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.misc.HomematicConstants;
 import org.openhab.binding.homematic.internal.misc.MiscUtils;
 import org.openhab.binding.homematic.internal.model.HmDatapoint;
@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
 
     private final Logger logger = LoggerFactory.getLogger(CommonRpcParser.class);
@@ -37,15 +38,17 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the object to a string.
      */
-    protected String toString(Object object) {
-        String value = Objects.toString(object, "").trim();
+    @Nullable
+    protected String toString(@Nullable Object object) {
+        String value = MiscUtils.toStringOrEmptyIfNull(object).trim();
         return value.isEmpty() ? null : value;
     }
 
     /**
      * Converts the object to an integer.
      */
-    protected Integer toInteger(Object object) {
+    @Nullable
+    protected Integer toInteger(@Nullable Object object) {
         if (object == null || object instanceof Integer) {
             return (Integer) object;
         }
@@ -60,7 +63,8 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the object to a double.
      */
-    protected Double toDouble(Object object) {
+    @Nullable
+    protected Double toDouble(@Nullable Object object) {
         if (object == null || object instanceof Double) {
             return (Double) object;
         }
@@ -75,7 +79,8 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the object to a number.
      */
-    protected Number toNumber(Object object) {
+    @Nullable
+    protected Number toNumber(@Nullable Object object) {
         if (object == null || object instanceof Number) {
             return (Number) object;
         }
@@ -95,7 +100,8 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the object to a boolean.
      */
-    protected Boolean toBoolean(Object object) {
+    @Nullable
+    protected Boolean toBoolean(@Nullable Object object) {
         if (object == null || object instanceof Boolean) {
             return (Boolean) object;
         }
@@ -105,7 +111,7 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the object to a string array.
      */
-    protected String[] toOptionList(Object optionList) {
+    protected String @Nullable [] toOptionList(@Nullable Object optionList) {
         if (optionList != null && optionList instanceof Object[] vl) {
             String[] stringArray = new String[vl.length];
             for (int i = 0; i < vl.length; i++) {
@@ -119,9 +125,8 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Returns the address of a device, replacing group address identifier and illegal characters.
      */
-    @NonNull
-    protected String getSanitizedAddress(Object object) {
-        String address = Objects.toString(object, "").trim().replaceFirst("\\*", "T-");
+    protected String getSanitizedAddress(@Nullable Object object) {
+        String address = MiscUtils.toStringOrEmptyIfNull(object).trim().replaceFirst("\\*", "T-");
         return MiscUtils.validateCharacters(address.isEmpty() ? null : address, "Address", "_");
     }
 
@@ -129,26 +134,27 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
      * Adjust uninitialized rssi values to zero.
      */
     protected void adjustRssiValue(HmDatapoint dp) {
-        if (dp.getValue() != null && dp.getName().startsWith("RSSI_") && dp.isIntegerType()) {
-            int rssiValue = ((Number) dp.getValue()).intValue();
-            dp.setValue(getAdjustedRssiValue(rssiValue));
+        Number value = dp.getNumericValue();
+        if (value != null && dp.getName().startsWith("RSSI_")) {
+            dp.setValue(getAdjustedRssiValue(value.intValue()));
         }
     }
 
     /**
      * Adjust a rssi value if it is out of range.
      */
-    protected Integer getAdjustedRssiValue(Integer rssiValue) {
-        if (rssiValue == null || rssiValue >= 255 || rssiValue <= -255) {
+    protected int getAdjustedRssiValue(Integer rssiValue) {
+        if (rssiValue >= 255 || rssiValue <= -255) {
             return 0;
         }
-        return rssiValue;
+        return rssiValue.intValue();
     }
 
     /**
      * Converts the value to the correct type if necessary.
      */
-    protected Object convertToType(HmDatapoint dp, Object value) {
+    @Nullable
+    protected Object convertToType(HmDatapoint dp, @Nullable Object value) {
         if (value == null) {
             return null;
         } else if (dp.isBooleanType()) {
@@ -167,19 +173,26 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Assembles a datapoint with the given parameters.
      */
-    protected HmDatapoint assembleDatapoint(String name, String unit, String type, String[] options, Object min,
-            Object max, Integer operations, Object defaultValue, Map<String, Number> specialValues,
-            HmParamsetType paramsetType, boolean isHmIpDevice) throws IOException {
-        HmDatapoint dp = new HmDatapoint();
-        dp.setName(name);
-        dp.setDescription(name);
+    protected HmDatapoint assembleDatapoint(String name, @Nullable String unit, @Nullable String type,
+            String @Nullable [] options, @Nullable Object min, @Nullable Object max, @Nullable Integer operations,
+            @Nullable Object defaultValue, @Nullable Map<String, Number> specialValues, HmParamsetType paramsetType,
+            boolean isHmIpDevice) throws IOException {
+        HmValueType valueType = HmValueType.parse(type);
+        if (valueType == HmValueType.UNKNOWN) {
+            throw new IOException("Unknown datapoint type: " + type);
+        }
+
+        boolean readable = operations != null && (operations & 1) == 1;
+        boolean writeable = operations != null && (operations & 2) == 2;
+        HmDatapoint dp = new HmDatapoint(name, name, valueType, defaultValue, !writeable, paramsetType);
+
         if (unit != null) {
             unit = unit.trim().replace("\ufffd", "°");
         }
         dp.setUnit(unit == null || unit.isEmpty() ? null : unit);
 
         // Bypass: For several devices the CCU does not send a unit together with the value in the data point definition
-        if (dp.getUnit() == null && dp.getName() != null) {
+        if (dp.getUnit() == null) {
             if (dp.getName().startsWith("RSSI_")) {
                 dp.setUnit("dBm");
             } else if (dp.getName().startsWith(HomematicConstants.DATAPOINT_NAME_OPERATING_VOLTAGE)) {
@@ -190,19 +203,15 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
                 dp.setUnit("100%");
             }
         }
-
-        HmValueType valueType = HmValueType.parse(type);
-        if (valueType == null || valueType == HmValueType.UNKNOWN) {
-            throw new IOException("Unknown datapoint type: " + type);
-        } else if (valueType == HmValueType.FLOAT && dp.getUnit() == null
+        if (valueType == HmValueType.FLOAT && dp.getUnit() == null
                 && dp.getName().matches("\\w*_TEMPERATURE(_\\w.*|$)")) {
             logger.debug("No unit information found for temperature datapoint {}, assuming Number:Temperature",
                     dp.getName());
             dp.setUnit("°C"); // Bypass for a problem with HMIP devices where unit of temperature channels is sometimes
                               // empty
         }
-        dp.setType(valueType);
 
+        dp.setReadable(readable);
         dp.setOptions(options);
         if (dp.isNumberType() || dp.isEnumType()) {
             if (isHmIpDevice && dp.isEnumType()) {
@@ -213,9 +222,6 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
                 dp.setMaxValue(toNumber(max));
             }
         }
-        dp.setReadOnly((operations & 2) != 2);
-        dp.setReadable((operations & 1) == 1);
-        dp.setParamsetType(paramsetType);
         if (isHmIpDevice && dp.isEnumType()) {
             dp.setDefaultValue(dp.getOptionIndex(toString(defaultValue)));
         } else {
@@ -231,7 +237,8 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts a string value to the type.
      */
-    protected Object convertToType(String value) {
+    @Nullable
+    protected Object convertToType(@Nullable String value) {
         if (value == null || value.isBlank()) {
             return null;
         }

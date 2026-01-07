@@ -14,6 +14,8 @@ package org.openhab.binding.homematic.internal.communicator.virtual;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.misc.HomematicClientException;
 import org.openhab.binding.homematic.internal.model.HmChannel;
 import org.openhab.binding.homematic.internal.model.HmDatapoint;
@@ -29,17 +31,18 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public abstract class AbstractVirtualDatapointHandler implements VirtualDatapointHandler {
     private final Logger logger = LoggerFactory.getLogger(AbstractVirtualDatapointHandler.class);
 
     @Override
-    public boolean canHandleCommand(HmDatapoint dp, Object value) {
+    public boolean canHandleCommand(HmDatapoint dp, @Nullable Object value) {
         return false;
     }
 
     @Override
-    public void handleCommand(VirtualGateway gateway, HmDatapoint dp, HmDatapointConfig dpConfig, Object value)
-            throws IOException, HomematicClientException {
+    public void handleCommand(VirtualGateway gateway, HmDatapoint dp, HmDatapointConfig dpConfig,
+            @Nullable Object value) throws IOException, HomematicClientException {
     }
 
     @Override
@@ -52,6 +55,7 @@ public abstract class AbstractVirtualDatapointHandler implements VirtualDatapoin
     }
 
     @Override
+    @Nullable
     public HmDatapoint getVirtualDatapoint(HmChannel channel) {
         return channel.getDatapoint(HmParamsetType.VALUES, getName());
     }
@@ -59,9 +63,18 @@ public abstract class AbstractVirtualDatapointHandler implements VirtualDatapoin
     /**
      * Creates a new datapoint with the given parameters and adds it to the channel.
      */
+    @Nullable
     protected HmDatapoint addDatapoint(HmDevice device, Integer channelNumber, String datapointName,
-            HmValueType valueType, Object value, boolean readOnly) {
+            HmValueType valueType, @Nullable Object value, boolean readOnly) {
         HmChannel channel = device.getChannel(channelNumber);
+        if (channel == null) {
+            return null;
+        }
+        return addDatapoint(channel, datapointName, valueType, value, readOnly);
+    }
+
+    protected HmDatapoint addDatapoint(HmChannel channel, String datapointName, HmValueType valueType,
+            @Nullable Object value, boolean readOnly) {
         HmDatapoint dp = new HmDatapoint(datapointName, datapointName, valueType, value, readOnly,
                 HmParamsetType.VALUES);
         return addDatapoint(channel, dp);

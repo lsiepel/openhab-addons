@@ -13,9 +13,11 @@
 package org.openhab.binding.homematic.internal.converter.type;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import javax.measure.Quantity;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.homematic.internal.converter.ConverterException;
 import org.openhab.binding.homematic.internal.model.HmDatapoint;
 import org.openhab.core.library.types.QuantityType;
@@ -29,6 +31,7 @@ import org.openhab.core.types.Type;
  *
  * @author Michael Reitler - Initial contribution
  */
+@NonNullByDefault
 public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? extends Quantity<?>>> {
 
     // this literal is required because some gateway types are mixing up encodings in their XML-RPC responses
@@ -53,51 +56,60 @@ public class QuantityTypeConverter extends AbstractTypeConverter<QuantityType<? 
 
     private QuantityType<? extends Quantity<?>> toUnitFromDatapoint(QuantityType<? extends Quantity<?>> type,
             HmDatapoint dp) {
-        if (dp == null || dp.getUnit() == null || dp.getUnit().isEmpty()) {
+        String unit = dp.getUnit();
+        if (unit == null || unit.isEmpty()) {
             // datapoint is dimensionless, nothing to convert
             return type;
         }
 
         // convert the given QuantityType to a QuantityType with the unit of the target datapoint
-        switch (dp.getUnit()) {
+        QuantityType<? extends Quantity<?>> convertedType = null;
+        switch (unit) {
             case "Lux":
-                return type.toUnit(Units.LUX);
+                convertedType = type.toUnit(Units.LUX);
+                break;
             case "degree":
-                return type.toUnit(Units.DEGREE_ANGLE);
+                convertedType = type.toUnit(Units.DEGREE_ANGLE);
+                break;
             case HUNDRED_PERCENT:
-                return type.toUnit(Units.ONE);
+                convertedType = type.toUnit(Units.ONE);
+                break;
             case UNCORRECT_ENCODED_CELSIUS:
-                return type.toUnit(SIUnits.CELSIUS);
+                convertedType = type.toUnit(SIUnits.CELSIUS);
+                break;
             case "dBm":
             case "minutes":
             case "day":
             case "month":
             case "year":
             case "":
-                return type;
+                break;
             default:
                 // According to datapoint documentation, the following values are remaining
                 // °C, V, %, s, min, mHz, Hz, hPa, km/h, mm, W, m3
-                return type.toUnit(dp.getUnit());
+                convertedType = type.toUnit(unit);
+                break;
         }
+        return Objects.requireNonNullElse(convertedType, type);
     }
 
     @Override
     protected boolean fromBindingValidation(HmDatapoint dp) {
-        return dp.isNumberType() && dp.getValue() instanceof Number;
+        return dp.getNumericValue() != null;
     }
 
     @Override
     protected QuantityType<? extends Quantity<?>> fromBinding(HmDatapoint dp) throws ConverterException {
-        Number number = null;
+        final Number dpValue = Objects.requireNonNull(dp.getNumericValue()); // ensured by fromBindingValidation
+        final Number number;
         if (dp.isIntegerType()) {
-            number = new BigDecimal(((Number) dp.getValue()).intValue());
+            number = new BigDecimal(dpValue.intValue());
         } else {
-            number = round(((Number) dp.getValue()).doubleValue());
+            number = round(dpValue.doubleValue());
         }
 
         // create a QuantityType from the datapoint's value based on the datapoint's unit
-        String unit = dp.getUnit() != null ? dp.getUnit() : "";
+        String unit = Objects.requireNonNullElse(dp.getUnit(), "");
         switch (unit) {
             case UNCORRECT_ENCODED_CELSIUS:
             case "°C":

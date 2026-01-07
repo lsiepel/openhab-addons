@@ -16,6 +16,8 @@ import static org.openhab.binding.homematic.internal.misc.HomematicConstants.VIR
 
 import java.io.IOException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.misc.HomematicClientException;
 import org.openhab.binding.homematic.internal.model.HmDatapoint;
 import org.openhab.binding.homematic.internal.model.HmDatapointConfig;
@@ -29,6 +31,7 @@ import org.openhab.binding.homematic.internal.model.HmValueType;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class DeleteDeviceModeVirtualDatapointHandler extends AbstractVirtualDatapointHandler {
     protected static final String MODE_LOCKED = "LOCKED";
     protected static final String MODE_RESET = "RESET";
@@ -45,20 +48,23 @@ public class DeleteDeviceModeVirtualDatapointHandler extends AbstractVirtualData
     public void initialize(HmDevice device) {
         if (!device.isGatewayExtras() && device.getHmInterface() != HmInterface.CUXD) {
             HmDatapoint dp = addDatapoint(device, 0, getName(), HmValueType.ENUM, 0, false);
-            dp.setOptions(new String[] { MODE_LOCKED, MODE_RESET, MODE_FORCE, MODE_DEFER });
-            dp.setMinValue(0);
-            dp.setMaxValue(dp.getOptions().length - 1);
+            if (dp != null) {
+                String[] options = new String[] { MODE_LOCKED, MODE_RESET, MODE_FORCE, MODE_DEFER };
+                dp.setOptions(options);
+                dp.setMinValue(0);
+                dp.setMaxValue(options.length - 1);
+            }
         }
     }
 
     @Override
-    public boolean canHandleCommand(HmDatapoint dp, Object value) {
+    public boolean canHandleCommand(HmDatapoint dp, @Nullable Object value) {
         return getName().equals(dp.getName());
     }
 
     @Override
-    public void handleCommand(VirtualGateway gateway, HmDatapoint dp, HmDatapointConfig dpConfig, Object value)
-            throws IOException, HomematicClientException {
+    public void handleCommand(VirtualGateway gateway, HmDatapoint dp, HmDatapointConfig dpConfig,
+            @Nullable Object value) throws IOException, HomematicClientException {
         dp.setValue(value);
         if (!MODE_LOCKED.equals(dp.getOptionValue())) {
             gateway.disableDatapoint(dp, DELETE_MODE_DURATION);

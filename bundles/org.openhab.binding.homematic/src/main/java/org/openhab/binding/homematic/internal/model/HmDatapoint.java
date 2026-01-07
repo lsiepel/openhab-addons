@@ -13,7 +13,9 @@
 package org.openhab.binding.homematic.internal.model;
 
 import java.util.Map;
+import java.util.Objects;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.homematic.internal.misc.MiscUtils;
 
@@ -22,32 +24,31 @@ import org.openhab.binding.homematic.internal.misc.MiscUtils;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+@NonNullByDefault
 public class HmDatapoint implements Cloneable {
 
-    private HmChannel channel;
+    private @Nullable HmChannel channel;
     private String name;
     private String description;
-    private Object value;
-    private Object previousValue;
-    private Object defaultValue;
+    private @Nullable Object value;
+    private @Nullable Object previousValue;
+    private @Nullable Object defaultValue;
     private HmValueType type;
     private HmParamsetType paramsetType;
-    private Number minValue;
-    private Number maxValue;
-    private Map<String, Number> specialValues;
-    private String[] options;
+    private @Nullable Number minValue;
+    private @Nullable Number maxValue;
+    private @Nullable Map<String, Number> specialValues;
+    private String @Nullable [] options;
     private boolean readOnly;
     private boolean readable;
-    private String info;
-    private String unit;
+    private @Nullable String info;
+    private @Nullable String unit;
     private boolean virtual;
     private boolean trigger;
 
-    public HmDatapoint() {
-    }
-
-    public HmDatapoint(String name, String description, HmValueType type, Object value, boolean readOnly,
+    public HmDatapoint(String name, String description, HmValueType type, @Nullable Object value, boolean readOnly,
             HmParamsetType paramsetType) {
+        this.name = sanitizeName(name);
         this.description = description;
         this.type = type;
         this.readOnly = readOnly;
@@ -67,7 +68,7 @@ public class HmDatapoint implements Cloneable {
      * Sets the name.
      */
     public void setName(String name) {
-        this.name = MiscUtils.validateCharacters(name, "Datapoint name", "_");
+        this.name = sanitizeName(name);
     }
 
     /**
@@ -88,7 +89,7 @@ public class HmDatapoint implements Cloneable {
      * Returns the channel of the datapoint.
      */
     public HmChannel getChannel() {
-        return channel;
+        return Objects.requireNonNull(channel);
     }
 
     /**
@@ -101,6 +102,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns the value.
      */
+    @Nullable
     public Object getValue() {
         return value;
     }
@@ -108,6 +110,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns the previous value.
      */
+    @Nullable
     public Object getPreviousValue() {
         return previousValue;
     }
@@ -115,7 +118,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Sets the value.
      */
-    public void setValue(Object value) {
+    public void setValue(@Nullable Object value) {
         previousValue = this.value;
         this.value = value;
     }
@@ -123,21 +126,22 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns the option list.
      */
-    public String[] getOptions() {
+    public String @Nullable [] getOptions() {
         return options;
     }
 
     /**
      * Sets the option list.
      */
-    public void setOptions(String[] options) {
+    public void setOptions(String @Nullable [] options) {
         this.options = options;
     }
 
     /**
      * Returns the index of the value in an option list.
      */
-    public int getOptionIndex(String option) {
+    public int getOptionIndex(@Nullable String option) {
+        String[] options = this.options;
         if (options != null && option != null) {
             for (int i = 0; i < options.length; i++) {
                 String value = options[i];
@@ -153,6 +157,7 @@ public class HmDatapoint implements Cloneable {
      * Returns the value of an option list.
      */
     public @Nullable String getOptionValue() {
+        String[] options = this.options;
         Integer idx = getIntegerValue();
         if (options != null && idx != null && idx < options.length) {
             return options[idx];
@@ -171,28 +176,37 @@ public class HmDatapoint implements Cloneable {
     }
 
     public @Nullable Integer getIntegerValue() {
+        Object value = this.value;
         if (value instanceof Integer intValue) {
             return intValue;
-        } else if (value != null) {
-            return Integer.parseInt(value.toString());
-        } else {
-            return null;
         }
+        if (value != null) {
+            try {
+                return Integer.parseInt(value.toString());
+            } catch (NumberFormatException e) {
+            }
+        }
+        return null;
     }
 
     public @Nullable Double getDoubleValue() {
+        Object value = this.value;
         if (value instanceof Double doubleValue) {
             return doubleValue;
-        } else if (value != null) {
-            return Double.parseDouble(value.toString());
-        } else {
-            return null;
         }
+        if (value != null) {
+            try {
+                return Double.parseDouble(value.toString());
+            } catch (NumberFormatException e) {
+            }
+        }
+        return null;
     }
 
     /**
      * Returns the max value.
      */
+    @Nullable
     public Number getMaxValue() {
         return maxValue;
     }
@@ -200,13 +214,14 @@ public class HmDatapoint implements Cloneable {
     /**
      * Sets the max value.
      */
-    public void setMaxValue(Number maxValue) {
+    public void setMaxValue(@Nullable Number maxValue) {
         this.maxValue = maxValue;
     }
 
     /**
      * Returns the min value.
      */
+    @Nullable
     public Number getMinValue() {
         return minValue;
     }
@@ -214,7 +229,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Sets the min value.
      */
-    public void setMinValue(Number minValue) {
+    public void setMinValue(@Nullable Number minValue) {
         this.minValue = minValue;
     }
 
@@ -249,6 +264,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns extra infos for this datapoint.
      */
+    @Nullable
     public String getInfo() {
         return info;
     }
@@ -256,13 +272,14 @@ public class HmDatapoint implements Cloneable {
     /**
      * Sets extra infos for this datapoint.
      */
-    public void setInfo(String info) {
+    public void setInfo(@Nullable String info) {
         this.info = info;
     }
 
     /**
      * Returns the unit.
      */
+    @Nullable
     public String getUnit() {
         return unit;
     }
@@ -270,7 +287,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Sets the unit.
      */
-    public void setUnit(String unit) {
+    public void setUnit(@Nullable String unit) {
         this.unit = unit;
     }
 
@@ -305,6 +322,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns the default value.
      */
+    @Nullable
     public Object getDefaultValue() {
         return defaultValue;
     }
@@ -312,17 +330,18 @@ public class HmDatapoint implements Cloneable {
     /**
      * Sets the default value.
      */
-    public void setDefaultValue(Object defaultValue) {
+    public void setDefaultValue(@Nullable Object defaultValue) {
         this.defaultValue = defaultValue;
     }
 
     /**
      * Sets map of values with special meaning
      */
-    public void setSpecialValues(Map<String, Number> specialValues) {
+    public void setSpecialValues(@Nullable Map<String, Number> specialValues) {
         this.specialValues = specialValues;
     }
 
+    @Nullable
     public Map<String, Number> getSpecialValues() {
         return specialValues;
     }
@@ -401,21 +420,21 @@ public class HmDatapoint implements Cloneable {
      * Returns true, if the datapoint is a variable.
      */
     public boolean isVariable() {
-        return channel.isGatewayVariable();
+        return getChannel().isGatewayVariable();
     }
 
     /**
      * Returns true, if the datapoint is a program.
      */
     public boolean isScript() {
-        return channel.isGatewayScript();
+        return getChannel().isGatewayScript();
     }
 
     /**
      * Returns true, if the name of the datapoint starts with PRESS_.
      */
     public boolean isPressDatapoint() {
-        return name != null && name.startsWith("PRESS_");
+        return name.startsWith("PRESS_");
     }
 
     /**
@@ -435,7 +454,7 @@ public class HmDatapoint implements Cloneable {
     @Override
     public HmDatapoint clone() {
         HmDatapoint dp = new HmDatapoint(name, description, type, value, readOnly, paramsetType);
-        dp.setChannel(channel);
+        dp.setChannel(getChannel());
         dp.setMinValue(minValue);
         dp.setMaxValue(maxValue);
         dp.setOptions(options);
@@ -451,11 +470,16 @@ public class HmDatapoint implements Cloneable {
 
     @Override
     public String toString() {
+        String @Nullable [] options = this.options;
         return String.format("""
                 %s[name=%s,value=%s,defaultValue=%s,type=%s,minValue=%s,maxValue=%s,specialValues=%s,options=%s,\
                 readOnly=%b,readable=%b,unit=%s,description=%s,info=%s,paramsetType=%s,virtual=%b,trigger=%b]\
                 """, getClass().getSimpleName(), name, value, defaultValue, type, minValue, maxValue, specialValues,
                 (options == null ? null : String.join(";", options)), readOnly, readable, unit, description, info,
                 paramsetType, virtual, trigger);
+    }
+
+    private String sanitizeName(String name) {
+        return MiscUtils.validateCharacters(name, "Datapoint name", "_");
     }
 }
