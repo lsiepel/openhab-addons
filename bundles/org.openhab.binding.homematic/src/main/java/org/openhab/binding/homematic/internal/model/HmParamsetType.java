@@ -33,7 +33,7 @@ public enum HmParamsetType {
         } else if (type.equals(MASTER.toString()) || type.equals(MASTER.getId())) {
             return MASTER;
         }
-        throw new RuntimeException("Unknown HmParamsetType " + type);
+        throw new IllegalArgumentException("Unknown HmParamsetType " + type);
     }
 
     /**

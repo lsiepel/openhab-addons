@@ -121,7 +121,7 @@ public class XmlRpcRequest implements RpcRequest<String> {
     /**
      * Generates a value tag based on the type of the value.
      */
-    private void generateValue(StringBuilder sb, @Nullable Object value) {
+    private void generateValue(StringBuilder sb, @Nullable Object value) throws IllegalArgumentException {
         if (value == null) {
             tag(sb, "string", "void");
         } else {
@@ -177,7 +177,7 @@ public class XmlRpcRequest implements RpcRequest<String> {
 
                 sb.append("</struct>");
             } else {
-                throw new RuntimeException("Unsupported XML-RPC Type: " + value.getClass());
+                throw new IllegalArgumentException("Unsupported XML-RPC Type: " + value.getClass());
             }
         }
     }

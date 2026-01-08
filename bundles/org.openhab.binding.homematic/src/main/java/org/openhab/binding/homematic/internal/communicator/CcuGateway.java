@@ -215,7 +215,7 @@ public class CcuGateway extends AbstractHomematicGateway {
         try {
             script = script == null ? null : script.trim();
             if (script == null || script.isEmpty()) {
-                throw new RuntimeException("Homematic TclRegaScript is empty!");
+                throw new IOException("Homematic TclRegaScript is empty!");
             }
             if (logger.isTraceEnabled()) {
                 logger.trace("TclRegaScript: {}", script);

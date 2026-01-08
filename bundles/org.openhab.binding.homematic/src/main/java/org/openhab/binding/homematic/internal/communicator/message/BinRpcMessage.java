@@ -391,7 +391,7 @@ public class BinRpcMessage implements RpcRequest<byte[]>, RpcResponse {
             generateResponseData();
             return RpcUtils.dumpRpcMessage(methodName, messageData);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            return super.toString();
         }
     }
 }
