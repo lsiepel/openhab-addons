@@ -48,7 +48,9 @@ import org.openhab.binding.homematic.internal.type.MetadataUtils;
 import org.openhab.binding.homematic.internal.type.UidUtils;
 import org.openhab.core.config.core.Configuration;
 import org.openhab.core.config.core.validation.ConfigValidationException;
+import org.openhab.core.library.types.IncreaseDecreaseType;
 import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.PercentType;
 import org.openhab.core.library.types.StopMoveType;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Channel;
@@ -341,9 +343,10 @@ public class HomematicThingHandler extends BaseThingHandler {
                         handleCommand(stopChannelUID, OnOffType.ON);
                     } else {
                         dp = gateway.getDatapoint(dpInfo);
-                        TypeConverter<?> converter = ConverterFactory.createConverter(channel.getAcceptedItemType());
-                        Object newValue = converter.convertToBinding(command, dp);
                         HmDatapointConfig config = getChannelConfig(channel, dp);
+                        Command convertedCommand = adaptRollerShutterLevelCommand(command, dp, config);
+                        TypeConverter<?> converter = ConverterFactory.createConverter(channel.getAcceptedItemType());
+                        Object newValue = converter.convertToBinding(convertedCommand, dp);
                         sendDatapoint(dp, config, newValue);
                     }
                 }
@@ -495,6 +498,8 @@ public class HomematicThingHandler extends BaseThingHandler {
 
             TypeConverter<?> converter = ConverterFactory.createConverter(channel.getAcceptedItemType());
             State state = converter.convertFromBinding(dp);
+            HmDatapointConfig config = getChannelConfig(channel, dp);
+            state = adaptRollerShutterLevelState(state, dp, config);
             if (state != null) {
                 updateState(channel.getUID(), state);
             }
@@ -578,6 +583,41 @@ public class HomematicThingHandler extends BaseThingHandler {
      */
     private HmDatapointConfig getChannelConfig(Channel channel, HmDatapoint dp) {
         return channel.getConfiguration().as(HmDatapointConfig.class);
+    }
+
+    static Command adaptRollerShutterLevelCommand(Command command, HmDatapoint dp, HmDatapointConfig config) {
+        if (!isRollerShutterLevelInversionEnabled(dp, config)) {
+            return command;
+        }
+
+        if (command instanceof PercentType percentTypeCommand) {
+            return new PercentType(100 - percentTypeCommand.intValue());
+        }
+        if (command == IncreaseDecreaseType.INCREASE) {
+            return IncreaseDecreaseType.DECREASE;
+        }
+        if (command == IncreaseDecreaseType.DECREASE) {
+            return IncreaseDecreaseType.INCREASE;
+        }
+        if (command == OnOffType.ON) {
+            return OnOffType.OFF;
+        }
+        if (command == OnOffType.OFF) {
+            return OnOffType.ON;
+        }
+
+        return command;
+    }
+
+    static State adaptRollerShutterLevelState(State state, HmDatapoint dp, HmDatapointConfig config) {
+        if (isRollerShutterLevelInversionEnabled(dp, config) && state instanceof PercentType percentTypeState) {
+            return new PercentType(100 - percentTypeState.intValue());
+        }
+        return state;
+    }
+
+    private static boolean isRollerShutterLevelInversionEnabled(HmDatapoint dp, HmDatapointConfig config) {
+        return config.isInvertLevel() && DATAPOINT_NAME_LEVEL.equals(dp.getName()) && MetadataUtils.isRollerShutter(dp);
     }
 
     /**

@@ -24,6 +24,7 @@ import org.eclipse.jdt.annotation.Nullable;
 public class HmDatapointConfig {
     private @Nullable Double delay;
     private @Nullable Double receiveDelay;
+    private @Nullable Boolean invertLevel;
 
     /**
      * Returns the delay in seconds for sending the datapoint.
@@ -53,8 +54,23 @@ public class HmDatapointConfig {
         this.receiveDelay = receiveDelay;
     }
 
+    /**
+     * Returns true, if the channel level should be inverted for rollershutters.
+     */
+    public boolean isInvertLevel() {
+        return invertLevel != null && invertLevel;
+    }
+
+    /**
+     * Sets the channel level inversion for rollershutters.
+     */
+    public void setInvertLevel(Boolean invertLevel) {
+        this.invertLevel = invertLevel;
+    }
+
     @Override
     public String toString() {
-        return String.format("%s[delay=%f,receiveDelay=%f]", getClass().getSimpleName(), delay, receiveDelay);
+        return String.format("%s[delay=%f,receiveDelay=%f,invertLevel=%s]", getClass().getSimpleName(), delay,
+                receiveDelay, invertLevel);
     }
 }

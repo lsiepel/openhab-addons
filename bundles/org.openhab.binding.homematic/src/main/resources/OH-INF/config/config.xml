@@ -16,5 +16,10 @@
 			<description>Delays a received event from the Homematic gateway, duplicate events are filtered out (in seconds)</description>
 			<default>0.0</default>
 		</parameter>
+		<parameter name="invertLevel" type="boolean">
+			<label>Invert Rollershutter Level</label>
+			<description>Inverts rollershutter LEVEL values so 100% means open and 0% means closed</description>
+			<default>false</default>
+		</parameter>
 	</config-description>
 </config-description:config-descriptions>
