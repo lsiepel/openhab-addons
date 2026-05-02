@@ -12,9 +12,7 @@
  */
 package org.openhab.binding.homematic.internal.communicator.virtual;
 
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_RSSI_DEVICE;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_RSSI_PEER;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.VIRTUAL_DATAPOINT_NAME_RSSI;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -58,7 +56,6 @@ public class RssiVirtualDatapointHandler extends AbstractVirtualDatapointHandler
     @Override
     public void handleEvent(VirtualGateway gateway, HmDatapoint dp) {
         HmChannel channel = dp.getChannel();
-        @Nullable
         Object value = getRssiValue(channel);
         HmDatapoint vdpRssi = getVirtualDatapoint(channel);
         if (vdpRssi != null) {
@@ -69,8 +66,7 @@ public class RssiVirtualDatapointHandler extends AbstractVirtualDatapointHandler
     /**
      * Returns either the device or the peer rssi value.
      */
-    @Nullable
-    protected Integer getRssiValue(HmChannel channel) {
+    protected @Nullable Integer getRssiValue(HmChannel channel) {
         HmDatapoint dpRssiDevice = channel.getDatapoint(HmParamsetType.VALUES, DATAPOINT_NAME_RSSI_DEVICE);
         HmDatapoint dpRssiPeer = channel.getDatapoint(HmParamsetType.VALUES, DATAPOINT_NAME_RSSI_PEER);
 
@@ -89,8 +85,7 @@ public class RssiVirtualDatapointHandler extends AbstractVirtualDatapointHandler
         return null;
     }
 
-    @Nullable
-    private Integer getDatapointValue(HmDatapoint dp) {
+    private @Nullable Integer getDatapointValue(HmDatapoint dp) {
         if (dp.getValue() instanceof Integer value && value != 0) {
             return value;
         }

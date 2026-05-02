@@ -61,8 +61,7 @@ public class ListBidcosInterfacesParser extends CommonRpcParser<Object[], ListBi
     /**
      * Returns the parsed gateway address.
      */
-    @Nullable
-    public String getGatewayAddress() {
+    public @Nullable String getGatewayAddress() {
         return gatewayAddress;
     }
 
@@ -76,8 +75,7 @@ public class ListBidcosInterfacesParser extends CommonRpcParser<Object[], ListBi
     /**
      * Returns the duty cycle.
      */
-    @Nullable
-    public Integer getDutyCycleRatio() {
+    public @Nullable Integer getDutyCycleRatio() {
         return dutyCycleRatio;
     }
 }

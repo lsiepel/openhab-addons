@@ -102,16 +102,14 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns the value.
      */
-    @Nullable
-    public Object getValue() {
+    public @Nullable Object getValue() {
         return value;
     }
 
     /**
      * Returns the previous value.
      */
-    @Nullable
-    public Object getPreviousValue() {
+    public @Nullable Object getPreviousValue() {
         return previousValue;
     }
 
@@ -206,8 +204,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns the max value.
      */
-    @Nullable
-    public Number getMaxValue() {
+    public @Nullable Number getMaxValue() {
         return maxValue;
     }
 
@@ -221,8 +218,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns the min value.
      */
-    @Nullable
-    public Number getMinValue() {
+    public @Nullable Number getMinValue() {
         return minValue;
     }
 
@@ -264,8 +260,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns extra infos for this datapoint.
      */
-    @Nullable
-    public String getInfo() {
+    public @Nullable String getInfo() {
         return info;
     }
 
@@ -279,8 +274,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns the unit.
      */
-    @Nullable
-    public String getUnit() {
+    public @Nullable String getUnit() {
         return unit;
     }
 
@@ -322,8 +316,7 @@ public class HmDatapoint implements Cloneable {
     /**
      * Returns the default value.
      */
-    @Nullable
-    public Object getDefaultValue() {
+    public @Nullable Object getDefaultValue() {
         return defaultValue;
     }
 
@@ -341,8 +334,7 @@ public class HmDatapoint implements Cloneable {
         this.specialValues = specialValues;
     }
 
-    @Nullable
-    public Map<String, Number> getSpecialValues() {
+    public @Nullable Map<String, Number> getSpecialValues() {
         return specialValues;
     }
 

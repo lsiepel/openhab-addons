@@ -12,9 +12,7 @@
  */
 package org.openhab.binding.homematic.internal.communicator.virtual;
 
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_SUBMIT;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DEVICE_TYPE_EP_STATUS_DISPLAY;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DEVICE_TYPE_STATUS_DISPLAY;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -105,8 +103,7 @@ public class DisplayTextVirtualDatapoint extends AbstractVirtualDatapointHandler
         /**
          * Returns the color code.
          */
-        @Nullable
-        public static String getCode(@Nullable String name) {
+        public static @Nullable String getCode(@Nullable String name) {
             if (name == null) {
                 return null;
             }
@@ -149,8 +146,7 @@ public class DisplayTextVirtualDatapoint extends AbstractVirtualDatapointHandler
         /**
          * Returns the icon code.
          */
-        @Nullable
-        public static String getCode(@Nullable String name) {
+        public static @Nullable String getCode(@Nullable String name) {
             if (name == null) {
                 return null;
             }

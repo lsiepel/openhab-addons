@@ -12,10 +12,7 @@
  */
 package org.openhab.binding.homematic.internal.communicator.virtual;
 
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_CALIBRATION;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_STATE;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_VALUE;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DEVICE_TYPE_WIRED_IO_MODULE;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.homematic.internal.model.HmChannel;

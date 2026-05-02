@@ -44,8 +44,7 @@ public class GetParamsetParser extends CommonRpcParser<Object[], @Nullable Void>
 
     @Override
     @SuppressWarnings("unchecked")
-    @Nullable
-    public Void parse(Object[] message) throws IOException {
+    public @Nullable Void parse(Object[] message) throws IOException {
         if (message.length == 0 || !(message[0] instanceof Map)) {
             return null;
         }

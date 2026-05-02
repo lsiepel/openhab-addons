@@ -82,8 +82,7 @@ public class RpcClientMockImpl extends RpcClient<String> {
             }
 
             @Override
-            @Nullable
-            public String getMethodName() {
+            public @Nullable String getMethodName() {
                 return methodName;
             }
         };

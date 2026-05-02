@@ -13,10 +13,7 @@
 package org.openhab.binding.homematic.internal.communicator;
 
 import static org.openhab.binding.homematic.internal.HomematicBindingConstants.GATEWAY_POOL_NAME;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_RSSI_DEVICE;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_RSSI_PEER;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DEVICE_TYPE_VIRTUAL;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DEVICE_TYPE_VIRTUAL_WIRED;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -739,8 +736,7 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Virt
     /**
      * Returns a VirtualDatapointHandler for the given datapoint if available.
      */
-    @Nullable
-    private VirtualDatapointHandler getVirtualDatapointHandler(HmDatapoint dp, @Nullable Object value) {
+    private @Nullable VirtualDatapointHandler getVirtualDatapointHandler(HmDatapoint dp, @Nullable Object value) {
         for (VirtualDatapointHandler vdph : virtualDatapointHandlers) {
             if (vdph.canHandleCommand(dp, value)) {
                 return vdph;

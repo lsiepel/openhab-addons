@@ -66,8 +66,7 @@ public class XmlRpcResponse implements RpcResponse {
     }
 
     @Override
-    @Nullable
-    public String getMethodName() {
+    public @Nullable String getMethodName() {
         return methodName;
     }
 

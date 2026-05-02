@@ -12,11 +12,8 @@
  */
 package org.openhab.binding.homematic.internal.communicator.virtual;
 
-import static org.openhab.binding.homematic.internal.communicator.virtual.DeleteDeviceModeVirtualDatapointHandler.MODE_DEFER;
-import static org.openhab.binding.homematic.internal.communicator.virtual.DeleteDeviceModeVirtualDatapointHandler.MODE_FORCE;
-import static org.openhab.binding.homematic.internal.communicator.virtual.DeleteDeviceModeVirtualDatapointHandler.MODE_RESET;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.VIRTUAL_DATAPOINT_NAME_DELETE_DEVICE;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.VIRTUAL_DATAPOINT_NAME_DELETE_DEVICE_MODE;
+import static org.openhab.binding.homematic.internal.communicator.virtual.DeleteDeviceModeVirtualDatapointHandler.*;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
 
 import java.io.IOException;
 

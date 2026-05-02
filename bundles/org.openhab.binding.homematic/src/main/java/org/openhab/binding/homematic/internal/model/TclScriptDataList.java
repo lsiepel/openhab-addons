@@ -30,14 +30,12 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 public class TclScriptDataList {
 
     @XStreamImplicit(itemFieldName = "entry")
-    @Nullable
-    private List<TclScriptDataEntry> entries;
+    private @Nullable List<TclScriptDataEntry> entries;
 
     /**
      * Returns all entries.
      */
-    @Nullable
-    public List<TclScriptDataEntry> getEntries() {
+    public @Nullable List<TclScriptDataEntry> getEntries() {
         return entries;
     }
 }

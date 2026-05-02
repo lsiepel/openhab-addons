@@ -12,9 +12,7 @@
  */
 package org.openhab.binding.homematic.internal.handler;
 
-import static org.openhab.binding.homematic.internal.HomematicBindingConstants.PROPERTY_AES_KEY;
-import static org.openhab.binding.homematic.internal.HomematicBindingConstants.PROPERTY_BATTERY_TYPE;
-import static org.openhab.binding.homematic.internal.HomematicBindingConstants.PROPERTY_DYNAMIC_FUNCTION_FORMAT;
+import static org.openhab.binding.homematic.internal.HomematicBindingConstants.*;
 import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
 
 import java.io.IOException;
@@ -355,7 +353,6 @@ public class HomematicThingHandler extends BaseThingHandler {
                     } else {
                         dp = gateway.getDatapoint(dpInfo);
                         TypeConverter<?> converter = ConverterFactory.createConverter(channel.getAcceptedItemType());
-                        @Nullable
                         Object newValue = converter.convertToBinding(command, dp);
                         HmDatapointConfig config = getChannelConfig(channel, dp);
                         sendDatapoint(dp, config, newValue);
@@ -382,7 +379,6 @@ public class HomematicThingHandler extends BaseThingHandler {
 
     private void sendDatapoint(HmDatapoint dp, HmDatapointConfig config, @Nullable Object newValue)
             throws IOException, HomematicClientException, GatewayNotAvailableException {
-        @Nullable
         String rxMode = getRxModeForDatapointTransmission(dp.getName(), dp.getValue(), newValue);
         getHomematicGateway().sendDatapoint(dp, config, newValue, rxMode);
     }
@@ -413,7 +409,6 @@ public class HomematicThingHandler extends BaseThingHandler {
         HomematicGateway gateway = getHomematicGateway();
         HmDatapointInfo dpInfo = UidUtils.createHmDatapointInfo(channelUID);
         HmDatapoint dp = gateway.getDatapoint(dpInfo);
-        @Nullable
         Channel channel = getThing().getChannel(channelUID.getId());
         if (channel != null) {
             updateChannelState(dp, channel);
@@ -462,11 +457,8 @@ public class HomematicThingHandler extends BaseThingHandler {
             // Make sure to not invalidate the whole configuration by returning the datapoint's default
             // value in that case.
             final boolean minValid, maxValid;
-            @Nullable
             Number minValue = dp.getMinValue();
-            @Nullable
             Number maxValue = dp.getMaxValue();
-            @Nullable
             Number value = dp.getNumericValue();
 
             if (dp.isFloatType()) {
@@ -609,7 +601,6 @@ public class HomematicThingHandler extends BaseThingHandler {
     private HomematicGateway getHomematicGateway() throws GatewayNotAvailableException {
         final Bridge bridge = getBridge();
         if (bridge != null && bridge.getHandler() instanceof HomematicBridgeHandler handler) {
-            @Nullable
             HomematicGateway gateway = handler.getGateway();
             if (gateway != null) {
                 return gateway;

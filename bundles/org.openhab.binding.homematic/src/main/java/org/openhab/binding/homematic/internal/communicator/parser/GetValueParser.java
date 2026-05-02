@@ -33,8 +33,7 @@ public class GetValueParser extends CommonRpcParser<Object[], @Nullable Void> {
     }
 
     @Override
-    @Nullable
-    public Void parse(Object[] message) throws IOException {
+    public @Nullable Void parse(Object[] message) throws IOException {
         if (message.length > 0 && !(message[0] instanceof Map)) {
             dp.setValue(convertToType(dp, message[0]));
             adjustRssiValue(dp);

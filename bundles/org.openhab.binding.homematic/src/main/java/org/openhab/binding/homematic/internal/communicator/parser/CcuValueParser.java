@@ -41,8 +41,7 @@ public class CcuValueParser extends CommonRpcParser<TclScriptDataList, @Nullable
     }
 
     @Override
-    @Nullable
-    public Void parse(TclScriptDataList resultList) throws IOException {
+    public @Nullable Void parse(TclScriptDataList resultList) throws IOException {
         List<TclScriptDataEntry> entries = resultList.getEntries();
         if (entries != null) {
             for (TclScriptDataEntry entry : entries) {

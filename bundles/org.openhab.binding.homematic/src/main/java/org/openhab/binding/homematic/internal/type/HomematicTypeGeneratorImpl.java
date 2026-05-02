@@ -367,8 +367,7 @@ public class HomematicTypeGeneratorImpl implements HomematicTypeGenerator {
                 .withParameters(parms).withParameterGroups(groups).build());
     }
 
-    @Nullable
-    private URI getConfigDescriptionURI(HmDevice device) {
+    private @Nullable URI getConfigDescriptionURI(HmDevice device) {
         try {
             return new URI(
                     String.format("%s:%s", CONFIG_DESCRIPTION_URI_THING_PREFIX, UidUtils.generateThingTypeUID(device)));

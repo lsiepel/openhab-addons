@@ -39,8 +39,7 @@ public class PercentTypeConverter extends AbstractTypeConverter<PercentType> {
     private final Logger logger = LoggerFactory.getLogger(PercentTypeConverter.class);
 
     @Override
-    @Nullable
-    protected Object commandToBinding(Command command, HmDatapoint dp) throws ConverterException {
+    protected @Nullable Object commandToBinding(Command command, HmDatapoint dp) throws ConverterException {
         if (command.getClass() == IncreaseDecreaseType.class) {
             PercentType type = convertFromBinding(dp);
 

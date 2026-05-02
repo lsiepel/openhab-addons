@@ -68,6 +68,7 @@ public class ListDevicesParser extends CommonRpcParser<Object[], Collection<HmDe
 
                 String type = toString(data.get("TYPE"));
                 Integer number = toInteger(data.get("INDEX"));
+
                 if (type != null && number != null) {
                     device.addChannel(new HmChannel(type, number));
                 }

@@ -19,6 +19,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+
 @NonNullByDefault
 public class Eq3UdpResponse {
     private int senderId;

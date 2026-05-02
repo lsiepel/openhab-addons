@@ -12,8 +12,7 @@
  */
 package org.openhab.binding.homematic.internal.handler;
 
-import static org.openhab.binding.homematic.internal.HomematicBindingConstants.BINDING_ID;
-import static org.openhab.binding.homematic.internal.HomematicBindingConstants.THING_TYPE_BRIDGE;
+import static org.openhab.binding.homematic.internal.HomematicBindingConstants.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;

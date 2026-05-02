@@ -83,8 +83,7 @@ public abstract class AbstractTypeConverter<T extends State> implements TypeConv
 
     @SuppressWarnings("unchecked")
     @Override
-    @Nullable
-    public Object convertToBinding(Type type, HmDatapoint dp) throws ConverterException {
+    public @Nullable Object convertToBinding(Type type, HmDatapoint dp) throws ConverterException {
         if (isLoggingRequired()) {
             logAtDefaultLevel(
                     "Converting type {} with value '{}' using {} to datapoint '{}' (dpType='{}', dpUnit='{}')",
@@ -165,8 +164,7 @@ public abstract class AbstractTypeConverter<T extends State> implements TypeConv
     /**
      * Converts an openHAB command to a Homematic value.
      */
-    @Nullable
-    protected Object commandToBinding(Command command, HmDatapoint dp) throws ConverterException {
+    protected @Nullable Object commandToBinding(Command command, HmDatapoint dp) throws ConverterException {
         throw new ConverterException("Unsupported command " + command.getClass().getSimpleName() + " for "
                 + this.getClass().getSimpleName());
     }

@@ -66,8 +66,7 @@ public class XmlRpcRequest implements RpcRequest<String> {
     }
 
     @Override
-    @Nullable
-    public String getMethodName() {
+    public @Nullable String getMethodName() {
         return methodName;
     }
 

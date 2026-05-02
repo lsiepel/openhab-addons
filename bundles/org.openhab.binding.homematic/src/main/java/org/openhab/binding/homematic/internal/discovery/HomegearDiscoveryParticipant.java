@@ -47,8 +47,7 @@ public class HomegearDiscoveryParticipant implements UpnpDiscoveryParticipant {
     }
 
     @Override
-    @Nullable
-    public DiscoveryResult createResult(RemoteDevice device) {
+    public @Nullable DiscoveryResult createResult(RemoteDevice device) {
         ThingUID uid = getThingUID(device);
         if (uid != null) {
             DeviceDetails details = device.getDetails();
@@ -63,8 +62,7 @@ public class HomegearDiscoveryParticipant implements UpnpDiscoveryParticipant {
     }
 
     @Override
-    @Nullable
-    public ThingUID getThingUID(RemoteDevice device) {
+    public @Nullable ThingUID getThingUID(RemoteDevice device) {
         DeviceDetails details = device.getDetails();
         String modelName = details.getModelDetails().getModelName();
         if ("HOMEGEAR".equalsIgnoreCase(modelName)) {

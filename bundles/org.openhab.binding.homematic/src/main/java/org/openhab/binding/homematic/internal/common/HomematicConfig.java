@@ -86,8 +86,7 @@ public class HomematicConfig {
     /**
      * Returns the callback host address.
      */
-    @Nullable
-    public String getCallbackHost() {
+    public @Nullable String getCallbackHost() {
         return callbackHost;
     }
 

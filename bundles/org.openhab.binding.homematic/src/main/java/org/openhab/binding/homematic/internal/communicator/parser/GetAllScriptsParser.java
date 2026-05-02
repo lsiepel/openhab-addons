@@ -36,8 +36,7 @@ public class GetAllScriptsParser extends CommonRpcParser<Object[], @Nullable Voi
     }
 
     @Override
-    @Nullable
-    public Void parse(Object[] message) throws IOException {
+    public @Nullable Void parse(Object[] message) throws IOException {
         message = (Object[]) message[0];
         for (Object obj : message) {
             String scriptName = MiscUtils.toStringOrEmptyIfNull(obj);

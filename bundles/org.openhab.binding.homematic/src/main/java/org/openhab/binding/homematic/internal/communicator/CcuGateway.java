@@ -196,7 +196,6 @@ public class CcuGateway extends AbstractHomematicGateway {
      */
     private <T> T sendScriptByName(String scriptName, Class<T> clazz, String[] variableNames, String[] values)
             throws IOException {
-        @Nullable
         Map<String, @Nullable String> scripts = this.tclregaScripts;
         String script = scripts != null ? scripts.get(scriptName) : null;
         if (script != null) {

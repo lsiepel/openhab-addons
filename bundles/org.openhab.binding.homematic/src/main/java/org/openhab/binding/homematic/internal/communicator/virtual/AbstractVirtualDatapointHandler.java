@@ -55,16 +55,14 @@ public abstract class AbstractVirtualDatapointHandler implements VirtualDatapoin
     }
 
     @Override
-    @Nullable
-    public HmDatapoint getVirtualDatapoint(HmChannel channel) {
+    public @Nullable HmDatapoint getVirtualDatapoint(HmChannel channel) {
         return channel.getDatapoint(HmParamsetType.VALUES, getName());
     }
 
     /**
      * Creates a new datapoint with the given parameters and adds it to the channel.
      */
-    @Nullable
-    protected HmDatapoint addDatapoint(HmDevice device, Integer channelNumber, String datapointName,
+    protected @Nullable HmDatapoint addDatapoint(HmDevice device, Integer channelNumber, String datapointName,
             HmValueType valueType, @Nullable Object value, boolean readOnly) {
         HmChannel channel = device.getChannel(channelNumber);
         if (channel == null) {

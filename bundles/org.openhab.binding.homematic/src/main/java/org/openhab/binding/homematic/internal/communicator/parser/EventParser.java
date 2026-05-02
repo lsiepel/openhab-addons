@@ -57,8 +57,7 @@ public class EventParser extends CommonRpcParser<Object[], HmDatapointInfo> {
     /**
      * Returns the value of the event.
      */
-    @Nullable
-    public Object getValue() {
+    public @Nullable Object getValue() {
         return value;
     }
 }

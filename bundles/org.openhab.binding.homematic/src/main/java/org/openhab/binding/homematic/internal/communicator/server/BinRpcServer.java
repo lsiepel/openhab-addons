@@ -57,19 +57,19 @@ public class BinRpcServer implements RpcServer {
 
     @Override
     public void shutdown() {
-        Thread thread = this.networkServiceThread;
+        Thread networkServiceThread = this.networkServiceThread;
         try {
-            if (thread != null) {
-                thread.interrupt();
+            if (networkServiceThread != null) {
+                networkServiceThread.interrupt();
             }
         } catch (Exception e) {
             logger.error("{}", e.getMessage(), e);
         }
 
-        BinRpcNetworkService service = this.networkService;
-        if (service != null) {
+        BinRpcNetworkService networkService = this.networkService;
+        if (networkService != null) {
             logger.debug("Stopping BIN-RPC server");
-            service.shutdown();
+            networkService.shutdown();
             networkService = null;
         }
     }

@@ -158,10 +158,10 @@ public class BinRpcMessage implements RpcRequest<byte[]>, RpcResponse {
         addString("Bin ");
         setType(type);
         addInt(0); // placeholder content length
-        final String method = this.methodName;
-        if (method != null) {
-            addInt(method.length());
-            addString(method);
+        final String methodName = this.methodName;
+        if (methodName != null) {
+            addInt(methodName.length());
+            addString(methodName);
             addInt(0); // placeholder arguments
         }
         setInt(4, offset - 8);
@@ -186,8 +186,7 @@ public class BinRpcMessage implements RpcRequest<byte[]>, RpcResponse {
     }
 
     @Override
-    @Nullable
-    public String getMethodName() {
+    public @Nullable String getMethodName() {
         return methodName;
     }
 

@@ -12,10 +12,7 @@
  */
 package org.openhab.binding.homematic.internal.communicator.virtual;
 
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_LEVEL;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_ON_TIME;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_STATE;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.VIRTUAL_DATAPOINT_NAME_ON_TIME_AUTOMATIC;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
 
 import java.io.IOException;
 

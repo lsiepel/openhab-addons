@@ -110,12 +110,13 @@ public class MetadataUtils {
             return null;
         }
         List<T> options = new ArrayList<>();
-        for (String opt : dpOptions) {
+        for (String option : dpOptions) {
             String description = !dp.isVariable() && !dp.isScript()
-                    ? getDescription(dp.getChannel().getType(), dp.getName(), opt)
+                    ? getDescription(dp.getChannel().getType(), dp.getName(), option)
                     : null;
-            options.add(optionsBuilder.createOption(opt, description != null ? description : opt));
+            options.add(optionsBuilder.createOption(option, description != null ? description : option));
         }
+
         return options;
     }
 
@@ -137,8 +138,7 @@ public class MetadataUtils {
     /**
      * Returns the unit metadata string for the given Datapoint.
      */
-    @Nullable
-    public static String getUnit(HmDatapoint dp) {
+    public static @Nullable String getUnit(HmDatapoint dp) {
         String dpUnit = dp.getUnit();
         if (dpUnit != null) {
             return dpUnit.replace("100%", "%").replace("%", "%%");
@@ -149,8 +149,7 @@ public class MetadataUtils {
     /**
      * Returns the pattern metadata string for the given Datapoint.
      */
-    @Nullable
-    public static String getPattern(HmDatapoint dp) {
+    public static @Nullable String getPattern(HmDatapoint dp) {
         if (dp.isFloatType()) {
             return "%.2f";
         } else if (dp.isNumberType()) {
@@ -163,8 +162,7 @@ public class MetadataUtils {
     /**
      * Returns the state pattern metadata string with unit for the given Datapoint.
      */
-    @Nullable
-    public static String getStatePattern(HmDatapoint dp) {
+    public static @Nullable String getStatePattern(HmDatapoint dp) {
         String unit = getUnit(dp);
         if ("%%".equals(unit)) {
             return "%d %%";
@@ -195,8 +193,7 @@ public class MetadataUtils {
     /**
      * Returns the description for the given keys.
      */
-    @Nullable
-    public static String getDescription(String... keys) {
+    public static @Nullable String getDescription(String... keys) {
         StringBuilder sb = new StringBuilder();
         for (int startIdx = 0; startIdx < keys.length; startIdx++) {
             String key = String.join("|", Arrays.copyOfRange(keys, startIdx, keys.length));
@@ -237,8 +234,7 @@ public class MetadataUtils {
     /**
      * Returns the description for the given datapoint.
      */
-    @Nullable
-    public static String getDatapointDescription(HmDatapoint dp) {
+    public static @Nullable String getDatapointDescription(HmDatapoint dp) {
         if (dp.isVariable() || dp.isScript()) {
             return null;
         }
@@ -260,8 +256,7 @@ public class MetadataUtils {
     /**
      * Helper method for creating a BigDecimal.
      */
-    @Nullable
-    public static BigDecimal createBigDecimal(@Nullable Number number) {
+    public static @NullableBigDecimal createBigDecimal(@Nullable Number number) {
         if (number == null) {
             return null;
         }
@@ -364,8 +359,7 @@ public class MetadataUtils {
     /**
      * Determines the category for the given Datapoint.
      */
-    @Nullable
-    public static String getCategory(HmDatapoint dp, String itemType) {
+    public static @Nullable String getCategory(HmDatapoint dp, String itemType) {
         String dpName = dp.getName();
         String channelType = dp.getChannel().getType();
 

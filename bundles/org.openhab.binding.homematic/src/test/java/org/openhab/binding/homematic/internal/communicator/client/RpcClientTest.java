@@ -12,16 +12,10 @@
  */
 package org.openhab.binding.homematic.internal.communicator.client;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.openhab.binding.homematic.internal.HomematicBindingConstants.RX_BURST_MODE;
-import static org.openhab.binding.homematic.internal.HomematicBindingConstants.RX_WAKEUP_MODE;
-import static org.openhab.binding.homematic.test.util.DimmerHelper.createDimmerDummyChannel;
-import static org.openhab.binding.homematic.test.util.DimmerHelper.createDimmerHmChannel;
-import static org.openhab.binding.homematic.test.util.RpcClientMockImpl.GET_PARAMSET_DESCRIPTION_NAME;
-import static org.openhab.binding.homematic.test.util.RpcClientMockImpl.GET_PARAMSET_NAME;
+import static org.hamcrest.CoreMatchers.*;
+import static org.openhab.binding.homematic.internal.HomematicBindingConstants.*;
+import static org.openhab.binding.homematic.test.util.DimmerHelper.*;
+import static org.openhab.binding.homematic.test.util.RpcClientMockImpl.*;
 
 import java.io.IOException;
 import java.util.Objects;

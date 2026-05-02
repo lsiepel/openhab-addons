@@ -12,10 +12,7 @@
  */
 package org.openhab.binding.homematic.internal.model;
 
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_CONFIG_PENDING;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_DEVICE_IN_BOOTLOADER;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_UNREACH;
-import static org.openhab.binding.homematic.internal.misc.HomematicConstants.DATAPOINT_NAME_UPDATE_PENDING;
+import static org.openhab.binding.homematic.internal.misc.HomematicConstants.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,8 +106,7 @@ public class HmDevice {
     /**
      * Returns the firmware of the device.
      */
-    @Nullable
-    public String getFirmware() {
+    public @Nullable String getFirmware() {
         return firmware;
     }
 
@@ -124,8 +120,7 @@ public class HmDevice {
     /**
      * Returns the homegearId of the device.
      */
-    @Nullable
-    public String getHomegearId() {
+    public @Nullable String getHomegearId() {
         return homegearId;
     }
 
@@ -140,8 +135,7 @@ public class HmDevice {
     /**
      * Returns the channel with the given channelNumber.
      */
-    @Nullable
-    public HmChannel getChannel(int channelNumber) {
+    public @Nullable HmChannel getChannel(int channelNumber) {
         for (HmChannel hmChannel : channels) {
             if (hmChannel.getNumber() == channelNumber) {
                 return hmChannel;

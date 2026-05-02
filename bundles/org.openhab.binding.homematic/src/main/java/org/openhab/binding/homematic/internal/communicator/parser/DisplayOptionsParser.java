@@ -50,8 +50,7 @@ public class DisplayOptionsParser extends CommonRpcParser<@Nullable Object, @Nul
     }
 
     @Override
-    @Nullable
-    public Void parse(@Nullable Object value) throws IOException {
+    public @Nullable Void parse(@Nullable Object value) throws IOException {
         String valueString = toString(value);
         String optionsString = valueString == null ? null : valueString.replace(" ", "");
         if (optionsString != null) {
@@ -171,8 +170,7 @@ public class DisplayOptionsParser extends CommonRpcParser<@Nullable Object, @Nul
     /**
      * Returns the parsed text.
      */
-    @Nullable
-    public String getText() {
+    public @Nullable String getText() {
         return text;
     }
 

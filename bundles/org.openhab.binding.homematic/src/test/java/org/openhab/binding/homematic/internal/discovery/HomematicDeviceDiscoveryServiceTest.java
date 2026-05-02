@@ -14,12 +14,8 @@ package org.openhab.binding.homematic.internal.discovery;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.openhab.binding.homematic.test.util.BridgeHelper.createHomematicBridge;
 import static org.openhab.binding.homematic.test.util.DimmerHelper.createDimmerHmDevice;
 

@@ -45,8 +45,7 @@ public class GetParamsetDescriptionParser extends CommonRpcParser<Object[], @Nul
 
     @Override
     @SuppressWarnings("unchecked")
-    @Nullable
-    public Void parse(Object[] message) throws IOException {
+    public @Nullable Void parse(Object[] message) throws IOException {
         if (!(message[0] instanceof Map)) {
             logger.debug("Unexpected datatype '{}',  ignoring message", message[0].getClass());
             return null;
@@ -70,8 +69,7 @@ public class GetParamsetDescriptionParser extends CommonRpcParser<Object[], @Nul
         return null;
     }
 
-    @Nullable
-    private Map<String, Number> toSpecialValues(@Nullable Object specialValues) {
+    private @Nullable Map<String, Number> toSpecialValues(@Nullable Object specialValues) {
         if (specialValues != null && specialValues instanceof Object[] array) {
             Map<String, Number> result = new HashMap<>();
             for (int i = 0; i < array.length; i++) {

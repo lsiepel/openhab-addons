@@ -45,8 +45,7 @@ public class GetDeviceDescriptionParser extends CommonRpcParser<Object[], GetDev
     /**
      * Returns the parsed type.
      */
-    @Nullable
-    public String getType() {
+    public @Nullable String getType() {
         return type;
     }
 
@@ -60,8 +59,7 @@ public class GetDeviceDescriptionParser extends CommonRpcParser<Object[], GetDev
     /**
      * Returns the interface of the device.
      */
-    @Nullable
-    public String getDeviceInterface() {
+    public @Nullable String getDeviceInterface() {
         return deviceInterface;
     }
 }

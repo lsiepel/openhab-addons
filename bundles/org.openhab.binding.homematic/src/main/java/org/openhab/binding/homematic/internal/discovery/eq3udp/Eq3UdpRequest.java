@@ -23,6 +23,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  *
  * @author Gerhard Riegler - Initial contribution
  */
+
 @NonNullByDefault
 public class Eq3UdpRequest {
     private static final byte UDP_IDENTIFY = 73;

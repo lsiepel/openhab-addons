@@ -113,13 +113,13 @@ public class XmlRpcClient extends RpcClient<String> {
                 url += "/groups";
             }
 
-            AuthenticationHandler authHandler = this.authenticationHandler;
-            if (authHandler == null) {
-                authHandler = new AuthenticationHandler(config);
-                this.authenticationHandler = authHandler;
+            AuthenticationHandler authenticationHandler = this.authenticationHandler;
+            if (authenticationHandler == null) {
+                authenticationHandler = new AuthenticationHandler(config);
+                this.authenticationHandler = authenticationHandler;
             }
 
-            Request req = authHandler.updateAuthenticationInformation(
+            Request req = authenticationHandler.updateAuthenticationInformation(
                     httpClient.POST(new URI(url)).content(content).timeout(config.getTimeout(), TimeUnit.SECONDS)
                             .header(HttpHeader.CONTENT_TYPE, "text/xml;charset=" + config.getEncoding()));
 

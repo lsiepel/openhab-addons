@@ -12,8 +12,7 @@
  */
 package org.openhab.binding.homematic.internal.communicator.virtual;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
@@ -56,87 +55,87 @@ public class ButtonDatapointTest extends JavaTest {
 
     @Test
     public void testShortPress() throws IOException, HomematicClientException {
-        MockEventReceiver eventReceiver = Objects.requireNonNull(mockEventReceiver);
+        MockEventReceiver mockEventReceiver = Objects.requireNonNull(mockEventReceiver);
         HmDatapoint shortPressDp = createPressDatapoint("PRESS_SHORT", Boolean.TRUE);
         HmDatapoint buttonVirtualDatapoint = Objects.requireNonNull(getButtonVirtualDatapoint(shortPressDp));
 
-        eventReceiver.eventReceived(shortPressDp);
+        mockEventReceiver.eventReceived(shortPressDp);
 
         assertThat(buttonVirtualDatapoint.getValue(), is(CommonTriggerEvents.SHORT_PRESSED));
     }
 
     @Test
     public void testLongPressHm() throws IOException, HomematicClientException {
-        MockEventReceiver eventReceiver = Objects.requireNonNull(mockEventReceiver);
+        MockEventReceiver mockEventReceiver = Objects.requireNonNull(mockEventReceiver);
         HmDatapoint longPressDp = createPressDatapoint("PRESS_LONG", Boolean.TRUE);
         HmDatapoint buttonVirtualDatapoint = Objects.requireNonNull(getButtonVirtualDatapoint(longPressDp));
 
-        eventReceiver.eventReceived(longPressDp);
+        mockEventReceiver.eventReceived(longPressDp);
         assertThat(buttonVirtualDatapoint.getValue(), is(CommonTriggerEvents.LONG_PRESSED));
 
         HmDatapoint contPressDp = createPressDatapointFrom(longPressDp, "PRESS_CONT", Boolean.TRUE);
-        eventReceiver.eventReceived(contPressDp);
+        mockEventReceiver.eventReceived(contPressDp);
         assertThat(buttonVirtualDatapoint.getValue(), is("LONG_REPEATED"));
         assertThat(buttonVirtualDatapoint.getPreviousValue(), nullValue());
 
         // Receiving another LONG event during the long press should be ignored
-        eventReceiver.eventReceived(longPressDp);
+        mockEventReceiver.eventReceived(longPressDp);
         assertThat(buttonVirtualDatapoint.getValue(), is("LONG_REPEATED"));
         assertThat(buttonVirtualDatapoint.getPreviousValue(), is("LONG_REPEATED"));
 
         HmDatapoint releaseDp = createPressDatapointFrom(longPressDp, "PRESS_LONG_RELEASE", Boolean.TRUE);
-        eventReceiver.eventReceived(releaseDp);
+        mockEventReceiver.eventReceived(releaseDp);
         assertThat(buttonVirtualDatapoint.getValue(), is("LONG_RELEASED"));
 
         // A CONT event right after a SHORT event should not trigger another SHORT_PRESSED event
         HmDatapoint shortPressDp = createPressDatapointFrom(longPressDp, "PRESS_SHORT", Boolean.TRUE);
-        eventReceiver.eventReceived(shortPressDp);
-        eventReceiver.eventReceived(contPressDp);
+        mockEventReceiver.eventReceived(shortPressDp);
+        mockEventReceiver.eventReceived(contPressDp);
         assertThat(buttonVirtualDatapoint.getValue(), nullValue());
     }
 
     @Test
     public void testLongPressHmIp() throws IOException, HomematicClientException {
-        MockEventReceiver eventReceiver = Objects.requireNonNull(mockEventReceiver);
+        MockEventReceiver mockEventReceiver = Objects.requireNonNull(mockEventReceiver);
         HmDatapoint longPressDp = createPressDatapoint("PRESS_LONG_START", Boolean.TRUE);
         HmDatapoint buttonVirtualDatapoint = Objects.requireNonNull(getButtonVirtualDatapoint(longPressDp));
 
-        eventReceiver.eventReceived(longPressDp);
+        mockEventReceiver.eventReceived(longPressDp);
         assertThat(buttonVirtualDatapoint.getValue(), is(CommonTriggerEvents.LONG_PRESSED));
 
         HmDatapoint contPressDp = createPressDatapointFrom(longPressDp, "PRESS_LONG", Boolean.TRUE);
-        eventReceiver.eventReceived(contPressDp);
+        mockEventReceiver.eventReceived(contPressDp);
         assertThat(buttonVirtualDatapoint.getValue(), is("LONG_REPEATED"));
         assertThat(buttonVirtualDatapoint.getPreviousValue(), nullValue());
 
         HmDatapoint releaseDp = createPressDatapointFrom(longPressDp, "PRESS_LONG_RELEASE", Boolean.TRUE);
-        eventReceiver.eventReceived(releaseDp);
+        mockEventReceiver.eventReceived(releaseDp);
         assertThat(buttonVirtualDatapoint.getValue(), is("LONG_RELEASED"));
 
         // A LONG event right after a SHORT event should not trigger another SHORT_PRESSED event
         HmDatapoint shortPressDp = createPressDatapointFrom(longPressDp, "PRESS_SHORT", Boolean.TRUE);
-        eventReceiver.eventReceived(shortPressDp);
-        eventReceiver.eventReceived(contPressDp);
+        mockEventReceiver.eventReceived(shortPressDp);
+        mockEventReceiver.eventReceived(contPressDp);
         assertThat(buttonVirtualDatapoint.getValue(), nullValue());
     }
 
     @Test
     public void testUnsupportedEvents() throws IOException, HomematicClientException {
-        MockEventReceiver eventReceiver = Objects.requireNonNull(mockEventReceiver);
+        MockEventReceiver mockEventReceiver = Objects.requireNonNull(mockEventReceiver);
         HmDatapoint contPressDp = createPressDatapoint("PRESS_CONT", Boolean.TRUE);
         HmDatapoint contButtonVirtualDatapoint = Objects.requireNonNull(getButtonVirtualDatapoint(contPressDp));
 
-        eventReceiver.eventReceived(contPressDp);
+        mockEventReceiver.eventReceived(contPressDp);
 
         HmDatapoint releaseDp = createPressDatapoint("PRESS_LONG_RELEASE", Boolean.TRUE);
         HmDatapoint releaseButtonVirtualDatapoint = Objects.requireNonNull(getButtonVirtualDatapoint(releaseDp));
 
-        eventReceiver.eventReceived(releaseDp);
+        mockEventReceiver.eventReceived(releaseDp);
 
         HmDatapoint crapDp = createPressDatapoint("CRAP", Boolean.TRUE);
         HmDatapoint crapButtonVirtualDatapoint = getButtonVirtualDatapoint(crapDp);
 
-        eventReceiver.eventReceived(crapDp);
+        mockEventReceiver.eventReceived(crapDp);
 
         // CONT and LONG_RELEASE events without previous LONG event are supposed to yield no trigger
         assertThat(contButtonVirtualDatapoint.getValue(), nullValue());
@@ -166,8 +165,7 @@ public class ButtonDatapointTest extends JavaTest {
         return pressDp;
     }
 
-    @Nullable
-    private HmDatapoint getButtonVirtualDatapoint(HmDatapoint originalDatapoint) {
+    private @Nullable HmDatapoint getButtonVirtualDatapoint(HmDatapoint originalDatapoint) {
         HmChannel channel = originalDatapoint.getChannel();
         return channel.getDatapoints().stream()
                 .filter(dp -> HomematicConstants.VIRTUAL_DATAPOINT_NAME_BUTTON.equals(dp.getName())).findFirst()
@@ -178,6 +176,7 @@ public class ButtonDatapointTest extends JavaTest {
      * Mock parts of {@linkplain org.openhab.binding.homematic.internal.communicator.AbstractHomematicGateway}
      */
     private class MockEventReceiver {
+
         public void eventReceived(HmDatapoint dp) throws IOException, HomematicClientException {
             if (bvdpHandler.canHandleEvent(dp)) {
                 bvdpHandler.handleEvent(dp);

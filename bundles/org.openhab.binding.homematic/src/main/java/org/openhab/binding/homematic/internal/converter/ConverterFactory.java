@@ -65,7 +65,6 @@ public class ConverterFactory {
             }
         }
 
-        @Nullable
         TypeConverter<?> converter = null;
         if (converterClass != null) {
             converter = converterCache.get(converterClass.getName());

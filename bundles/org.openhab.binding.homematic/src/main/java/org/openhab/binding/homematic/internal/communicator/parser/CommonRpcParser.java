@@ -38,8 +38,7 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the object to a string.
      */
-    @Nullable
-    protected String toString(@Nullable Object object) {
+    protected @Nullable String toString(@Nullable Object object) {
         String value = MiscUtils.toStringOrEmptyIfNull(object).trim();
         return value.isEmpty() ? null : value;
     }
@@ -47,8 +46,7 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the object to an integer.
      */
-    @Nullable
-    protected Integer toInteger(@Nullable Object object) {
+    protected @Nullable Integer toInteger(@Nullable Object object) {
         if (object == null || object instanceof Integer) {
             return (Integer) object;
         }
@@ -63,8 +61,7 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the object to a double.
      */
-    @Nullable
-    protected Double toDouble(@Nullable Object object) {
+    protected @Nullable Double toDouble(@Nullable Object object) {
         if (object == null || object instanceof Double) {
             return (Double) object;
         }
@@ -79,8 +76,7 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the object to a number.
      */
-    @Nullable
-    protected Number toNumber(@Nullable Object object) {
+    protected @Nullable Number toNumber(@Nullable Object object) {
         if (object == null || object instanceof Number) {
             return (Number) object;
         }
@@ -100,8 +96,7 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the object to a boolean.
      */
-    @Nullable
-    protected Boolean toBoolean(@Nullable Object object) {
+    protected @Nullable Boolean toBoolean(@Nullable Object object) {
         if (object == null || object instanceof Boolean) {
             return (Boolean) object;
         }
@@ -153,8 +148,7 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts the value to the correct type if necessary.
      */
-    @Nullable
-    protected Object convertToType(HmDatapoint dp, @Nullable Object value) {
+    protected @Nullable Object convertToType(HmDatapoint dp, @Nullable Object value) {
         if (value == null) {
             return null;
         } else if (dp.isBooleanType()) {
@@ -237,8 +231,7 @@ public abstract class CommonRpcParser<M, R> implements RpcParser<M, R> {
     /**
      * Converts a string value to the type.
      */
-    @Nullable
-    protected Object convertToType(@Nullable String value) {
+    protected @Nullable Object convertToType(@Nullable String value) {
         if (value == null || value.isBlank()) {
             return null;
         }

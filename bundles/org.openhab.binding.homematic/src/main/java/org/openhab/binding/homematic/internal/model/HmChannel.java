@@ -144,8 +144,7 @@ public class HmChannel {
     /**
      * Returns the HmDatapoint with the given HmDatapointInfo.
      */
-    @Nullable
-    public HmDatapoint getDatapoint(HmDatapointInfo dpInfo) {
+    public @Nullable HmDatapoint getDatapoint(HmDatapointInfo dpInfo) {
         synchronized (datapoints) {
             return datapoints.get(dpInfo);
         }
@@ -154,8 +153,7 @@ public class HmChannel {
     /**
      * Returns the HmDatapoint with the given datapoint name.
      */
-    @Nullable
-    public HmDatapoint getDatapoint(HmParamsetType type, String datapointName) {
+    public @Nullable HmDatapoint getDatapoint(HmParamsetType type, String datapointName) {
         return getDatapoint(new HmDatapointInfo(type, this, datapointName));
     }
 
@@ -178,8 +176,7 @@ public class HmChannel {
      * Returns the numeric value of the function this channel is currently configured to.
      * Returns null if the channel is not yet initialized or does not support dynamic reconfiguration.
      */
-    @Nullable
-    public Integer getCurrentFunction() {
+    public @Nullable Integer getCurrentFunction() {
         HmDatapoint functionDp = getDatapoint(HmParamsetType.MASTER,
                 HomematicConstants.DATAPOINT_NAME_CHANNEL_FUNCTION);
         return functionDp == null ? null : (Integer) functionDp.getValue();

@@ -13,9 +13,7 @@
 package org.openhab.binding.homematic.internal.handler;
 
 import static org.openhab.binding.homematic.internal.HomematicBindingConstants.CHANNEL_TYPE_DUTY_CYCLE_RATIO;
-import static org.openhab.core.thing.Thing.PROPERTY_FIRMWARE_VERSION;
-import static org.openhab.core.thing.Thing.PROPERTY_MODEL_ID;
-import static org.openhab.core.thing.Thing.PROPERTY_SERIAL_NUMBER;
+import static org.openhab.core.thing.Thing.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -289,8 +287,7 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
      *
      * @return The gateway or null if gateway has not yet been initialized.
      */
-    @Nullable
-    public HomematicGateway getGateway() {
+    public @Nullable HomematicGateway getGateway() {
         return gateway;
     }
 
