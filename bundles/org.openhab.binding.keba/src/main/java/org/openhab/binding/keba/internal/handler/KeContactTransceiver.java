@@ -446,7 +446,7 @@ public class KeContactTransceiver {
                         }
                         datagramChannel.connect(remoteAddress);
 
-                        handler.updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE, "");
+                        handler.updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
                     } catch (Exception e) {
                         logger.debug("An exception occurred while connecting connecting to '{}:{}' : {}",
                                 new Object[] { ipAddress, LISTENER_PORT_NUMBER, e.getMessage() });

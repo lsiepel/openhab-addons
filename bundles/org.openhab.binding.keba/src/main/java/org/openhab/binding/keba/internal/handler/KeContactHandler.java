@@ -168,6 +168,11 @@ public class KeContactHandler extends BaseThingHandler {
     }
 
     @Override
+    public void updateStatus(ThingStatus status, ThingStatusDetail statusDetail) {
+        super.updateStatus(status, statusDetail);
+    }
+
+    @Override
     public void updateStatus(ThingStatus status, ThingStatusDetail statusDetail, String description) {
         super.updateStatus(status, statusDetail, description);
     }
