@@ -180,6 +180,11 @@ public class SiemensHvacBridgeThingHandler extends BaseBridgeHandler {
         super.updateStatus(status, statusDetail, description);
     }
 
+    @Override
+    public void updateStatus(ThingStatus status) {
+        super.updateStatus(status);
+    }
+
     public boolean registerDiscoveryListener(SiemensHvacDeviceDiscoveryService listener) {
         SiemensHvacDeviceDiscoveryService lcDiscoveryService = discoveryService;
         if (lcDiscoveryService == null) {
