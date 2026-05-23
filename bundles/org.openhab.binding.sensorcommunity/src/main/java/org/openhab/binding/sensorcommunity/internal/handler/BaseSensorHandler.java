@@ -188,7 +188,7 @@ public abstract class BaseSensorHandler extends BaseThingHandler {
 
     protected void statusUpdate(UpdateStatus updateStatus, String details) {
         if (updateStatus == UpdateStatus.OK) {
-            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE, null);
+            updateStatus(ThingStatus.ONLINE);
             startSchedule();
         } else {
             switch (updateStatus) {
