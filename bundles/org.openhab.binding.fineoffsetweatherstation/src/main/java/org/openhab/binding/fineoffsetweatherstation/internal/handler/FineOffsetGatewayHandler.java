@@ -44,6 +44,7 @@ import org.openhab.core.thing.Channel;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.binding.BaseBridgeHandler;
 import org.openhab.core.thing.binding.ThingHandler;
@@ -68,7 +69,7 @@ import org.slf4j.LoggerFactory;
  * @author Andreas Berger - Initial contribution
  */
 @NonNullByDefault
-public class FineOffsetGatewayHandler extends BaseBridgeHandler {
+public class FineOffsetGatewayHandler extends BaseBridgeHandler implements ThingStatusListener {
 
     private static final String PROPERTY_FREQUENCY = "frequency";
 
@@ -108,7 +109,7 @@ public class FineOffsetGatewayHandler extends BaseBridgeHandler {
     @Override
     public void initialize() {
         FineOffsetGatewayConfiguration config = getConfigAs(FineOffsetGatewayConfiguration.class);
-        gatewayQueryService = config.protocol.getGatewayQueryService(config, this::updateStatus);
+        gatewayQueryService = config.protocol.getGatewayQueryService(config, this);
 
         updateStatus(ThingStatus.UNKNOWN);
         fetchAndUpdateSensors();
@@ -289,5 +290,15 @@ public class FineOffsetGatewayHandler extends BaseBridgeHandler {
         this.sensorDeviceMap = null;
         stopPollingJob();
         stopDiscoverJob();
+    }
+
+    @Override
+    public void updateStatus(ThingStatus status, ThingStatusDetail statusDetail, @Nullable String description) {
+        super.updateStatus(status, statusDetail, description);
+    }
+
+    @Override
+    public void updateStatus(ThingStatus status) {
+        super.updateStatus(status);
     }
 }

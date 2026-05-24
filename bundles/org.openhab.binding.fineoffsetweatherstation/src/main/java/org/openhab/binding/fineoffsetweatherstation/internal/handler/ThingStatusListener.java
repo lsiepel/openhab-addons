@@ -24,4 +24,6 @@ import org.openhab.core.thing.ThingStatusDetail;
 public interface ThingStatusListener {
 
     void updateStatus(ThingStatus status, ThingStatusDetail statusDetail, @Nullable String description);
+
+    void updateStatus(ThingStatus status);
 }

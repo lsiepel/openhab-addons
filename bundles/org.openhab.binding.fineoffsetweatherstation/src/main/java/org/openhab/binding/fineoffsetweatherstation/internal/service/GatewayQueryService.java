@@ -144,7 +144,7 @@ public abstract class GatewayQueryService implements AutoCloseable {
                 socket.setSoTimeout(5000);
                 this.socket = socket;
                 if (statusListener != null) {
-                    statusListener.updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE, null);
+                    statusListener.updateStatus(ThingStatus.ONLINE);
                 }
             } catch (IOException e) {
                 if (statusListener != null) {
