@@ -16,8 +16,6 @@ import static org.openhab.binding.shelly.internal.ShellyBindingConstants.DEFAULT
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.shelly.internal.ShellyHandlerFactory;
-import org.openhab.binding.shelly.internal.handler.ShellyBaseHandler;
 import org.openhab.core.net.NetworkAddressService;
 
 /**

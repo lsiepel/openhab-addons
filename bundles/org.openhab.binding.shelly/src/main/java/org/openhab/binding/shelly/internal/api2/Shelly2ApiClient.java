@@ -972,6 +972,9 @@ public class Shelly2ApiClient extends ShellyHttpClient implements ShellyDiscover
             cs.id = id;
         }
         int rIdx = getRollerIdx(getProfile(), cs.id);
+        if (status.rollers == null || rIdx < 0 || rIdx >= status.rollers.size()) {
+            return false;
+        }
         ShellyRollerStatus rs = status.rollers.get(rIdx);
         boolean haveEmeter = status.emeters != null && rIdx >= 0 && rIdx < status.emeters.size();
         ShellySettingsEMeter emeter = haveEmeter ? status.emeters.get(rIdx) : new ShellySettingsEMeter();
