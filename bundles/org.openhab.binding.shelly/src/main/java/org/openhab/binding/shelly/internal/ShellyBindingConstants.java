@@ -110,7 +110,8 @@ public class ShellyBindingConstants {
     public static final String CHANNEL_METER_LASTMIN1 = CHANNEL_METER_LASTMIN + "1";
     public static final String CHANNEL_METER_TOTALKWH = "totalKWH";
     public static final String CHANNEL_EMETER_TOTALRET = "returnedKWH";
-    public static final String CHANNEL_EMETER_REACTWATTS = "reactiveWatts";
+    public static final String CHANNEL_EMETER_REACTPOWER = "reactivePower";
+    public static final String CHANNEL_EMETER_APPARENT = "apparentPower";
     public static final String CHANNEL_EMETER_VOLTAGE = "voltage";
     public static final String CHANNEL_EMETER_CURRENT = "current";
     public static final String CHANNEL_EMETER_FREQUENCY = "frequency";
@@ -212,8 +213,8 @@ public class ShellyBindingConstants {
     public static final String CHANNEL_DEVST_WAKEUP = "wakeupReason";
     public static final String CHANNEL_DEVST_ALARM = "alarm";
     public static final String CHANNEL_DEVST_ACCUWATTS = "accumulatedWatts";
-    public static final String CHANNEL_DEVST_ACCUTOTAL = "accumulatedWTotal";
     public static final String CHANNEL_DEVST_ACCURETURNED = "accumulatedReturned";
+    public static final String CHANNEL_DEVST_ACCUAPPARENT = "accumulatedApparent";
     public static final String CHANNEL_DEVST_TOTALKWH = "totalKWH";
     public static final String CHANNEL_DEVST_RESETTOTAL = CHANNEL_EMETER_RESETTOTAL;
 
@@ -276,9 +277,9 @@ public class ShellyBindingConstants {
     public static final int DIGITS_NONE = 0;
     public static final int DIGITS_WATT = 2;
     public static final int DIGITS_KWH = 3;
-    public static final int DIGITS_VOLT = 1;
+    public static final int DIGITS_VOLT = 2;
     public static final int DIGITS_AMPERE = 3;
-    public static final int DIGITS_FREQUENCY = 1;
+    public static final int DIGITS_FREQUENCY = 2;
     public static final int DIGITS_TEMP = 1;
     public static final int DIGITS_LUX = 0;
     public static final int DIGITS_PERCENT = 1;

@@ -13,7 +13,10 @@
 package org.openhab.binding.shelly.internal.api2;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.openhab.binding.shelly.internal.ShellyDevices.*;
 import static org.openhab.binding.shelly.internal.api2.Shelly2ApiJsonDTO.SHELLYRPC_METHOD_GETCONFIG;
 
@@ -31,6 +34,8 @@ import org.openhab.binding.shelly.internal.api.ShellyApiException;
 import org.openhab.binding.shelly.internal.api.ShellyDeviceProfile;
 import org.openhab.binding.shelly.internal.api1.Shelly1ApiJsonDTO.ShellySettingsDevice;
 import org.openhab.binding.shelly.internal.api2.Shelly2ApiJsonDTO.Shelly2DeviceConfig.Shelly2GetConfigResult;
+import org.openhab.binding.shelly.internal.api2.Shelly2ApiJsonDTO.Shelly2DeviceStatus.Shelly2DeviceStatusResult;
+import org.openhab.binding.shelly.internal.api2.Shelly2ApiJsonDTO.Shelly2DeviceStatus.Shelly2DeviceStatusResult.Shelly2DeviceStatusEmData;
 import org.openhab.binding.shelly.internal.config.ShellyApiConfiguration;
 import org.openhab.binding.shelly.internal.config.ShellyBindingConfiguration;
 import org.openhab.binding.shelly.internal.config.ShellyBindingRuntimeConfig;
@@ -132,9 +137,15 @@ public class Shelly2GetDeviceProfileTest {
         return parseConfig(gson, "{\"sys\":{\"device\":{},\"location\":{}},\"wifi\":{}," + "\"em:0\":{\"id\":0}}");
     }
 
-    /** GetConfig with em1:0 present (EM50 clamps) */
-    private static Shelly2GetConfigResult withEm10(Gson gson) {
+    /** GetConfig with em1:0 only — single-clamp device (EM Mini G4) */
+    private static Shelly2GetConfigResult withEm10Only(Gson gson) {
         return parseConfig(gson, "{\"sys\":{\"device\":{},\"location\":{}},\"wifi\":{}," + "\"em1:0\":{\"id\":0}}");
+    }
+
+    /** GetConfig with em1:0 + em1:1 — two-clamp device (Pro EM-50) */
+    private static Shelly2GetConfigResult withEm10AndEm11(Gson gson) {
+        return parseConfig(gson,
+                "{\"sys\":{\"device\":{},\"location\":{}},\"wifi\":{}," + "\"em1:0\":{\"id\":0},\"em1:1\":{\"id\":1}}");
     }
 
     /** GetConfig with cover:0 (roller device) */
@@ -235,9 +246,17 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_em10Present_numMetersIsTwo() throws ShellyApiException {
+    void discovery_em10AloneNumMetersIsOne() throws ShellyApiException {
         Gson gson = new Gson();
-        StubApiClient client = new StubApiClient(discoveryConfig(), withEm10(gson));
+        StubApiClient client = new StubApiClient(discoveryConfig(), withEm10Only(gson));
+        ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
+        assertThat(profile.numMeters, is(1));
+    }
+
+    @Test
+    void discovery_em10AndEm11NumMetersIsTwo() throws ShellyApiException {
+        Gson gson = new Gson();
+        StubApiClient client = new StubApiClient(discoveryConfig(), withEm10AndEm11(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
         assertThat(profile.numMeters, is(2));
     }
@@ -313,8 +332,9 @@ public class Shelly2GetDeviceProfileTest {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), withSwitch01(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
-        assertThat(profile.status.meters.size(), is(profile.numMeters));
+        // Gen2 uses emeters (pre-sized to numMeters); meters is Gen1-only and is never allocated for Gen2
         assertThat(profile.status.emeters.size(), is(profile.numMeters));
+        assertThat(profile.status.meters, is(nullValue()));
     }
 
     @Test
@@ -325,5 +345,72 @@ public class Shelly2GetDeviceProfileTest {
         StubApiClient client = new StubApiClient(discoveryConfig(), minimalConfig(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYPLUS1PM, deviceInfo());
         assertThat(profile.initialized, is(true));
+    }
+
+    // ── initProfile emeter preservation (race-condition fix) ────────────────────
+
+    @Test
+    void initProfile_preservesEmetersWhenCountUnchanged() throws ShellyApiException {
+        // Regression test for the race condition in ShellyBaseHandler.refreshStatus():
+        // api.getStatus() populates emeter.totalReturned, then getProfile(refreshSettings=true)
+        // calls initProfile() which must NOT reset the list when the meter count is unchanged.
+        Gson gson = new Gson();
+        StubApiClient client = new StubApiClient(discoveryConfig(), withEm0(gson));
+        ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYPRO3EM, deviceInfo());
+        assertThat(profile.status.emeters.size(), is(3));
+
+        // Simulate api.getStatus() populating totalReturned
+        profile.status.emeters.get(0).totalReturned = 500.0;
+        profile.status.emeters.get(1).totalReturned = 300.0;
+        profile.status.emeters.get(2).totalReturned = 200.0;
+
+        // Second call simulates getProfile(refreshSettings=true) in the same refreshStatus() cycle
+        client.getDeviceProfile(THING_TYPE_SHELLYPRO3EM, deviceInfo());
+
+        assertThat("phase A totalReturned preserved", profile.status.emeters.get(0).totalReturned, is(500.0));
+        assertThat("phase B totalReturned preserved", profile.status.emeters.get(1).totalReturned, is(300.0));
+        assertThat("phase C totalReturned preserved", profile.status.emeters.get(2).totalReturned, is(200.0));
+    }
+
+    // ── emdata:0 total_act_ret field deserialization ──────────────────────────────
+
+    @Test
+    void emdata0_totalRetKWH_deserializedFromJson() {
+        Gson gson = new Gson();
+        String json = "{\"a_total_act_ret_energy\":500.0,\"b_total_act_ret_energy\":300.0,\"c_total_act_ret_energy\":200.0,"
+                + "\"total_act_ret\":1.5,\"total_act\":5.0}";
+        Shelly2DeviceStatusEmData emData = gson.fromJson(json, Shelly2DeviceStatusEmData.class);
+        assertNotNull(emData);
+        assertThat("total_act_ret maps to totalRetKWH", emData.totalRetKWH, is(1.5));
+        assertThat("a_total_act_ret_energy maps to aRetTotal", emData.aRetTotal, is(500.0));
+        assertThat("b_total_act_ret_energy maps to bRetTotal", emData.bRetTotal, is(300.0));
+        assertThat("c_total_act_ret_energy maps to cRetTotal", emData.cRetTotal, is(200.0));
+    }
+
+    @Test
+    void emdata0_totalRetKWH_absentInJson_isNull() {
+        Gson gson = new Gson();
+        // Simulates a WebSocket NotifyStatus payload where emdata:0 is absent — total_act_ret must be null
+        String json = "{\"a_total_act_ret_energy\":500.0,\"total_act\":5.0}";
+        Shelly2DeviceStatusEmData emData = gson.fromJson(json, Shelly2DeviceStatusEmData.class);
+        assertNotNull(emData);
+        assertThat("absent total_act_ret deserializes to null", emData.totalRetKWH, is(nullValue()));
+    }
+
+    @Test
+    void emdata0_inDeviceStatusResult_totalRetKWH_roundtrip() {
+        // Verify total_act_ret survives the double-serialization used in Shelly2ApiRpc.asyncApiRequest()
+        // (Gson deserializes result as Object/LinkedTreeMap, then re-serializes to JSON, then re-parses as DTO).
+        Gson gson = new Gson();
+        String resultJson = "{\"emdata:0\":{\"a_total_act_ret_energy\":500.0,\"b_total_act_ret_energy\":300.0,"
+                + "\"c_total_act_ret_energy\":200.0,\"total_act_ret\":1.5,\"total_act\":5.0}}";
+        // Simulate the double-serialization: Object → JSON → DTO
+        Object raw = gson.fromJson(resultJson, Object.class);
+        String reserialised = gson.toJson(raw);
+        Shelly2DeviceStatusResult result = Objects
+                .requireNonNull(gson.fromJson(reserialised, Shelly2DeviceStatusResult.class));
+        Shelly2DeviceStatusEmData emdata0 = result.emdata0;
+        assertThat(emdata0, is(notNullValue()));
+        assertThat(emdata0.totalRetKWH, is(1.5));
     }
 }
