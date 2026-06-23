@@ -110,6 +110,7 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
     private final ShellyTranslationProvider messages;
     private final ShellyChannelCache cache;
     private static final long DEPRECATED_CHANNEL_WARNING_INTERVAL_MS = TimeUnit.DAYS.toMillis(1);
+    private static final int CHANNEL_SCHEMA_VERSION = 1;
 
     private final Map<String, Long> deprecatedChannelWarnings = new ConcurrentHashMap<>();
     private final int cacheCount = UPDATE_SETTINGS_INTERVAL_SECONDS / UPDATE_STATUS_INTERVAL_SECONDS;
@@ -425,6 +426,7 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
         postEvent(ALARM_TYPE_NONE, false);
 
         profile = tmpPrf;
+        migrateChannels();
         showThingConfig(profile);
 
         logger.debug("{}: Thing successfully initialized.", thingName);
@@ -620,6 +622,7 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
                 updated |= updateInputs(status);
                 updated |= updateMeters(this, status);
                 updated |= updateSensors(this, status);
+                migrateChannels();
 
                 // All channels must be created after the first cycle
                 channelsCreated = true;
@@ -1400,7 +1403,51 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
         if (channelsCreated) {
             return; // already done
         }
+        addMissingChannelDefinitions(dynChannels);
+    }
 
+    private void migrateChannels() {
+        int currentVersion = getChannelSchemaVersion();
+        if (currentVersion >= CHANNEL_SCHEMA_VERSION) {
+            return;
+        }
+
+        boolean updated = false;
+        if (currentVersion < 1) {
+            updated = migrateDeprecatedChannelReplacements();
+        }
+        updateProperties(PROPERTY_CHANNEL_SCHEMA_VERSION, String.valueOf(CHANNEL_SCHEMA_VERSION));
+        if (updated) {
+            logger.debug("{}: Channel definitions migrated to schema version {}", thingName, CHANNEL_SCHEMA_VERSION);
+        }
+    }
+
+    private int getChannelSchemaVersion() {
+        try {
+            return Integer.parseInt(getString(getThing().getProperties().get(PROPERTY_CHANNEL_SCHEMA_VERSION)));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private boolean migrateDeprecatedChannelReplacements() {
+        Map<String, Channel> migrationChannels = new HashMap<>();
+        List<Channel> existingChannels = getThing().getChannels();
+        for (Channel channel : existingChannels) {
+            String channelId = channel.getUID().getId();
+            String replacementId = ShellyChannelDefinitions.getReplacementChannelId(channelId);
+            if (replacementId != null && !hasChannel(existingChannels, replacementId)
+                    && !migrationChannels.containsKey(replacementId)) {
+                Channel replacement = ShellyChannelDefinitions.createChannel(getThing(), replacementId);
+                if (replacement != null) {
+                    migrationChannels.put(replacementId, replacement);
+                }
+            }
+        }
+        return addMissingChannelDefinitions(migrationChannels);
+    }
+
+    private boolean addMissingChannelDefinitions(Map<String, Channel> dynChannels) {
         try {
             // Get subset of those channels that currently do not exist
             List<Channel> existingChannels = getThing().getChannels();
@@ -1421,10 +1468,21 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
                 }
                 updateThing(thingBuilder.build());
                 logger.debug("{}: Channel definitions updated", thingName);
+                return true;
             }
         } catch (IllegalArgumentException e) {
             logger.debug("{}: Unable to update channel definitions", thingName, e);
         }
+        return false;
+    }
+
+    private boolean hasChannel(List<Channel> channels, String channelId) {
+        for (Channel channel : channels) {
+            if (channel.getUID().getId().equals(channelId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

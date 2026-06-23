@@ -738,39 +738,54 @@ public class ShellyChannelDefinitions {
         };
     }
 
+    public static @Nullable Channel createChannel(Thing thing, String channelId) throws IllegalArgumentException {
+        String group = substringBefore(channelId, ChannelUID.CHANNEL_GROUP_SEPARATOR);
+        String channelName = substringAfter(channelId, ChannelUID.CHANNEL_GROUP_SEPARATOR);
+        return createChannel(thing, channelId, group, channelName);
+    }
+
     private static void addChannel(Thing thing, Map<String, Channel> newChannels, boolean supported, String group,
             String channelName) throws IllegalArgumentException {
         if (supported) {
             String channelId = group + ChannelUID.CHANNEL_GROUP_SEPARATOR + channelName;
-            ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
-            ShellyChannel channelDef = getDefinition(channelId);
-            if (channelDef != null) {
-                ChannelTypeUID channelTypeUID = channelDef.typeId.contains("system:")
-                        ? new ChannelTypeUID(channelDef.typeId)
-                        : new ChannelTypeUID(BINDING_ID, channelDef.typeId);
-                ChannelBuilder builder;
-                if ("system:button".equalsIgnoreCase(channelDef.typeId)) {
-                    builder = ChannelBuilder.create(channelUID, null).withKind(ChannelKind.TRIGGER);
-                } else {
-                    builder = ChannelBuilder.create(channelUID, channelDef.itemType);
-                }
-                if (!channelDef.label.isEmpty()) {
-                    char grseq = lastChar(group);
-                    char chseq = lastChar(channelName);
-                    char sequence = isDigit(chseq) ? chseq : grseq;
-                    String label = !isDigit(sequence) ? channelDef.label : channelDef.label + " " + sequence;
-                    builder.withLabel(label);
-                }
-                if (!channelDef.description.isEmpty()) {
-                    builder.withDescription(channelDef.description);
-                }
-                newChannels.put(channelId, builder.withType(channelTypeUID).build());
+            Channel channel = createChannel(thing, channelId, group, channelName);
+            if (channel != null) {
+                newChannels.put(channelId, channel);
                 String replacement = getReplacementChannelName(channelName);
                 if (replacement != null) {
                     addChannel(thing, newChannels, true, group, replacement);
                 }
             }
         }
+    }
+
+    private static @Nullable Channel createChannel(Thing thing, String channelId, String group, String channelName)
+            throws IllegalArgumentException {
+        ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
+        ShellyChannel channelDef = getDefinition(channelId);
+        if (channelDef == null) {
+            return null;
+        }
+
+        ChannelTypeUID channelTypeUID = channelDef.typeId.contains("system:") ? new ChannelTypeUID(channelDef.typeId)
+                : new ChannelTypeUID(BINDING_ID, channelDef.typeId);
+        ChannelBuilder builder;
+        if ("system:button".equalsIgnoreCase(channelDef.typeId)) {
+            builder = ChannelBuilder.create(channelUID, null).withKind(ChannelKind.TRIGGER);
+        } else {
+            builder = ChannelBuilder.create(channelUID, channelDef.itemType);
+        }
+        if (!channelDef.label.isEmpty()) {
+            char grseq = lastChar(group);
+            char chseq = lastChar(channelName);
+            char sequence = isDigit(chseq) ? chseq : grseq;
+            String label = !isDigit(sequence) ? channelDef.label : channelDef.label + " " + sequence;
+            builder.withLabel(label);
+        }
+        if (!channelDef.description.isEmpty()) {
+            builder.withDescription(channelDef.description);
+        }
+        return builder.withType(channelTypeUID).build();
     }
 
     public List<StateOption> getStateOptions(ChannelTypeUID uid) {

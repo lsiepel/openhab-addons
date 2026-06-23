@@ -56,6 +56,7 @@ public class ShellyBindingConstants {
     public static final String PROPERTY_COAP_DESCR = "coapDeviceDescr";
     public static final String PROPERTY_COAP_VERSION = "coapVersion";
     public static final String PROPERTY_COIOTAUTO = "coiotAutoEnable";
+    public static final String PROPERTY_CHANNEL_SCHEMA_VERSION = "channelSchemaVersion";
 
     /*
      * Channel Groups Used at Runtime
