@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +111,13 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
     private final ShellyTranslationProvider messages;
     private final ShellyChannelCache cache;
     private static final long DEPRECATED_CHANNEL_WARNING_INTERVAL_MS = TimeUnit.DAYS.toMillis(1);
-    private static final int CHANNEL_SCHEMA_VERSION = 1;
+    private static final List<ChannelMigrationRule> CHANNEL_MIGRATION_RULES = List.of(
+            new ChannelMigrationRule(2, CHANNEL_METER_CURRENTWATTS, CHANNEL_METER_CURRENTPOWER, true),
+            new ChannelMigrationRule(2, CHANNEL_METER_TOTALKWH, CHANNEL_METER_TOTALENERGY, true),
+            new ChannelMigrationRule(2, CHANNEL_EMETER_TOTALRET, CHANNEL_EMETER_RETURNEDENERGY, true),
+            new ChannelMigrationRule(2, CHANNEL_DEVST_ACCUWATTS, CHANNEL_DEVST_ACCUMULATEDPOWER, true));
+    private static final int CHANNEL_SCHEMA_VERSION = CHANNEL_MIGRATION_RULES.stream()
+            .mapToInt(ChannelMigrationRule::version).max().orElse(0);
 
     private final Map<String, Long> deprecatedChannelWarnings = new ConcurrentHashMap<>();
     private final int cacheCount = UPDATE_SETTINGS_INTERVAL_SECONDS / UPDATE_STATUS_INTERVAL_SECONDS;
@@ -1406,6 +1413,19 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
         addMissingChannelDefinitions(dynChannels);
     }
 
+    /**
+     * Migrate channel definitions to the current schema version
+     * 
+     * @param version Increment the version number for each (grouped) change in the channel definitions
+     * @param channelId The channel ID to migrate (when replacementChannelId is provided) or add (when
+     *            replacementChannelId is null)
+     * @param replacementChannelId The replacement channel ID, if any
+     * @param refreshExistingChannel Whether to refresh the existing channel definition (channelId)
+     */
+    private record ChannelMigrationRule(int version, String channelId, @Nullable String replacementChannelId,
+            boolean refreshExistingChannel) {
+    }
+
     private void migrateChannels() {
         int currentVersion = getChannelSchemaVersion();
         if (currentVersion >= CHANNEL_SCHEMA_VERSION) {
@@ -1413,8 +1433,10 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
         }
 
         boolean updated = false;
-        if (currentVersion < 1) {
-            updated = migrateDeprecatedChannelReplacements();
+        for (ChannelMigrationRule rule : CHANNEL_MIGRATION_RULES) {
+            if (currentVersion < rule.version()) {
+                updated |= applyMigrationRule(rule);
+            }
         }
         updateProperties(PROPERTY_CHANNEL_SCHEMA_VERSION, String.valueOf(CHANNEL_SCHEMA_VERSION));
         if (updated) {
@@ -1430,21 +1452,63 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
         }
     }
 
-    private boolean migrateDeprecatedChannelReplacements() {
-        Map<String, Channel> migrationChannels = new HashMap<>();
+    private boolean applyMigrationRule(ChannelMigrationRule rule) {
         List<Channel> existingChannels = getThing().getChannels();
-        for (Channel channel : existingChannels) {
-            String channelId = channel.getUID().getId();
-            String replacementId = ShellyChannelDefinitions.getReplacementChannelId(channelId);
-            if (replacementId != null && !hasChannel(existingChannels, replacementId)
-                    && !migrationChannels.containsKey(replacementId)) {
-                Channel replacement = ShellyChannelDefinitions.createChannel(getThing(), replacementId);
-                if (replacement != null) {
-                    migrationChannels.put(replacementId, replacement);
-                }
+        Channel channel = findChannel(existingChannels, rule.channelId());
+        // If the channel does not exist and there is no replacement channel, we cannot apply the migration rule
+        if (channel == null && !rule.replacementChannelId().isEmpty()) {
+            return false;
+        }
+
+        Map<String, Channel> channelUpdates = new HashMap<>();
+        if (rule.refreshExistingChannel()) {
+            Channel updatedChannel = ShellyChannelDefinitions.createChannel(getThing(), rule.channelId());
+            if (updatedChannel != null
+                    && !getString(updatedChannel.getDescription()).equals(getString(channel.getDescription()))) {
+                channelUpdates.put(rule.channelId(), updatedChannel);
             }
         }
-        return addMissingChannelDefinitions(migrationChannels);
+
+        Map<String, Channel> newOrReplacementChannels = new HashMap<>();
+        String newChannelId = Objects
+                .requireNonNull(rule.replacementChannelId() != null && !rule.replacementChannelId().isEmpty()
+                        ? rule.replacementChannelId()
+                        : rule.channelId());
+        if (findChannel(existingChannels, newChannelId) == null) {
+            Channel newChannel = ShellyChannelDefinitions.createChannel(getThing(), newChannelId);
+            if (newChannel != null) {
+                newOrReplacementChannels.put(newChannelId, newChannel);
+            }
+        }
+
+        boolean updated = replaceChannelDefinitions(channelUpdates);
+        updated |= addMissingChannelDefinitions(newOrReplacementChannels);
+        return updated;
+    }
+
+    private boolean replaceChannelDefinitions(Map<String, Channel> channelUpdates) {
+        if (channelUpdates.isEmpty()) {
+            return false;
+        }
+        try {
+            ThingBuilder thingBuilder = editThing();
+            List<Channel> existingChannels = getThing().getChannels();
+            for (Map.Entry<String, Channel> channelUpdate : channelUpdates.entrySet()) {
+                Channel oldChannel = findChannel(existingChannels, channelUpdate.getKey());
+                if (oldChannel != null) {
+                    Channel newChannel = channelUpdate.getValue();
+                    logger.debug("{}: Updating channel {}", thingName, newChannel.getUID().getId());
+                    thingBuilder.withoutChannel(oldChannel.getUID());
+                    thingBuilder.withChannel(newChannel);
+                }
+            }
+            updateThing(thingBuilder.build());
+            logger.debug("{}: Channel definitions updated", thingName);
+            return true;
+        } catch (IllegalArgumentException e) {
+            logger.debug("{}: Unable to update channel definitions", thingName, e);
+        }
+        return false;
     }
 
     private boolean addMissingChannelDefinitions(Map<String, Channel> dynChannels) {
@@ -1476,13 +1540,13 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
         return false;
     }
 
-    private boolean hasChannel(List<Channel> channels, String channelId) {
+    private @Nullable Channel findChannel(List<Channel> channels, String channelId) {
         for (Channel channel : channels) {
             if (channel.getUID().getId().equals(channelId)) {
-                return true;
+                return channel;
             }
         }
-        return false;
+        return null;
     }
 
     @Override
