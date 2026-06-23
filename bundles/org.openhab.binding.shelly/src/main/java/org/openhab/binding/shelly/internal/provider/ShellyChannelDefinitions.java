@@ -175,7 +175,8 @@ public class ShellyChannelDefinitions {
                 .add(new ShellyChannel(m, CHGR_DEVST, CHANNEL_DEVST_ITEMP, "system:indoor-temperature", ITEMT_TEMP))
                 .add(new ShellyChannel(m, CHGR_DEVST, CHANNEL_DEVST_WAKEUP, "sensorWakeup", ITEMT_STRING))
                 .add(new ShellyChannel(m, CHGR_DEVST, CHANNEL_DEVST_ACCUWATTS, "meterAccuWatts", ITEMT_POWER))
-                .add(new ShellyChannel(m, CHGR_DEVST, CHANNEL_DEVST_TOTALKWH, "totalKWH", ITEMT_ENERGY))
+                .add(new ShellyChannel(m, CHGR_DEVST, CHANNEL_DEVST_ACCUMULATEDPOWER, "accumulatedPower", ITEMT_POWER))
+                .add(new ShellyChannel(m, CHGR_DEVST, CHANNEL_DEVST_TOTALENERGY, "totalEnergy", ITEMT_ENERGY))
                 .add(new ShellyChannel(m, CHGR_DEVST, CHANNEL_DEVST_ACCURETURNED, "meterAccuReturned", ITEMT_ENERGY))
                 .add(new ShellyChannel(m, CHGR_DEVST, CHANNEL_DEVST_ACCUAPPARENT, "meterAccuApparent", ITEMT_POWER))
                 .add(new ShellyChannel(m, CHGR_DEVST, CHANNEL_DEVST_VOLTAGE, "supplyVoltage", ITEMT_VOLT))
@@ -238,12 +239,16 @@ public class ShellyChannelDefinitions {
 
                 // Power Meter
                 .add(new ShellyChannel(m, CHGR_METER, CHANNEL_METER_CURRENTWATTS, "meterWatts", ITEMT_POWER))
+                .add(new ShellyChannel(m, CHGR_METER, CHANNEL_METER_CURRENTPOWER, "currentPower", ITEMT_POWER))
                 .add(new ShellyChannel(m, CHGR_METER, CHANNEL_METER_TOTALKWH, "meterTotal", ITEMT_ENERGY))
+                .add(new ShellyChannel(m, CHGR_METER, CHANNEL_METER_TOTALENERGY, "totalEnergy", ITEMT_ENERGY))
                 .add(new ShellyChannel(m, CHGR_METER, CHANNEL_METER_LASTMIN1, "lastPower1", ITEMT_POWER))
                 .add(new ShellyChannel(m, CHGR_METER, CHANNEL_LAST_UPDATE, "lastUpdate", ITEMT_DATETIME))
 
                 // EMeter
                 .add(new ShellyChannel(m, CHGR_METER, CHANNEL_EMETER_TOTALRET, "meterReturned", ITEMT_ENERGY))
+                .add(new ShellyChannel(m, CHGR_METER, CHANNEL_EMETER_RETURNEDENERGY, "meterReturnedEnergy",
+                        ITEMT_ENERGY))
                 .add(new ShellyChannel(m, CHGR_METER, CHANNEL_EMETER_REACTPOWER, "meterReactive", ITEMT_POWER))
                 .add(new ShellyChannel(m, CHGR_METER, CHANNEL_EMETER_APPARENT, "meterApparentPower", ITEMT_POWER))
                 .add(new ShellyChannel(m, CHGR_METER, CHANNEL_EMETER_VOLTAGE, "meterVoltage", ITEMT_VOLT))
@@ -386,7 +391,7 @@ public class ShellyChannelDefinitions {
         // Any multi-meter device (relay or pure meter like ProEM50) gets device-level accumulated channels
         boolean accuChannel = profile.numMeters > 1 && !profile.isRoller && !profile.isRGBW2;
         addChannel(thing, add, accuChannel, CHGR_DEVST, CHANNEL_DEVST_ACCUWATTS);
-        addChannel(thing, add, accuChannel, CHGR_DEVST, CHANNEL_DEVST_TOTALKWH);
+        addChannel(thing, add, accuChannel, CHGR_DEVST, CHANNEL_DEVST_TOTALENERGY);
         // Gate returned/apparent totals on the device actually being a dedicated EMeter (3EM or EM50).
         // Relay-PM devices (2PM, Plus 1PM) have status.emeters but never populate totalReturned or
         // apparentPower, so these channels would be phantom (created but permanently UNDEF).
@@ -713,6 +718,26 @@ public class ShellyChannelDefinitions {
         throw new IllegalArgumentException("Invalid channelId:" + channelId);
     }
 
+    public static @Nullable String getReplacementChannelId(String channelId) {
+        int groupSeparator = channelId.indexOf(ChannelUID.CHANNEL_GROUP_SEPARATOR);
+        if (groupSeparator < 0) {
+            return null;
+        }
+        String channelName = channelId.substring(groupSeparator + 1);
+        String replacement = getReplacementChannelName(channelName);
+        return replacement != null ? channelId.substring(0, groupSeparator + 1) + replacement : null;
+    }
+
+    public static @Nullable String getReplacementChannelName(String channelName) {
+        return switch (channelName) {
+            case CHANNEL_METER_CURRENTWATTS -> CHANNEL_METER_CURRENTPOWER;
+            case CHANNEL_METER_TOTALKWH -> CHANNEL_METER_TOTALENERGY;
+            case CHANNEL_EMETER_TOTALRET -> CHANNEL_EMETER_RETURNEDENERGY;
+            case CHANNEL_DEVST_ACCUWATTS -> CHANNEL_DEVST_ACCUMULATEDPOWER;
+            default -> null;
+        };
+    }
+
     private static void addChannel(Thing thing, Map<String, Channel> newChannels, boolean supported, String group,
             String channelName) throws IllegalArgumentException {
         if (supported) {
@@ -740,6 +765,10 @@ public class ShellyChannelDefinitions {
                     builder.withDescription(channelDef.description);
                 }
                 newChannels.put(channelId, builder.withType(channelTypeUID).build());
+                String replacement = getReplacementChannelName(channelName);
+                if (replacement != null) {
+                    addChannel(thing, newChannels, true, group, replacement);
+                }
             }
         }
     }

@@ -518,14 +518,18 @@ Refer to section [Full Example](#full-example) for examples how to catch alarm t
 
 ### Power/Energy meter channel updates (openHAB 5.2)
 
-The following channel IDs were renamed. Existing items and rules referencing the old IDs must be updated.
-**You need to delete and re-discover Things and adapt your rules.**
+The following channel IDs were renamed or have replacements. Existing items and rules referencing old IDs should be updated.
+**You need to delete and re-discover Things and adapt your rules for removed channels. Deprecated channels remain available for a transition period.**
 Channel type definitions are baked into the binding JAR.
 
-| Group  | Old channel ID       | New channel ID    | Notes                                  |
-| ------ | -------------------- | ----------------- | -------------------------------------- |
-| meter  | `reactiveWatts`      | `reactivePower`   | Unit changed from W to VAR             |
-| device | `accumulatedWTotal`  | `totalKWH`        | Was reporting wrong values (Amperes/1000 instead of kWh) |
+| Group  | Old channel ID      | New channel ID     | Notes                                                    |
+|--------|---------------------|--------------------|----------------------------------------------------------|
+| meter  | `reactiveWatts`     | `reactivePower`    | Unit changed from W to VAR                               |
+| device | `accumulatedWTotal` | `totalEnergy`      | Was reporting wrong values (Amperes/1000 instead of kWh) |
+| meter  | `currentWatts`      | `currentPower`     | Deprecated old channel remains advanced during migration |
+| meter  | `totalKWH`          | `totalEnergy`      | Deprecated old channel remains advanced during migration |
+| meter  | `returnedKWH`       | `returnedEnergy`   | Deprecated old channel remains advanced during migration |
+| device | `accumulatedWatts`  | `accumulatedPower` | Deprecated old channel remains advanced during migration |
 
 The following device-level channels are new (no migration needed — just re-discover to get them):
 

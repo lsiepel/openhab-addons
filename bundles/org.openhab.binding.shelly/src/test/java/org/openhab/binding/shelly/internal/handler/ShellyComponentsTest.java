@@ -596,7 +596,7 @@ public class ShellyComponentsTest {
 
         ArgumentCaptor<org.openhab.core.types.State> captor = ArgumentCaptor
                 .forClass(org.openhab.core.types.State.class);
-        verify(handler, atLeastOnce()).updateChannel(eq(CHANNEL_GROUP_DEV_STATUS), eq(CHANNEL_DEVST_TOTALKWH),
+        verify(handler, atLeastOnce()).updateChannel(eq(CHANNEL_GROUP_DEV_STATUS), eq(CHANNEL_DEVST_TOTALENERGY),
                 captor.capture());
         List<org.openhab.core.types.State> values = captor.getAllValues();
         QuantityType<?> last = (QuantityType<?>) values.get(values.size() - 1);
@@ -623,7 +623,7 @@ public class ShellyComponentsTest {
 
         ArgumentCaptor<org.openhab.core.types.State> captor = ArgumentCaptor
                 .forClass(org.openhab.core.types.State.class);
-        verify(handler, atLeastOnce()).updateChannel(eq(CHANNEL_GROUP_DEV_STATUS), eq(CHANNEL_DEVST_TOTALKWH),
+        verify(handler, atLeastOnce()).updateChannel(eq(CHANNEL_GROUP_DEV_STATUS), eq(CHANNEL_DEVST_TOTALENERGY),
                 captor.capture());
         List<org.openhab.core.types.State> values = captor.getAllValues();
         QuantityType<?> last = (QuantityType<?>) values.get(values.size() - 1);
@@ -648,7 +648,7 @@ public class ShellyComponentsTest {
         ShellyThingInterface handler = mockHandler(profile);
         ShellyComponents.updateMeters(handler, status);
 
-        verify(handler, never()).updateChannel(eq(CHANNEL_GROUP_DEV_STATUS), eq(CHANNEL_DEVST_TOTALKWH),
+        verify(handler, never()).updateChannel(eq(CHANNEL_GROUP_DEV_STATUS), eq(CHANNEL_DEVST_TOTALENERGY),
                 any(org.openhab.core.types.State.class));
     }
 
@@ -676,7 +676,7 @@ public class ShellyComponentsTest {
 
         ArgumentCaptor<org.openhab.core.types.State> captor = ArgumentCaptor
                 .forClass(org.openhab.core.types.State.class);
-        verify(handler, atLeastOnce()).updateChannel(eq(CHANNEL_GROUP_DEV_STATUS), eq(CHANNEL_DEVST_TOTALKWH),
+        verify(handler, atLeastOnce()).updateChannel(eq(CHANNEL_GROUP_DEV_STATUS), eq(CHANNEL_DEVST_TOTALENERGY),
                 captor.capture());
         List<org.openhab.core.types.State> values = captor.getAllValues();
         QuantityType<?> last = (QuantityType<?>) values.get(values.size() - 1);

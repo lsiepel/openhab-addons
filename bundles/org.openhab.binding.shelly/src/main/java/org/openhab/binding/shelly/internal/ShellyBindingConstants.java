@@ -106,10 +106,13 @@ public class ShellyBindingConstants {
     // Power meter
     public static final String CHANNEL_GROUP_METER = "meter";
     public static final String CHANNEL_METER_CURRENTWATTS = "currentWatts";
+    public static final String CHANNEL_METER_CURRENTPOWER = "currentPower";
     public static final String CHANNEL_METER_LASTMIN = "lastPower";
     public static final String CHANNEL_METER_LASTMIN1 = CHANNEL_METER_LASTMIN + "1";
     public static final String CHANNEL_METER_TOTALKWH = "totalKWH";
+    public static final String CHANNEL_METER_TOTALENERGY = "totalEnergy";
     public static final String CHANNEL_EMETER_TOTALRET = "returnedKWH";
+    public static final String CHANNEL_EMETER_RETURNEDENERGY = "returnedEnergy";
     public static final String CHANNEL_EMETER_REACTPOWER = "reactivePower";
     public static final String CHANNEL_EMETER_APPARENT = "apparentPower";
     public static final String CHANNEL_EMETER_VOLTAGE = "voltage";
@@ -213,9 +216,10 @@ public class ShellyBindingConstants {
     public static final String CHANNEL_DEVST_WAKEUP = "wakeupReason";
     public static final String CHANNEL_DEVST_ALARM = "alarm";
     public static final String CHANNEL_DEVST_ACCUWATTS = "accumulatedWatts";
+    public static final String CHANNEL_DEVST_ACCUMULATEDPOWER = "accumulatedPower";
     public static final String CHANNEL_DEVST_ACCURETURNED = "accumulatedReturned";
     public static final String CHANNEL_DEVST_ACCUAPPARENT = "accumulatedApparent";
-    public static final String CHANNEL_DEVST_TOTALKWH = "totalKWH";
+    public static final String CHANNEL_DEVST_TOTALENERGY = "totalEnergy";
     public static final String CHANNEL_DEVST_RESETTOTAL = CHANNEL_EMETER_RESETTOTAL;
 
     public static final String CHANNEL_DEVST_CHARGER = "charger";

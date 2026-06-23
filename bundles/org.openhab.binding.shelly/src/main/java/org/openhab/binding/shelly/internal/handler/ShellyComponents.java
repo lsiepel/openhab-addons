@@ -437,7 +437,7 @@ public class ShellyComponents {
         // status.totalKWH is reset to null at the start of fillDeviceStatus and is only set when
         // emdata arrives; WS pushes leave it null so accumulatedTotal is used. Never fall back to 0.
         if (status.totalKWH != null || accumulatedTotal != 0.0) {
-            thingHandler.updateChannel(CHANNEL_GROUP_DEV_STATUS, CHANNEL_DEVST_TOTALKWH,
+            thingHandler.updateChannel(CHANNEL_GROUP_DEV_STATUS, CHANNEL_DEVST_TOTALENERGY,
                     toQuantityType(status.totalKWH != null ? status.totalKWH / 1000 : accumulatedTotal, DIGITS_KWH,
                             Units.KILOWATT_HOUR));
         }
