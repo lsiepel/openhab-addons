@@ -178,9 +178,9 @@ public class ShellyDeviceProfile {
         numInputs = inputs != null ? inputs.size() : hasRelays ? isRoller ? 2 : 1 : 0;
 
         isEMeter = settings.emeters != null;
-        int fromDevice = !isEMeter ? getInteger(device.numMeters) : getInteger(device.numEMeters);
-        numMeters = resolveNumMeters(thingTypeUID, fromDevice, -1, isLight, inColor, getInteger(device.numOutputs),
-                hasRelays, numRelays, numRollers, isRoller);
+        int numMetersFromDevice = getInteger(isEMeter ? device.numEMeters : device.numMeters);
+        numMeters = resolveNumMeters(thingTypeUID, numMetersFromDevice, -1, isLight, inColor,
+                getInteger(device.numOutputs), hasRelays, numRelays, numRollers, isRoller);
 
         initialized = true;
         return this;
@@ -266,10 +266,11 @@ public class ShellyDeviceProfile {
      * Pass fromDevice=-1 for Gen2 (device info does not carry meter count).
      * Pass fromDeviceConfig=-1 for Gen1 (no GetConfig response available).
      */
-    public static int resolveNumMeters(ThingTypeUID thingTypeUID, int fromDevice, int fromDeviceConfig, boolean isLight,
-            boolean inColor, int numOutputs, boolean hasRelays, int numRelays, int numRollers, boolean isRoller) {
-        if (fromDevice > 0) {
-            return fromDevice;
+    public static int resolveNumMeters(ThingTypeUID thingTypeUID, int numMetersFromDevice, int fromDeviceConfig,
+            boolean isLight, boolean inColor, int numOutputs, boolean hasRelays, int numRelays, int numRollers,
+            boolean isRoller) {
+        if (numMetersFromDevice > 0) {
+            return numMetersFromDevice;
         }
         Integer capNum = THING_TYPE_CAP_NUM_METERS.get(thingTypeUID);
         if (capNum != null) {

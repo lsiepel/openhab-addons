@@ -12,9 +12,7 @@
  */
 package org.openhab.binding.shelly.internal.api2;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.openhab.binding.shelly.internal.ShellyDevices.*;
@@ -62,8 +60,6 @@ public class Shelly2GetDeviceProfileTest {
 
     private static final String LOCAL_IP = "192.168.1.50";
     private static final String DEVICE_IP = "192.168.1.100";
-
-    // ── helpers ─────────────────────────────────────────────────────────────────
 
     private ShellyApiConfiguration discoveryConfig() {
         ShellyBindingConfiguration raw = ShellyBindingConfiguration
@@ -192,10 +188,8 @@ public class Shelly2GetDeviceProfileTest {
         }
     }
 
-    // ── discovery path ──────────────────────────────────────────────────────────
-
     @Test
-    void discovery_profileMarkedInitialized() throws ShellyApiException {
+    void discoveryProfileMarkedInitialized() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), minimalConfig(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -203,7 +197,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_singleRelay_numMetersFallsBackToRelayCount() throws ShellyApiException {
+    void discoverySingleRelayNumMetersFallsBackToRelayCount() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), withSwitch0(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -212,7 +206,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_twoRelays_numMetersFromRelayCount() throws ShellyApiException {
+    void discoveryTwoRelaysNumMetersFromRelayCount() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), withSwitch01(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -221,7 +215,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_noRelaysNoMeters_numMetersZero() throws ShellyApiException {
+    void discoveryNoRelaysNoMetersNumMetersZero() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), minimalConfig(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -230,7 +224,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_pm10Present_numMetersIsOne() throws ShellyApiException {
+    void discoveryPM10PresentNumMetersIsOne() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), withPm10(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -238,7 +232,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_em0Present_numMetersIsThree() throws ShellyApiException {
+    void discoveryEm0PresentNumMetersIsThree() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), withEm0(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -246,7 +240,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_em10AloneNumMetersIsOne() throws ShellyApiException {
+    void discoveryEm10AloneNumMetersIsOne() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), withEm10Only(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -254,7 +248,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_em10AndEm11NumMetersIsTwo() throws ShellyApiException {
+    void discoveryEm10AndEm11NumMetersIsTwo() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), withEm10AndEm11(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -266,7 +260,7 @@ public class Shelly2GetDeviceProfileTest {
             // Only types present in THING_TYPE_CAP_NUM_METERS — IDs from ShellyDevices ThingTypeUID definitions
             "shellypro3em,    3", "shellyplus3em63, 3", "shellyproem50,   2", "shellyem3,       3",
             "shellypro2,      0", "shellypro3,      0" })
-    void discovery_numMetersFromCapabilityMap(String thingTypeId, int expectedNumMeters) throws ShellyApiException {
+    void discoveryNumMetersFromCapabilityMap(String thingTypeId, int expectedNumMeters) throws ShellyApiException {
         ThingTypeUID uid = new ThingTypeUID("shelly", thingTypeId);
         Gson gson = new Gson();
         // No pm10/em0/em10 in config — numMeters must come from the capability map
@@ -276,7 +270,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_capabilityMapTakesPriorityOverPm10() throws ShellyApiException {
+    void discoveryCapabilityMapTakesPriorityOverPm10() throws ShellyApiException {
         // THING_TYPE_SHELLYPRO3EM maps to 3 meters in the capability map; pm10 would give 1
         Gson gson = new Gson();
         // Fabricate a config with pm10 AND a 3EM type — capability map wins
@@ -288,7 +282,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_roller_numMetersFromRollerCount() throws ShellyApiException {
+    void discoveryRollerNumMetersFromRollerCount() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), withCover0(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -299,7 +293,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_cb0Present_isCBTrue() throws ShellyApiException {
+    void discoveryCB0PresentIsCBTrue() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), withCb0(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -307,7 +301,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_cb0Present_usesBreakersettings() throws ShellyApiException {
+    void discoveryCB0PresentUsesBreakersettings() throws ShellyApiException {
         // When isCB is true, fillBreakerSettings should populate relays, not fillRelaySettings.
         // The cb:0 entry makes a single "relay" (breaker) appear in the relay list.
         Gson gson = new Gson();
@@ -318,7 +312,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_devInfoArgument_populatesProfileDevice() throws ShellyApiException {
+    void discoveryDevInfoArgumentPopulatesProfileDevice() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), minimalConfig(gson));
         ShellySettingsDevice dev = deviceInfo();
@@ -328,7 +322,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_statusListsSizedToNumMeters() throws ShellyApiException {
+    void discoveryStatusListsSizedToNumMeters() throws ShellyApiException {
         Gson gson = new Gson();
         StubApiClient client = new StubApiClient(discoveryConfig(), withSwitch01(gson));
         ShellyDeviceProfile profile = client.getDeviceProfile(THING_TYPE_SHELLYUNKNOWN, deviceInfo());
@@ -338,7 +332,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void discovery_getDeviceProfile_marksProfileInitialized() throws ShellyApiException {
+    void discoveryGetDeviceProfileMarksProfileInitialized() throws ShellyApiException {
         // initProfile() populates the profile; getDeviceProfile() is responsible for setting profile.initialized.
         // We test this through the discovery path since initProfile is shared.
         Gson gson = new Gson();
@@ -347,10 +341,8 @@ public class Shelly2GetDeviceProfileTest {
         assertThat(profile.initialized, is(true));
     }
 
-    // ── initProfile emeter preservation (race-condition fix) ────────────────────
-
     @Test
-    void initProfile_preservesEmetersWhenCountUnchanged() throws ShellyApiException {
+    void initProfilePreservesEmetersWhenCountUnchanged() throws ShellyApiException {
         // Regression test for the race condition in ShellyBaseHandler.refreshStatus():
         // api.getStatus() populates emeter.totalReturned, then getProfile(refreshSettings=true)
         // calls initProfile() which must NOT reset the list when the meter count is unchanged.
@@ -372,10 +364,8 @@ public class Shelly2GetDeviceProfileTest {
         assertThat("phase C totalReturned preserved", profile.status.emeters.get(2).totalReturned, is(200.0));
     }
 
-    // ── emdata:0 total_act_ret field deserialization ──────────────────────────────
-
     @Test
-    void emdata0_totalRetKWH_deserializedFromJson() {
+    void emdata0TotalRetKWHDeserializedFromJson() {
         Gson gson = new Gson();
         String json = "{\"a_total_act_ret_energy\":500.0,\"b_total_act_ret_energy\":300.0,\"c_total_act_ret_energy\":200.0,"
                 + "\"total_act_ret\":1.5,\"total_act\":5.0}";
@@ -388,7 +378,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void emdata0_totalRetKWH_absentInJson_isNull() {
+    void emdata0TotalRetKWHAbsentInJsonIsNull() {
         Gson gson = new Gson();
         // Simulates a WebSocket NotifyStatus payload where emdata:0 is absent — total_act_ret must be null
         String json = "{\"a_total_act_ret_energy\":500.0,\"total_act\":5.0}";
@@ -398,7 +388,7 @@ public class Shelly2GetDeviceProfileTest {
     }
 
     @Test
-    void emdata0_inDeviceStatusResult_totalRetKWH_roundtrip() {
+    void emdata0InDeviceStatusResultTotalRetKWHRoundtrip() {
         // Verify total_act_ret survives the double-serialization used in Shelly2ApiRpc.asyncApiRequest()
         // (Gson deserializes result as Object/LinkedTreeMap, then re-serializes to JSON, then re-parses as DTO).
         Gson gson = new Gson();

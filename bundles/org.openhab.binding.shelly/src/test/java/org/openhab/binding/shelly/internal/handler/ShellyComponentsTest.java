@@ -14,8 +14,7 @@ package org.openhab.binding.shelly.internal.handler;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
@@ -54,43 +53,41 @@ import org.openhab.core.types.UnDefType;
 @SuppressWarnings({ "null" })
 public class ShellyComponentsTest {
 
-    // ── hasAddon ─────────────────────────────────────────────────────────────
-
     @Test
-    void hasAddon_allNull_returnsFalse() {
+    void hasAddonAllNullReturnsFalse() {
         assertThat(ShellyComponents.hasAddon(new ShellySettingsStatus()), is(false));
     }
 
     @Test
-    void hasAddon_extTemperature_returnsTrue() {
+    void hasAddonExtTemperatureReturnsTrue() {
         ShellySettingsStatus s = new ShellySettingsStatus();
         s.extTemperature = new ShellyExtTemperature();
         assertThat(ShellyComponents.hasAddon(s), is(true));
     }
 
     @Test
-    void hasAddon_extHumidity_returnsTrue() {
+    void hasAddonExtHumidityReturnsTrue() {
         ShellySettingsStatus s = new ShellySettingsStatus();
         s.extHumidity = new ShellyExtHumidity();
         assertThat(ShellyComponents.hasAddon(s), is(true));
     }
 
     @Test
-    void hasAddon_extVoltage_returnsTrue() {
+    void hasAddonExtVoltageReturnsTrue() {
         ShellySettingsStatus s = new ShellySettingsStatus();
         s.extVoltage = new ShellyExtVoltage();
         assertThat(ShellyComponents.hasAddon(s), is(true));
     }
 
     @Test
-    void hasAddon_extDigitalInput_returnsTrue() {
+    void hasAddonExtDigitalInputReturnsTrue() {
         ShellySettingsStatus s = new ShellySettingsStatus();
         s.extDigitalInput = new ShellyExtDigitalInput();
         assertThat(ShellyComponents.hasAddon(s), is(true));
     }
 
     @Test
-    void hasAddon_extAnalogInput_returnsTrue() {
+    void hasAddonExtAnalogInputReturnsTrue() {
         ShellySettingsStatus s = new ShellySettingsStatus();
         s.extAnalogInput = new ShellyExtAnalogInput();
         assertThat(ShellyComponents.hasAddon(s), is(true));
@@ -104,17 +101,15 @@ public class ShellyComponentsTest {
         assertThat(ShellyComponents.hasAddon(s), is(true));
     }
 
-    // ── updateTempChannel ─────────────────────────────────────────────────────
-
     @Test
-    void updateTempChannel_nullSensor_returnsFalse() {
+    void updateTempChannelNullSensorReturnsFalse() {
         ShellyThingInterface handler = mock(ShellyThingInterface.class);
         assertThat(ShellyComponents.updateTempChannel(null, handler, CHANNEL_ESENSOR_TEMP1), is(false));
         verify(handler, never()).updateChannel(anyString(), anyString(), any());
     }
 
     @Test
-    void updateTempChannel_invTemp_publishesUndef() {
+    void updateTempChannelInvTempPublishesUndef() {
         ShellyThingInterface handler = mock(ShellyThingInterface.class);
         when(handler.updateChannel(anyString(), anyString(), any())).thenReturn(true);
 
@@ -126,7 +121,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateTempChannel_validTemp_publishesQuantityType() {
+    void updateTempChannelValidTempPublishesQuantityType() {
         ShellyThingInterface handler = mock(ShellyThingInterface.class);
         when(handler.updateChannel(anyString(), anyString(), any())).thenReturn(true);
 
@@ -139,7 +134,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateTempChannel_nullTc_returnsFalse() {
+    void updateTempChannelNullTcReturnsFalse() {
         ShellyThingInterface handler = mock(ShellyThingInterface.class);
 
         ShellyShortTemp sensor = new ShellyShortTemp();
@@ -149,10 +144,8 @@ public class ShellyComponentsTest {
         verify(handler, never()).updateChannel(anyString(), anyString(), any());
     }
 
-    // ── updateSensors — relay + addon ─────────────────────────────────────────
-
     @Test
-    void updateSensors_relayWithAddonTemp_updatesLastUpdate() throws Exception {
+    void updateSensorsRelayWithAddonTempUpdatesLastUpdate() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
         ShellySettingsStatus status = new ShellySettingsStatus();
         ShellyExtTemperature ext1 = new ShellyExtTemperature();
@@ -165,7 +158,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateSensors_relayWithoutAddon_noLastUpdate() throws Exception {
+    void updateSensorsRelayWithoutAddonNoLastUpdate() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
         ShellySettingsStatus status = new ShellySettingsStatus();
 
@@ -175,7 +168,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateSensors_relayWithInvTemp_publishesUndefAndUpdatesLastUpdate() throws Exception {
+    void updateSensorsRelayWithInvTempPublishesUndefAndUpdatesLastUpdate() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
         ShellySettingsStatus status = new ShellySettingsStatus();
         ShellyExtTemperature ext2 = new ShellyExtTemperature();
@@ -189,7 +182,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateSensors_pureRelayNoAddon_lastUpdateNeverWritten() throws Exception {
+    void updateSensorsPureRelayNoAddonLastUpdateNeverWritten() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
 
         ShellyComponents.updateSensors(handler, new ShellySettingsStatus());
@@ -198,7 +191,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateSensors_lastUpdateWrittenEvenWhenTempValueUnchanged() throws Exception {
+    void updateSensorsLastUpdateWrittenEvenWhenTempValueUnchanged() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
         when(handler.updateChannel(eq(CHANNEL_GROUP_SENSOR), eq(CHANNEL_ESENSOR_TEMP1), any())).thenReturn(false);
 
@@ -214,7 +207,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateSensors_nullSensorSlot_skipsPublish() throws Exception {
+    void updateSensorsNullSensorSlotSkipsPublish() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
         ShellySettingsStatus status = new ShellySettingsStatus();
         ShellyExtTemperature ext4 = new ShellyExtTemperature();
@@ -229,7 +222,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateSensors_addonHumidity_updatesLastUpdate() throws Exception {
+    void updateSensorsAddonHumidityUpdatesLastUpdate() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
         ShellySettingsStatus status = new ShellySettingsStatus();
         status.extHumidity = new ShellyExtHumidity(55.0);
@@ -240,7 +233,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateSensors_voltage_updatesVoltageChannel() throws Exception {
+    void updateSensorsVoltageUpdatesVoltageChannel() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
         ShellySettingsStatus status = new ShellySettingsStatus();
         status.extVoltage = new ShellyExtVoltage(3.3);
@@ -252,7 +245,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateSensors_digitalInput_updatesDigitalInputChannel() throws Exception {
+    void updateSensorsDigitalInputUpdatesDigitalInputChannel() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
         ShellySettingsStatus status = new ShellySettingsStatus();
         status.extDigitalInput = new ShellyExtDigitalInput(true);
@@ -263,7 +256,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateSensors_analogInput_updatesAnalogInputChannel() throws Exception {
+    void updateSensorsAnalogInputUpdatesAnalogInputChannel() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
         ShellySettingsStatus status = new ShellySettingsStatus();
         status.extAnalogInput = new ShellyExtAnalogInput(75.0);
@@ -275,7 +268,7 @@ public class ShellyComponentsTest {
     }
 
     @Test
-    void updateSensors_multipleExtTempSlots_allPublished() throws Exception {
+    void updateSensorsMultipleExtTempSlotsAllPublished() throws Exception {
         ShellyThingInterface handler = relayHandlerWith(new ShellySettingsStatus());
         ShellySettingsStatus status = new ShellySettingsStatus();
         ShellyExtTemperature ext = new ShellyExtTemperature();
@@ -877,8 +870,6 @@ public class ShellyComponentsTest {
         assertEquals(1050.0, last.doubleValue(), 0.1);
     }
 
-    // ── Pro 3EM — third phase invalid (root cause of "meter3 missing") ────────
-
     @Test
     void pro3emThirdPhaseInvalidSkipsValueUpdateButLoopContinues() {
         // Regression guard: channel creation was once inside the isValid block; when phase C
@@ -916,8 +907,6 @@ public class ShellyComponentsTest {
         QuantityType<?> accuWatts = (QuantityType<?>) captor.getAllValues().get(captor.getAllValues().size() - 1);
         assertEquals(3000.0, accuWatts.doubleValue(), 0.1); // A+B only, C had null power
     }
-
-    // ── Relay-PM (2PM): no returned/apparent energy — phantom channel guard ───
 
     @Test
     void relayPm2meterAccuReturnedNeverUpdated() {
