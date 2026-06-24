@@ -111,11 +111,18 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
     private final ShellyTranslationProvider messages;
     private final ShellyChannelCache cache;
     private static final long DEPRECATED_CHANNEL_WARNING_INTERVAL_MS = TimeUnit.DAYS.toMillis(1);
+    private static final String METER_G = CHANNEL_GROUP_METER + ChannelUID.CHANNEL_GROUP_SEPARATOR;
+    private static final String DEVICE_G = CHANNEL_GROUP_DEV_STATUS + ChannelUID.CHANNEL_GROUP_SEPARATOR;
+
     private static final List<ChannelMigrationRule> CHANNEL_MIGRATION_RULES = List.of(
-            new ChannelMigrationRule(2, CHANNEL_METER_CURRENTWATTS, CHANNEL_METER_CURRENTPOWER, true),
-            new ChannelMigrationRule(2, CHANNEL_METER_TOTALKWH, CHANNEL_METER_TOTALENERGY, true),
-            new ChannelMigrationRule(2, CHANNEL_EMETER_TOTALRET, CHANNEL_EMETER_RETURNEDENERGY, true),
-            new ChannelMigrationRule(2, CHANNEL_DEVST_ACCUWATTS, CHANNEL_DEVST_ACCUMULATEDPOWER, true));
+            new ChannelMigrationRule(2, METER_G + CHANNEL_METER_CURRENTWATTS, METER_G + CHANNEL_METER_CURRENTPOWER,
+                    true),
+            new ChannelMigrationRule(2, METER_G + CHANNEL_METER_TOTALKWH, METER_G + CHANNEL_METER_TOTALENERGY, true),
+            new ChannelMigrationRule(2, METER_G + CHANNEL_EMETER_TOTALRET, METER_G + CHANNEL_EMETER_RETURNEDENERGY,
+                    true),
+            new ChannelMigrationRule(2, DEVICE_G + CHANNEL_DEVST_ACCUWATTS, DEVICE_G + CHANNEL_DEVST_ACCUMULATEDPOWER,
+                    true));
+
     private static final int CHANNEL_SCHEMA_VERSION = CHANNEL_MIGRATION_RULES.stream()
             .mapToInt(ChannelMigrationRule::version).max().orElse(0);
 
@@ -1376,7 +1383,7 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
         Long lastWarning = deprecatedChannelWarnings.get(channelId);
         if (lastWarning == null || now - lastWarning >= DEPRECATED_CHANNEL_WARNING_INTERVAL_MS) {
             deprecatedChannelWarnings.put(channelId, now);
-            logger.warn("{}: Channel {} is deprecated and will become obsolete in a future release; use {} instead.",
+            logger.warn("{}: Channel {} is deprecated and will be removed in a future release; use {} instead.",
                     thingName, channelId, replacementChannelId);
         }
     }
@@ -1438,8 +1445,9 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
                 updated |= applyMigrationRule(rule);
             }
         }
-        updateProperties(PROPERTY_CHANNEL_SCHEMA_VERSION, String.valueOf(CHANNEL_SCHEMA_VERSION));
+
         if (updated) {
+            updateProperties(PROPERTY_CHANNEL_SCHEMA_VERSION, String.valueOf(CHANNEL_SCHEMA_VERSION));
             logger.debug("{}: Channel definitions migrated to schema version {}", thingName, CHANNEL_SCHEMA_VERSION);
         }
     }
