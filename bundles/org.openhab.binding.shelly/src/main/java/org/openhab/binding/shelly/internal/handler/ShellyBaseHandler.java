@@ -1455,13 +1455,14 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
     private boolean applyMigrationRule(ChannelMigrationRule rule) {
         List<Channel> existingChannels = getThing().getChannels();
         Channel channel = findChannel(existingChannels, rule.channelId());
+        String replacementChannelId = rule.replacementChannelId();
         // If the channel does not exist and there is no replacement channel, we cannot apply the migration rule
-        if (channel == null && !rule.replacementChannelId().isEmpty()) {
+        if (channel == null && (replacementChannelId == null || replacementChannelId.isEmpty())) {
             return false;
         }
 
         Map<String, Channel> channelUpdates = new HashMap<>();
-        if (rule.refreshExistingChannel()) {
+        if (channel != null && rule.refreshExistingChannel()) {
             Channel updatedChannel = ShellyChannelDefinitions.createChannel(getThing(), rule.channelId());
             if (updatedChannel != null
                     && !getString(updatedChannel.getDescription()).equals(getString(channel.getDescription()))) {
@@ -1471,8 +1472,7 @@ public abstract class ShellyBaseHandler extends BaseThingHandler
 
         Map<String, Channel> newOrReplacementChannels = new HashMap<>();
         String newChannelId = Objects
-                .requireNonNull(rule.replacementChannelId() != null && !rule.replacementChannelId().isEmpty()
-                        ? rule.replacementChannelId()
+                .requireNonNull(replacementChannelId != null && !replacementChannelId.isEmpty() ? replacementChannelId
                         : rule.channelId());
         if (findChannel(existingChannels, newChannelId) == null) {
             Channel newChannel = ShellyChannelDefinitions.createChannel(getThing(), newChannelId);
