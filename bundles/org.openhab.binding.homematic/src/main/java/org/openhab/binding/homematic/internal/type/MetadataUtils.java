@@ -92,8 +92,7 @@ public class MetadataUtils {
                         }
                     }
 
-                    if (channelType == null || channelType.isEmpty() || datapointName == null
-                            || datapointName.isEmpty()) {
+                    if (channelType == null || channelType.isEmpty()) {
                         throw new IllegalStateException(
                                 String.format("Malformed standard datapoint entry at line %d: %s", lineNumber, line));
                     }
@@ -104,7 +103,10 @@ public class MetadataUtils {
                         standardDatapoints.put(channelType, channelDatapoints);
                     }
 
-                    channelDatapoints.add(datapointName);
+                    // An empty datapoint list marks every datapoint of this channel type as advanced.
+                    if (datapointName != null && !datapointName.isEmpty()) {
+                        channelDatapoints.add(datapointName);
+                    }
                 }
             }
         } catch (IOException e) {
