@@ -58,8 +58,7 @@ public class TransitRouteDetailsHandler extends BaseThingHandler {
         config = getConfigAs(TransitRouteConfiguration.class);
 
         if (config.routeId.isBlank()) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "@text/offline.conf-error-no-route-id");
+            updateStatus(ThingStatusDetail.CONFIGURATION_ERROR, "@text/offline.conf-error-no-route-id");
             return;
         }
 
@@ -69,7 +68,7 @@ public class TransitRouteDetailsHandler extends BaseThingHandler {
         if (bridge != null && bridge.getStatus() == ThingStatus.ONLINE) {
             startPolling();
         } else {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+            updateStatus(ThingStatusDetail.BRIDGE_OFFLINE);
         }
     }
 
@@ -84,7 +83,7 @@ public class TransitRouteDetailsHandler extends BaseThingHandler {
                 logger.debug("Bridge is {}, stopping polling for {}", bridgeStatusInfo.getStatus(),
                         getThing().getUID());
                 stopPolling();
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+                updateStatus(ThingStatusDetail.BRIDGE_OFFLINE);
             }
         }
     }
@@ -201,7 +200,7 @@ public class TransitRouteDetailsHandler extends BaseThingHandler {
                 }
                 String errorMessage = e.getMessage();
                 logger.debug("Communication error while polling route {}: {}", routeId, errorMessage);
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, errorMessage);
+                updateStatus(ThingStatusDetail.COMMUNICATION_ERROR, errorMessage);
             }
         }
     }

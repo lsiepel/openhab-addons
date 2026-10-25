@@ -56,8 +56,7 @@ public class TransitTripDetailsHandler extends BaseThingHandler {
     public void initialize() {
         config = getConfigAs(TransitTripConfiguration.class);
         if (config.tripSearchKey.isBlank()) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "@text/offline.conf-error-no-trip-search-key");
+            updateStatus(ThingStatusDetail.CONFIGURATION_ERROR, "@text/offline.conf-error-no-trip-search-key");
             return;
         }
 
@@ -67,7 +66,7 @@ public class TransitTripDetailsHandler extends BaseThingHandler {
         if (bridge != null && bridge.getStatus() == ThingStatus.ONLINE) {
             startPolling();
         } else {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+            updateStatus(ThingStatusDetail.BRIDGE_OFFLINE);
         }
     }
 
@@ -82,7 +81,7 @@ public class TransitTripDetailsHandler extends BaseThingHandler {
                 logger.debug("Bridge is {}, stopping polling for {}", bridgeStatusInfo.getStatus(),
                         getThing().getUID());
                 stopPolling();
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+                updateStatus(ThingStatusDetail.BRIDGE_OFFLINE);
             }
         }
     }
@@ -227,7 +226,7 @@ public class TransitTripDetailsHandler extends BaseThingHandler {
                 }
                 String errorMessage = e.getMessage();
                 logger.debug("Communication error while polling trip {}: {}", tripSearchKey, errorMessage);
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, errorMessage);
+                updateStatus(ThingStatusDetail.COMMUNICATION_ERROR, errorMessage);
             }
         }
     }

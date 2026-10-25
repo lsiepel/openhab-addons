@@ -97,7 +97,7 @@ public class LGHorizonBoxHandler extends BaseThingHandler {
 
         LGHorizonAccountHandler account = getAccountHandler();
         if (account == null) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_UNINITIALIZED);
+            updateStatus(ThingStatusDetail.BRIDGE_UNINITIALIZED);
             return;
         }
         updateStatus(ThingStatus.UNKNOWN);

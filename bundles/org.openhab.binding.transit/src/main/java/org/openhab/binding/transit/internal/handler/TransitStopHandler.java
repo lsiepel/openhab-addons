@@ -76,8 +76,7 @@ public class TransitStopHandler extends BaseThingHandler {
     public void initialize() {
         config = getConfigAs(TransitStopConfiguration.class);
         if (config.globalStopId.isBlank()) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                    "@text/offline.conf-error-no-stop-id");
+            updateStatus(ThingStatusDetail.CONFIGURATION_ERROR, "@text/offline.conf-error-no-stop-id");
             return;
         }
 
@@ -87,7 +86,7 @@ public class TransitStopHandler extends BaseThingHandler {
         if (bridge != null && bridge.getStatus() == ThingStatus.ONLINE) {
             startPolling();
         } else {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+            updateStatus(ThingStatusDetail.BRIDGE_OFFLINE);
         }
     }
 
@@ -99,7 +98,7 @@ public class TransitStopHandler extends BaseThingHandler {
                 startPolling();
             } else {
                 stopPolling();
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+                updateStatus(ThingStatusDetail.BRIDGE_OFFLINE);
             }
         }
     }
@@ -196,7 +195,7 @@ public class TransitStopHandler extends BaseThingHandler {
                 latestLineDepartures.clear();
                 String errorMessage = e.getMessage();
                 logger.debug("Communication issue: {}", errorMessage);
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, errorMessage);
+                updateStatus(ThingStatusDetail.COMMUNICATION_ERROR, errorMessage);
                 clearRemainingDepartures(1);
             }
         }
