@@ -72,7 +72,7 @@ public class EyeOnWaterMeterHandler extends BaseThingHandler {
 
         Bridge bridge = getBridge();
         if (bridge == null) {
-            updateStatus(ThingStatusDetail.BRIDGE_UNINITIALIZED, "@text/offline.bridge-undefined");
+            logger.debug("The bridge was unexpected null, for thing: {}", getThing().getUID());
             return;
         }
 
@@ -81,7 +81,7 @@ public class EyeOnWaterMeterHandler extends BaseThingHandler {
             updateStatus(ThingStatus.UNKNOWN);
             eoHandler.registerMeterHandler(this);
         } else {
-            updateStatus(ThingStatusDetail.BRIDGE_UNINITIALIZED, "@text/offline.bridge-not-initialized");
+           logger.debug("The bridge handler was unexpected null, for thing: {}", getThing().getUID());
         }
     }
 
