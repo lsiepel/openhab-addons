@@ -21,6 +21,7 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,6 +30,7 @@ import org.mockito.quality.Strictness;
 import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.OpenClosedType;
 import org.openhab.core.library.types.PercentType;
 import org.openhab.core.library.types.QuantityType;
 import org.openhab.core.library.unit.Units;
@@ -95,6 +97,15 @@ public class InvertStateProfileTest {
         if (parameterSet.type instanceof State && parameterSet.resultingType instanceof State) {
             verifyStateUpdateFromHandler(profile, (State) parameterSet.type, (State) parameterSet.resultingType);
         }
+    }
+
+    @ParameterizedTest
+    @EnumSource(OpenClosedType.class)
+    public void testContactStateUpdate(OpenClosedType state) {
+        StateProfile profile = initProfile();
+        profile.onStateUpdateFromHandler(state);
+        verify(mockCallback).sendUpdate(state == OpenClosedType.OPEN ? OpenClosedType.CLOSED : OpenClosedType.OPEN);
+        verifyNoMoreInteractions(mockCallback);
     }
 
     private StateProfile initProfile() {
