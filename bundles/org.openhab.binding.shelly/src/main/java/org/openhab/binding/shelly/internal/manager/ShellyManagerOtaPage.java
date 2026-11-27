@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * {@link ShellyManagerOtaPage} implements the Shelly Manager's download proxy for images (load them from bundle)
  *
  * @author Markus Michels - Initial contribution
+ * @author Leo Siepel - Restrict firmware proxy sources
  */
 @NonNullByDefault
 public class ShellyManagerOtaPage extends ShellyManagerPage {
@@ -150,26 +151,27 @@ public class ShellyManagerOtaPage extends ShellyManagerPage {
         String deviceType = getUrlParm(parameters, URLPARM_DEVTYPE);
         String deviceMode = getUrlParm(parameters, URLPARM_DEVMODE);
         String version = getUrlParm(parameters, URLPARM_VERSION);
-        String url = getUrlParm(parameters, URLPARM_URL);
-        logger.info("ShellyManager: {}", getMessage("fwupdate.info", deviceType, version, url));
+        if (parameters.containsKey(URLPARM_URL)) {
+            return new ShellyMgrResponse(getMessage("fwupdate.notfound", deviceType, version, ""),
+                    HttpStatus.BAD_REQUEST_400);
+        }
 
+        String url = getFirmwareUrl(deviceType, deviceMode, version, true);
         String failure = getMessage("fwupdate.notfound", deviceType, version, url);
-        try {
-            if (url.isEmpty()) {
-                url = getFirmwareUrl(deviceType, deviceMode, version, true);
-                if (url.isEmpty()) {
-                    logger.warn("ShellyManager: {}", failure);
-                    return new ShellyMgrResponse(failure, HttpStatus.BAD_REQUEST_400);
-                }
-            }
+        if (url.isEmpty()) {
+            logger.warn("ShellyManager: {}", failure);
+            return new ShellyMgrResponse(failure, HttpStatus.BAD_REQUEST_400);
+        }
 
-            logger.debug("ShellyManager: Loading firmware from {}", url);
-            // BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-            // byte[] buf = new byte[in.available()];
-            // in.read(buf);
-            Request request = httpClient.newRequest(url).method(HttpMethod.GET).timeout(SHELLY_API_TIMEOUT_MS,
-                    TimeUnit.MILLISECONDS);
+        logger.info("ShellyManager: {}", getMessage("fwupdate.info", deviceType, version, url));
+        try {
+            Request request = httpClient.newRequest(url).followRedirects(false).method(HttpMethod.GET)
+                    .timeout(SHELLY_API_TIMEOUT_MS, TimeUnit.MILLISECONDS);
             ContentResponse contentResponse = request.send();
+            if (contentResponse.getStatus() != HttpStatus.OK_200) {
+                logger.debug("ShellyManager: Firmware download from {} returned {}", url, contentResponse.getStatus());
+                return new ShellyMgrResponse(failure, HttpStatus.BAD_GATEWAY_502);
+            }
             HttpFields fields = contentResponse.getHeaders();
             Map<String, String> headers = new TreeMap<>();
             String etag = getString(fields.get("ETag"));
@@ -210,9 +212,9 @@ public class ShellyManagerOtaPage extends ShellyManagerPage {
                 ArrayList<FwArchEntry> versions = list.versions;
                 if (versions != null) {
                     for (FwArchEntry e : versions) {
-                        String url = FWREPO_ARCFILE_URL + version + "/" + getString(e.file);
-                        if (getString(e.version).equalsIgnoreCase(version)) {
-                            return url;
+                        String catalogVersion = getString(e.version);
+                        if (catalogVersion.equalsIgnoreCase(version)) {
+                            return FWREPO_ARCFILE_URL + catalogVersion + "/" + getString(e.file);
                         }
                     }
                 }

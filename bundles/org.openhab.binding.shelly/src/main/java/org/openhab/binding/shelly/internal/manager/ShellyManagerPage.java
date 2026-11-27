@@ -14,6 +14,8 @@ package org.openhab.binding.shelly.internal.manager;
 
 import static org.openhab.binding.shelly.internal.ShellyBindingConstants.*;
 import static org.openhab.binding.shelly.internal.ShellyDevices.*;
+import static org.openhab.binding.shelly.internal.api1.Shelly1ApiJsonDTO.SHELLY_MODE_COLOR;
+import static org.openhab.binding.shelly.internal.api1.Shelly1ApiJsonDTO.SHELLY_MODE_WHITE;
 import static org.openhab.binding.shelly.internal.manager.ShellyManagerConstants.*;
 import static org.openhab.binding.shelly.internal.util.ShellyUtils.*;
 import static org.openhab.core.thing.Thing.*;
@@ -22,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +75,7 @@ import com.google.gson.annotations.SerializedName;
  * {@link ShellyManagerOtaPage} implements the Shelly Manager's page template
  *
  * @author Markus Michels - Initial contribution
+ * @author Leo Siepel - Constrain firmware catalog requests
  */
 @NonNullByDefault
 public class ShellyManagerPage {
@@ -399,8 +403,17 @@ public class ShellyManagerPage {
     }
 
     protected FwRepoEntry getFirmwareRepoEntry(String deviceType, String mode) throws ShellyApiException {
+        String splitMode = "";
+        if (SHELLYDT_RGBW2.equalsIgnoreCase(deviceType)) {
+            splitMode = switch (mode.toLowerCase(Locale.ROOT)) {
+                case SHELLY_MODE_COLOR -> SHELLY_MODE_COLOR;
+                case SHELLY_MODE_WHITE -> SHELLY_MODE_WHITE;
+                default -> "";
+            };
+        }
+        String cacheKey = splitMode.isEmpty() ? deviceType : deviceType + "/" + splitMode;
         logger.debug("ShellyManager: Load firmware list from {}", FWREPO_PROD_URL);
-        FwRepoEntry fw = firmwareRepo.get(deviceType);
+        FwRepoEntry fw = firmwareRepo.get(cacheKey);
         if (fw != null) {
             return fw;
         }
@@ -420,22 +433,21 @@ public class ShellyManagerPage {
              */
             fw = fromJson(gson, entry, FwRepoEntry.class);
 
-            // Special case: RGW2 has a split firmware - xxx-white.zip vs. xxx-color.zip
-            if (SHELLYDT_RGBW2.equalsIgnoreCase(deviceType) && !mode.isEmpty()) {
-                // check for spilt firmware
-                String url = substringBefore(fw.url, ".zip") + "-" + mode + ".zip";
+            // RGBW2 has distinct firmware files for its white and color modes.
+            if (!splitMode.isEmpty()) {
+                String url = substringBefore(fw.url, ".zip") + "-" + splitMode + ".zip";
                 if (testUrl(url)) {
                     fw.url = url;
                     logger.debug("ShellyManager: Release Split-URL for device type {} is {}", deviceType, url);
                 }
-                url = substringBefore(fw.betaUrl, ".zip") + "-" + mode + ".zip";
+                url = substringBefore(fw.betaUrl, ".zip") + "-" + splitMode + ".zip";
                 if (testUrl(url)) {
                     fw.betaUrl = url;
                     logger.debug("ShellyManager: Beta Split-URL for device type {} is {}", deviceType, url);
                 }
             }
 
-            firmwareRepo.put(deviceType, fw);
+            firmwareRepo.put(cacheKey, fw);
         }
 
         return fw != null ? fw : new FwRepoEntry();
@@ -450,7 +462,7 @@ public class ShellyManagerPage {
 
         try {
             if (!deviceType.isEmpty()) {
-                json = httpGet(FWREPO_ARCH_URL + "?type=" + deviceType);
+                json = httpGet(FWREPO_ARCH_URL + "?type=" + URLEncoder.encode(deviceType, StandardCharsets.UTF_8));
             }
         } catch (ShellyApiException e) {
             logger.debug("{}: Unable to get firmware list for device type {}: {}", LOG_PREFIX, deviceType,
@@ -494,8 +506,8 @@ public class ShellyManagerPage {
 
     protected String httpRequest(HttpMethod method, String url) throws ShellyApiException {
         try {
-            Request request = httpClient.newRequest(url).method(method).timeout(SHELLY_API_TIMEOUT_MS,
-                    TimeUnit.MILLISECONDS);
+            Request request = httpClient.newRequest(url).followRedirects(false).method(method)
+                    .timeout(SHELLY_API_TIMEOUT_MS, TimeUnit.MILLISECONDS);
             request.headers(h -> h.add(HttpHeader.ACCEPT, ShellyHttpClient.CONTENT_TYPE_JSON));
             logger.trace("{}: HTTP {} {}", LOG_PREFIX, method, url);
             ContentResponse contentResponse = request.send();
