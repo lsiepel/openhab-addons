@@ -15,6 +15,8 @@ package org.openhab.binding.homeconnect.internal.client;
 import static org.openhab.binding.homeconnect.internal.HomeConnectBindingConstants.*;
 import static org.openhab.binding.homeconnect.internal.client.HttpHelper.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1138,9 +1140,19 @@ public class HomeConnectApiClient {
 
     private Request createRequest(HttpMethod method, String path)
             throws AuthorizationException, CommunicationException {
+        URI target;
+        try {
+            target = new URI(path);
+        } catch (URISyntaxException e) {
+            throw new CommunicationException("Invalid Home Connect API path", e);
+        }
+        if (!path.startsWith("/") || path.startsWith("//") || target.getRawFragment() != null) {
+            throw new CommunicationException("Expected a Home Connect API path");
+        }
+
         String authorizationHeader = getAuthorizationHeader(oAuthClientService);
-        Request request = client.newRequest(apiUrl + path).method(method).timeout(REQUEST_TIMEOUT_SEC,
-                TimeUnit.SECONDS);
+        Request request = client.newRequest(apiUrl).path(path).followRedirects(false).method(method)
+                .timeout(REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS);
         request.headers(headers -> {
             headers.put(HttpHeader.AUTHORIZATION, authorizationHeader);
             headers.put(HttpHeader.ACCEPT, BSH_JSON_V1);
