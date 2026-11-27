@@ -26,6 +26,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.openhab.binding.mielecloud.internal.MieleCloudBindingConstants;
 import org.openhab.binding.mielecloud.internal.MieleCloudBindingConstants.I18NKeys;
@@ -518,7 +519,7 @@ public class MieleBridgeHandlerTest extends OpenHabOsgiTest {
     }
 
     @Test
-    public void testWhenTheThingIsRemovedThenTheWebserviceIsLoggedOut() throws Exception {
+    public void testWhenTheThingIsRemovedThenTheWebserviceIsLoggedOutBeforeItIsClosed() throws Exception {
         // given:
         initializeBridgeWithTokens();
 
@@ -526,9 +527,11 @@ public class MieleBridgeHandlerTest extends OpenHabOsgiTest {
         getThingRegistry().remove(getHandler().getThing().getUID());
 
         // then:
-        waitForAssert(() -> {
-            verify(getWebserviceMock()).logout();
-        });
+        MieleWebservice webservice = getWebserviceMock();
+        verify(webservice, timeout(DFL_TIMEOUT)).close();
+        InOrder order = inOrder(webservice);
+        order.verify(webservice).logout();
+        order.verify(webservice).close();
     }
 
     @Test

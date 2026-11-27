@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -58,6 +57,7 @@ import org.slf4j.LoggerFactory;
  * @author Roland Edelhoff - Initial contribution
  * @author Björn Lange - Introduced CombiningLanguageProvider field and interactions, added LanguageProvider super
  *         interface, switched from polling to SSE, added support for multiple bridges, removed e-mail validation
+ * @author Leo Siepel - Preserve the webservice during logout on bridge removal
  */
 @NonNullByDefault
 public class MieleBridgeHandler extends BaseBridgeHandler
@@ -70,7 +70,7 @@ public class MieleBridgeHandler extends BaseBridgeHandler
     private final CombiningLanguageProvider languageProvider;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private @Nullable CompletableFuture<@Nullable Void> logoutFuture;
+    private CompletableFuture<@Nullable Void> logoutFuture = CompletableFuture.completedFuture(null);
     private @Nullable MieleWebservice webService;
     private @Nullable ThingDiscoveryService discoveryService;
     private @Nullable String oAuthServiceHandle;
@@ -203,24 +203,15 @@ public class MieleBridgeHandler extends BaseBridgeHandler
             return;
         }
 
-        scheduler.submit(() -> {
-            CompletableFuture<@Nullable Void> logoutFuture = this.logoutFuture;
-            if (logoutFuture != null) {
-                try {
-                    logoutFuture.get();
-                } catch (InterruptedException e) {
-                    logger.warn("Interrupted while waiting for logout!");
-                } catch (ExecutionException e) {
-                    logger.warn("Failed to wait for logout.", e);
-                }
-            }
-
+        CompletableFuture<@Nullable Void> pendingLogout = logoutFuture;
+        logoutFuture = CompletableFuture.completedFuture(null);
+        pendingLogout.whenCompleteAsync((ignored, failure) -> {
             try {
                 webService.close();
             } catch (Exception e) {
                 logger.warn("Failed to close webservice.", e);
             }
-        });
+        }, scheduler);
     }
 
     @Override
@@ -240,15 +231,14 @@ public class MieleBridgeHandler extends BaseBridgeHandler
     }
 
     private void performLogout() {
-        logoutFuture = new CompletableFuture<>();
-        scheduler.execute(() -> {
+        MieleWebservice webservice = getWebservice();
+        logoutFuture = CompletableFuture.runAsync(() -> {
             try {
-                getWebservice().logout();
+                webservice.logout();
             } catch (Exception e) {
                 logger.warn("Failed to logout from Miele cloud.", e);
             }
-            Optional.ofNullable(logoutFuture).map(future -> future.complete(null));
-        });
+        }, scheduler);
     }
 
     private void tryInitializeWebservice() {
