@@ -17,3 +17,8 @@ https://github.com/openhab/openhab-addons
 This binding includes a class from Jersey in the src/3rdparty/java folder.
 * License: CDDL License
 * Project: https://eclipse-ee4j.github.io/jersey/
+
+The dashboard includes js-sha256 0.11.1 to calculate the OAuth PKCE challenge on HTTP and HTTPS.
+* Copyright (c) 2014-2025 Chen, Yi-Cyuan
+* License: MIT (src/main/resources/web/js/thirdparty/js-sha256.LICENSE.txt)
+* Project: https://github.com/emn178/js-sha256

@@ -65,8 +65,9 @@ Press the refresh button (next to the tab header) to refresh the information on 
 
 The Brains tab provides a listing of all NEEO brains that have been found, some information about them and their current status (connected or not).
 
-If your brain has not been discovered, you may manually enter the brain by pressing the "Add Brain" button.
-You will be prompted for the Brain's IP address and once entered, the brain should be listed in the resulting table.
+If your brain has not been discovered, press the "Add Brain" button.
+Sign in with your openHAB administrator account when prompted and enter the Brain's IP address.
+The brain should be listed in the resulting table.
 
 #### Actions
 

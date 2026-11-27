@@ -74,7 +74,7 @@ public class NeeoBrainServlet extends AbstractServlet {
         NeeoUtil.requireNotEmpty(brainId, "brainId cannot be empty");
         Objects.requireNonNull(ipAddress, "ipAddress cannot be null");
 
-        final NeeoApi api = new NeeoApi(ipAddress.getHostAddress(), brainId, context, httpClient, httpClientFactory);
+        final NeeoApi api = new NeeoApi(ipAddress, brainId, context, httpClient, httpClientFactory);
         api.start();
 
         return new NeeoBrainServlet(context, servletUrl, api, httpClient, httpClientFactory);

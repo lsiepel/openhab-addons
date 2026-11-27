@@ -13,6 +13,7 @@
 package org.openhab.io.neeo.internal;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.core.io.rest.auth.AuthFilter;
 import org.openhab.io.neeo.NeeoService;
 import org.openhab.io.neeo.internal.servletservices.BrainDashboardService;
 import org.openhab.io.neeo.internal.servletservices.ServletService;
@@ -37,9 +38,10 @@ public class NeeoDashboardServlet extends AbstractServlet {
      * @param service the non-null service
      * @param servletUrl the non-empty servletUrl
      * @param context the non-null context
+     * @param authFilter the openHAB authentication service
      */
-    public NeeoDashboardServlet(NeeoService service, String servletUrl, ServiceContext context) {
-        super(context, servletUrl, new ServletService[] { new BrainDashboardService(service),
+    public NeeoDashboardServlet(NeeoService service, String servletUrl, ServiceContext context, AuthFilter authFilter) {
+        super(context, servletUrl, new ServletService[] { new BrainDashboardService(service, authFilter),
                 new ThingDashboardService(service, context) });
     }
 }

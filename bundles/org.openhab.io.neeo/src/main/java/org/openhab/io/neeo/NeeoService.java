@@ -32,6 +32,7 @@ import org.openhab.core.events.EventFilter;
 import org.openhab.core.events.EventPublisher;
 import org.openhab.core.events.EventSubscriber;
 import org.openhab.core.io.net.http.HttpClientFactory;
+import org.openhab.core.io.rest.auth.AuthFilter;
 import org.openhab.core.io.transport.mdns.MDNSClient;
 import org.openhab.core.items.ItemRegistry;
 import org.openhab.core.items.events.ItemStateChangedEvent;
@@ -148,7 +149,8 @@ public class NeeoService implements EventSubscriber, NetworkAddressChangeListene
             @Reference AddonInfoRegistry addonInfoRegistry, @Reference ChannelTypeRegistry channelTypeRegistry,
             @Reference ThingTypeRegistry thingTypeRegistry, @Reference ItemChannelLinkRegistry itemChannelLinkRegistry,
             @Reference MDNSClient mdnsClient, @Reference EventPublisher eventPublisher,
-            @Reference NetworkAddressService networkAddressService, @Reference HttpClientFactory httpClientFactory) {
+            @Reference NetworkAddressService networkAddressService, @Reference HttpClientFactory httpClientFactory,
+            @Reference AuthFilter authFilter) {
         this.httpService = httpService;
         this.itemRegistry = itemRegistry;
         this.bindingInfoRegistry = addonInfoRegistry;
@@ -175,7 +177,7 @@ public class NeeoService implements EventSubscriber, NetworkAddressChangeListene
         discovery.addListener(discoveryListener);
 
         try {
-            dashboardServlet = new NeeoDashboardServlet(this, DASHBOARD_URL, localContext);
+            dashboardServlet = new NeeoDashboardServlet(this, DASHBOARD_URL, localContext, authFilter);
 
             localContext.getHttpService().registerServlet(DASHBOARD_URL, dashboardServlet, new Hashtable<>(),
                     localContext.getHttpService().createDefaultHttpContext());

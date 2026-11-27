@@ -253,7 +253,7 @@ public class MdnsBrainDiscovery extends AbstractBrainDiscovery {
 
         NeeoSystemInfo sysInfo;
         try {
-            sysInfo = NeeoApi.getSystemInfo(brainInfo.getValue().toString(), httpClient);
+            sysInfo = NeeoApi.getSystemInfo(brainInfo.getValue(), httpClient);
         } catch (IOException e) {
             // We can get an MDNS notification BEFORE the brain is ready to process.
             // if that happens, we'll get an IOException (usually bad gateway message), schedule another attempt to get
@@ -302,7 +302,7 @@ public class MdnsBrainDiscovery extends AbstractBrainDiscovery {
 
         try {
             final InetAddress addr = InetAddress.getByName(ipAddress);
-            final NeeoSystemInfo sysInfo = NeeoApi.getSystemInfo(ipAddress, httpClient);
+            final NeeoSystemInfo sysInfo = NeeoApi.getSystemInfo(addr, httpClient);
             logger.debug("Manually adding brain ({}) with system information: {}", ipAddress, sysInfo);
 
             systemsLock.lock();

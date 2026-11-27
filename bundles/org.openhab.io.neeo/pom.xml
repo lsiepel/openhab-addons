@@ -14,6 +14,15 @@
 
   <name>openHAB Add-ons :: Bundles :: IO :: NEEO Integration</name>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.openhab.core.bundles</groupId>
+      <artifactId>org.openhab.core.io.rest.auth</artifactId>
+      <version>${ohc.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>

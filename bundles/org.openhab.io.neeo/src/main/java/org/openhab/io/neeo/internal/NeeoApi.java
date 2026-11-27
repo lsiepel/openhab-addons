@@ -15,9 +15,11 @@ package org.openhab.io.neeo.internal;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
@@ -55,6 +57,7 @@ import com.google.gson.JsonParser;
  * The class provides the API for communicating with a NEEO brain
  *
  * @author Tim Roberts - Initial Contribution
+ * @author Leo Siepel - Build brain URLs from resolved addresses
  */
 @NonNullByDefault
 public class NeeoApi implements AutoCloseable {
@@ -125,23 +128,21 @@ public class NeeoApi implements AutoCloseable {
     /**
      * Constructs the APi from the given IP address, brain identifier and {@link ServiceContext}
      *
-     * @param ipAddress the non-empty ip address
+     * @param ipAddress the brain's resolved IP address
      * @param brainId the non-empty brain id
      * @param context the non-null {@link ServiceContext}
      * @throws IOException if an exception occurs connecting to the brain
      */
-    public NeeoApi(String ipAddress, String brainId, ServiceContext context, HttpClient httpClient,
+    public NeeoApi(InetAddress ipAddress, String brainId, ServiceContext context, HttpClient httpClient,
             HttpClientFactory httpClientFactory) throws IOException {
-        NeeoUtil.requireNotEmpty(ipAddress, "ipAddress cannot be empty");
         NeeoUtil.requireNotEmpty(brainId, "brainId cannot be empty");
         Objects.requireNonNull(context, "context cannot be null");
 
-        this.brainIpAddress = ipAddress;
+        this.brainIpAddress = ipAddress.getHostAddress();
         this.brainId = brainId;
         this.httpClient = httpClient;
         this.httpClientFactory = httpClientFactory;
-        this.brainUrl = NeeoConstants.PROTOCOL + (ipAddress.startsWith("/") ? ipAddress.substring(1) : ipAddress) + ":"
-                + NeeoConstants.DEFAULT_BRAIN_PORT;
+        this.brainUrl = createBrainUrl(ipAddress);
         deviceKeys = new NeeoDeviceKeys(brainUrl, httpClient);
 
         request = new AtomicReference<>(new HttpRequest(httpClient));
@@ -206,14 +207,12 @@ public class NeeoApi implements AutoCloseable {
     /**
      * Helper method to retrieve the {@link NeeoSystemInfo} from the given ip address
      *
-     * @param ipAddress the non-empty ip address
+     * @param ipAddress the brain's resolved IP address
      * @return the non-null {@link NeeoSystemInfo} for the address
      * @throws IOException Signals that an I/O exception has occurred or the URL is not a brain
      */
-    public static NeeoSystemInfo getSystemInfo(String ipAddress, HttpClient httpClient) throws IOException {
-        NeeoUtil.requireNotEmpty(ipAddress, "ipAddress cannot be empty");
-        final String sysInfo = NeeoConstants.PROTOCOL + (ipAddress.startsWith("/") ? ipAddress.substring(1) : ipAddress)
-                + ":" + NeeoConstants.DEFAULT_BRAIN_PORT + NeeoConstants.SYSTEMINFO;
+    public static NeeoSystemInfo getSystemInfo(InetAddress ipAddress, HttpClient httpClient) throws IOException {
+        final String sysInfo = createBrainUrl(ipAddress) + NeeoConstants.SYSTEMINFO;
 
         try (HttpRequest req = new HttpRequest(httpClient)) {
             final HttpResponse res = req.sendGetCommand(sysInfo);
@@ -222,6 +221,15 @@ public class NeeoApi implements AutoCloseable {
             } else {
                 throw res.createException();
             }
+        }
+    }
+
+    private static String createBrainUrl(InetAddress address) throws IOException {
+        try {
+            return new URI("http", null, address.getHostAddress(), NeeoConstants.DEFAULT_BRAIN_PORT, null, null, null)
+                    .toASCIIString();
+        } catch (URISyntaxException e) {
+            throw new IOException("Invalid NEEO brain address", e);
         }
     }
 
@@ -240,9 +248,7 @@ public class NeeoApi implements AutoCloseable {
      * @throws IOException Signals that an I/O exception has occurred or the URL is not a brain
      */
     public void blinkLed() throws IOException {
-        final String identBrain = NeeoConstants.PROTOCOL
-                + (brainIpAddress.startsWith("/") ? brainIpAddress.substring(1) : brainIpAddress) + ":"
-                + NeeoConstants.DEFAULT_BRAIN_PORT + NeeoConstants.IDENTBRAIN;
+        final String identBrain = brainUrl + NeeoConstants.IDENTBRAIN;
 
         final HttpRequest rqst = request.get();
         final HttpResponse res = rqst.sendGetCommand(identBrain);
@@ -259,9 +265,7 @@ public class NeeoApi implements AutoCloseable {
      * @throws IOException Signals that an I/O exception has occurred or the URL is not a brain
      */
     public String getLog() throws IOException {
-        final String logUrl = NeeoConstants.PROTOCOL
-                + (brainIpAddress.startsWith("/") ? brainIpAddress.substring(1) : brainIpAddress) + ":"
-                + NeeoConstants.DEFAULT_BRAIN_PORT + NeeoConstants.GETLOG;
+        final String logUrl = brainUrl + NeeoConstants.GETLOG;
 
         final HttpRequest rqst = request.get();
         final HttpResponse res = rqst.sendGetCommand(logUrl);

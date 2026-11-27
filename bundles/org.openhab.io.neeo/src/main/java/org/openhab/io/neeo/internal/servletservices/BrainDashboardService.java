@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.auth.AuthenticationException;
+import org.openhab.core.auth.Role;
+import org.openhab.core.io.rest.auth.AuthFilter;
 import org.openhab.io.neeo.NeeoService;
 import org.openhab.io.neeo.internal.NeeoBrainServlet;
 import org.openhab.io.neeo.internal.NeeoUtil;
@@ -32,11 +36,13 @@ import com.google.gson.JsonParseException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.SecurityContext;
 
 /**
  * A subclass of {@link DefaultServletService} that handles brain status update for the web pages
  *
  * @author Tim Roberts - Initial Contribution
+ * @author Leo Siepel - Authenticate manual brain registration
  */
 @NonNullByDefault
 public class BrainDashboardService extends DefaultServletService {
@@ -49,16 +55,19 @@ public class BrainDashboardService extends DefaultServletService {
 
     /** The service */
     private final NeeoService service;
+    private final AuthFilter authFilter;
 
     /**
      * Create a new brain status service using the specified {@link NeeoService}
      *
      * @param service the non-null service
+     * @param authFilter the openHAB authentication service
      */
-    public BrainDashboardService(NeeoService service) {
+    public BrainDashboardService(NeeoService service, AuthFilter authFilter) {
         Objects.requireNonNull(service, "service cannot be null");
 
         this.service = service;
+        this.authFilter = authFilter;
     }
 
     /**
@@ -163,6 +172,9 @@ public class BrainDashboardService extends DefaultServletService {
                             gson.toJson(new ReturnStatus("BrainID (" + brainId + ") could not be removed")));
                 }
             } else if ("addbrain".equalsIgnoreCase(paths[0])) {
+                if (!authorizeAddBrain(req, resp)) {
+                    return;
+                }
                 final BrainInfo info = gson.fromJson(req.getReader(), BrainInfo.class);
                 final String brainIp = info.getBrainIp();
                 if (brainIp == null) {
@@ -180,5 +192,32 @@ public class BrainDashboardService extends DefaultServletService {
             logger.debug("Exception handling get: {}", e.getMessage(), e);
             NeeoUtil.write(resp, gson.toJson(new ReturnStatus(e.getMessage())));
         }
+    }
+
+    private boolean authorizeAddBrain(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // Requiring JSON prevents a cross-origin form from using cached HTTP Basic credentials.
+        final String contentType = req.getContentType();
+        if (contentType == null || !"application/json".equalsIgnoreCase(contentType.split(";", 2)[0].strip())) {
+            resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
+            return false;
+        }
+
+        final @Nullable SecurityContext securityContext;
+        try {
+            securityContext = authFilter.getSecurityContext(req, false);
+        } catch (AuthenticationException | IllegalArgumentException e) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return false;
+        }
+
+        if (securityContext == null || securityContext.getUserPrincipal() == null) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return false;
+        }
+        if (!securityContext.isUserInRole(Role.ADMIN)) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return false;
+        }
+        return true;
     }
 }

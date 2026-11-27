@@ -452,11 +452,108 @@ function neeoController($scope, $http, $timeout, $window, orderBy, $uibModal, _)
         })
     }
 
+    var addBrainLoginKey = "openhab.neeo:addBrainLogin";
+    var addBrainToken = null;
+    var addBrainSigningIn = false;
+
+    function base64Url(bytes) {
+        return $window.btoa(String.fromCharCode.apply(null, bytes))
+            .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+
+    function addBrainCallbackUrl() {
+        return $window.location.origin + $window.location.pathname;
+    }
+
+    function showAddBrainSignInError() {
+        $.jGrowl("Could not sign in to openHAB. Select Add Brain to try again.",
+            {theme: "jgrowl-error", sticky: true});
+    }
+
+    function signInToAddBrain() {
+        try {
+            var verifier = base64Url($window.crypto.getRandomValues(new Uint8Array(32)));
+            var state = base64Url($window.crypto.getRandomValues(new Uint8Array(32)));
+            var redirectUri = addBrainCallbackUrl();
+            var parameters = new URLSearchParams({
+                response_type: "code",
+                client_id: redirectUri,
+                redirect_uri: redirectUri,
+                scope: "admin",
+                code_challenge_method: "S256",
+                code_challenge: base64Url($window.sha256.array(verifier)),
+                state: state
+            });
+
+            $window.sessionStorage.setItem(addBrainLoginKey, JSON.stringify({state: state, verifier: verifier}));
+            addBrainSigningIn = true;
+            $window.location.assign("/auth?" + parameters.toString());
+        } catch (error) {
+            addBrainSigningIn = false;
+            showAddBrainSignInError();
+        }
+    }
+
+    function finishAddBrainSignIn() {
+        var callbackUrl = new URL($window.location.href);
+        var code = callbackUrl.searchParams.get("code");
+        var error = callbackUrl.searchParams.get("error");
+        if (code === null && error === null) {
+            return;
+        }
+
+        var state = callbackUrl.searchParams.get("state");
+        callbackUrl.searchParams.delete("code");
+        callbackUrl.searchParams.delete("error");
+        callbackUrl.searchParams.delete("state");
+        $window.history.replaceState(null, "", callbackUrl.href);
+
+        var login = JSON.parse($window.sessionStorage.getItem(addBrainLoginKey));
+        $window.sessionStorage.removeItem(addBrainLoginKey);
+        if (!login || !code || error || login.state !== state) {
+            showAddBrainSignInError();
+            return;
+        }
+
+        var redirectUri = addBrainCallbackUrl();
+        var parameters = new URLSearchParams({
+            grant_type: "authorization_code",
+            client_id: redirectUri,
+            redirect_uri: redirectUri,
+            code: code,
+            code_verifier: login.verifier
+        });
+        addBrainSigningIn = true;
+        $http.post("/rest/auth/token", parameters.toString(), {
+            headers: {"Content-Type": "application/x-www-form-urlencoded"}
+        }).then(function(response) {
+            var token = response.data && response.data.access_token;
+            if (typeof token === "string" && token) {
+                addBrainToken = token;
+                $.jGrowl("Signed in to openHAB. Select Add Brain to enter the address.");
+            } else {
+                showAddBrainSignInError();
+            }
+        }, showAddBrainSignInError).finally(function() {
+            addBrainSigningIn = false;
+        });
+    }
+
     ctrl.addBrain = function() {
+        if (addBrainSigningIn) {
+            return;
+        }
+        if (!addBrainToken) {
+            signInToAddBrain();
+            return;
+        }
         var ipAddress = prompt("Please enter the IP Address of the NEEO brain:", "");
         if (ipAddress !== null && ipAddress !== "") {
             ctrl.isRefreshingBrains = true;
-            $http.post("neeostatus/addbrain", { brainIp: ipAddress })
+            var headers = $window.document.cookie.indexOf("X-OPENHAB-AUTH-HEADER") >= 0
+                ? {"X-OPENHAB-TOKEN": addBrainToken}
+                : {"Authorization": "Bearer " + addBrainToken};
+            $http.post("neeostatus/addbrain", { brainIp: ipAddress }, {headers: headers})
             .then(function(response) {
                 if (response.data.success === true) {
                     ctrl.getBrainStatuses();
@@ -465,9 +562,19 @@ function neeoController($scope, $http, $timeout, $window, orderBy, $uibModal, _)
                 }
                 ctrl.isRefreshingBrains = false;
             }, function(response) {
-                $.jGrowl(response.status + " " + response.statusText, {theme : 'jgrowl-error', sticky: true});
+                if (response.status === 401) {
+                    addBrainToken = null;
+                    $.jGrowl("Your openHAB sign-in expired. Select Add Brain to sign in again.",
+                        {theme: "jgrowl-error", sticky: true});
+                } else if (response.status === 403) {
+                    addBrainToken = null;
+                    $.jGrowl("Sign in with an openHAB administrator account to add a Brain.",
+                        {theme: "jgrowl-error", sticky: true});
+                } else {
+                    $.jGrowl(response.status + " " + response.statusText, {theme: "jgrowl-error", sticky: true});
+                }
                 ctrl.isRefreshingBrains = false;
-            })            
+            })
         }
     }
 
@@ -686,6 +793,7 @@ function neeoController($scope, $http, $timeout, $window, orderBy, $uibModal, _)
     }
 
 
+    finishAddBrainSignIn();
     $timeout(function() { ctrl.getBrainStatuses(); }, 1000);
     $timeout(function() { ctrl.getDevices(); }, 1000);
 };

@@ -62,6 +62,7 @@ public class HttpRequest implements AutoCloseable {
         NeeoUtil.requireNotEmpty(uri, "uri cannot be empty");
         try {
             final Request request = httpClient.newRequest(uri);
+            request.followRedirects(false);
             request.method(HttpMethod.GET);
             request.timeout(10, TimeUnit.SECONDS);
             ContentResponse refreshResponse = request.send();
@@ -91,6 +92,7 @@ public class HttpRequest implements AutoCloseable {
             final Request request = httpClient.newRequest(uri);
             request.body(new StringRequestContent("application/json", body));
             request.headers(h -> h.put(HttpHeader.CONTENT_TYPE, "application/json"));
+            request.followRedirects(false);
             request.method(HttpMethod.POST);
             request.timeout(10, TimeUnit.SECONDS);
             ContentResponse refreshResponse = request.send();
