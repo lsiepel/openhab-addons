@@ -57,6 +57,7 @@ final class HandlerHarness {
     final MeterHandler meterHandler;
     final BlockingQueue<ThingStatusInfo> bridgeStatuses = new LinkedBlockingQueue<>();
     final BlockingQueue<ThingStatusInfo> meterStatuses = new LinkedBlockingQueue<>();
+    final BlockingQueue<String> meterIds = new LinkedBlockingQueue<>();
     private final Map<String, State> meterStates = new ConcurrentHashMap<>();
 
     HandlerHarness(String hostname, String password, String deviceId, StreamConnectionFactory factory) {
@@ -96,6 +97,13 @@ final class HandlerHarness {
             meterStates.put(invocation.<ChannelUID> getArgument(0).getId(), invocation.getArgument(1));
             return null;
         }).when(meterCallback).stateUpdated(any(), any());
+        doAnswer(invocation -> {
+            String meterId = invocation.<Thing> getArgument(0).getProperties().get(PROPERTY_METER_ID);
+            if (meterId != null) {
+                meterIds.add(meterId);
+            }
+            return null;
+        }).when(meterCallback).thingUpdated(any());
         when(meterCallback.getBridge(bridgeUid)).thenReturn(bridge);
         meterHandler = new MeterHandler(meter);
         meterHandler.setCallback(meterCallback);

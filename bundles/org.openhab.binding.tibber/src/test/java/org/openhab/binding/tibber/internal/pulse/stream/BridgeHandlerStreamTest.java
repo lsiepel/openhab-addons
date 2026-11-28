@@ -13,10 +13,15 @@
 package org.openhab.binding.tibber.internal.pulse.stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.spy;
 import static org.openhab.binding.tibber.internal.TibberPulseBindingConstants.*;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -24,7 +29,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.mockito.InOrder;
 import org.openhab.binding.tibber.internal.pulse.Fixtures;
+import org.openhab.binding.tibber.internal.pulse.handler.BridgeHandler.StreamConnection;
+import org.openhab.binding.tibber.internal.pulse.handler.BridgeHandler.StreamConnectionFactory;
 import org.openhab.binding.tibber.internal.pulse.stream.StreamClient.BackoffWaiter;
 import org.openhab.binding.tibber.internal.pulse.stream.StreamClient.Timing;
 import org.openhab.core.library.types.QuantityType;
@@ -47,7 +55,7 @@ class BridgeHandlerStreamTest extends StreamTestSupport {
     /** No real delays between attempts; the loop still ends when the client is stopped. */
     private static final BackoffWaiter IMMEDIATE = (delay, stopped) -> stopped.getCount() == 0;
     private static final BackoffWaiter REAL = (delay, stopped) -> stopped.await(delay.toMillis(),
-            java.util.concurrent.TimeUnit.MILLISECONDS);
+            TimeUnit.MILLISECONDS);
 
     private @Nullable HandlerHarness harness;
 
@@ -60,8 +68,11 @@ class BridgeHandlerStreamTest extends StreamTestSupport {
     }
 
     private HandlerHarness start(int port, Timing timing, BackoffWaiter waiter) {
-        HandlerHarness created = new HandlerHarness("bridge.example", PASSWORD, Fixtures.DEVICE_ID,
-                HandlerHarness.factory(this, () -> port, timing, waiter));
+        return start(HandlerHarness.factory(this, () -> port, timing, waiter));
+    }
+
+    private HandlerHarness start(StreamConnectionFactory factory) {
+        HandlerHarness created = new HandlerHarness("bridge.example", PASSWORD, Fixtures.DEVICE_ID, factory);
         harness = created;
         created.initialize();
         return created;
@@ -86,7 +97,7 @@ class BridgeHandlerStreamTest extends StreamTestSupport {
         assertEquals(new QuantityType<>("1523 W"),
                 h.awaitMeterState(CHANNEL_POWER, s -> s instanceof QuantityType<?>, WAIT_MILLIS));
         assertEquals(1, fake.accepted());
-        assertEquals(Fixtures.METER_ID, h.meter.getProperties().get(PROPERTY_METER_ID));
+        assertEquals(Fixtures.METER_ID, h.meterIds.poll(WAIT_MILLIS, TimeUnit.MILLISECONDS));
         assertEquals(Fixtures.DEVICE_ID, h.meter.getProperties().get(PROPERTY_DEVICE_ID));
     }
 
@@ -194,7 +205,13 @@ class BridgeHandlerStreamTest extends StreamTestSupport {
             throws Exception {
         FakeBridge fake = bridge(FakeBridge.sending(validWire()),
                 FakeBridge.answeringThenClosing("HTTP/1.1 401 Unauthorized\r\n\r\n"));
-        HandlerHarness h = start(fake.port(), LONG_TIMING, REAL);
+        StreamConnectionFactory factory = HandlerHarness.factory(this, fake::port, LONG_TIMING, REAL);
+        List<StreamConnection> streams = new ArrayList<>();
+        HandlerHarness h = start((host, password, threadName, listener) -> {
+            StreamConnection stream = spy(factory.create(host, password, threadName, listener));
+            streams.add(stream);
+            return stream;
+        });
         HandlerHarness.await(h.bridgeStatuses, BridgeHandlerStreamTest::isOnline, WAIT_MILLIS);
 
         h.bridgeHandler.handleConfigurationUpdate(Map.of("password", "another-password"));
@@ -202,8 +219,11 @@ class BridgeHandlerStreamTest extends StreamTestSupport {
         HandlerHarness.await(h.bridgeStatuses, i -> is(i, ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR),
                 WAIT_MILLIS);
         assertTrue(fake.awaitNoOpenConnections(WAIT_MILLIS));
-        assertEquals(1, fake.maxOpen());
         assertEquals(2, fake.accepted());
+        assertEquals(2, streams.size());
+        InOrder order = inOrder(streams.getFirst(), streams.getLast());
+        order.verify(streams.getFirst()).stop();
+        order.verify(streams.getLast()).start();
     }
 
     @Test
